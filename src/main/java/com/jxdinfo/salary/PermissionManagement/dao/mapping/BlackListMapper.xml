@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.PermissionManagement.dao.BlackListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.PermissionManagement.model.BlackList">
+        <id column="STAFF_ID" property="staffId" />
+        <result column="DEPARTMENT_ID" property="departmentId" />
+        <result column="PERMISSION_ID" property="permissionId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        STAFF_ID AS staffId, DEPARTMENT_ID AS departmentId, PERMISSION_ID AS permissionId
+    </sql>
+
+</mapper>

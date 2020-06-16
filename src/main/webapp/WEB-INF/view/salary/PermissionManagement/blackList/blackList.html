@@ -1,0 +1,29 @@
+@layout("/common/layout.html",{title:'管理'}){
+<div class="layui-fluid weadmin-body">
+    <form class="layui-form" action="">
+        <div class="layui-elem-quote">
+            <label>薪资权限管理---黑名单维护管理</label>
+        </div>
+        <br />
+        <div class="layui-form-item clearfix">
+            <div class="layui-input-inline">
+                <input type="text" id="condition" placeholder="请输入名称" autocomplete="off" class="layui-input" >
+            </div>
+            <div class="layui-input-inline">
+                <button class="layui-btn" data-type="reload" type="button" onclick="BlackList.search()"><i class="layui-icon">&#xe615;</i>查询</button>
+                <button class="layui-btn" type="reset"><i class="layui-icon">&#xe00A;</i>重置</button>
+            </div>
+            <div class="fr">
+                <button type="button" class="layui-btn" id="add"
+                onclick="BlackList.openAddBlackList()"><i class="layui-icon">&#xe654;</i>新增</button>
+                <button type="button" class="layui-btn" id="edit"
+                onclick="BlackList.openBlackListDetail()"><i class="layui-icon">&#xe642;</i>修改</button>
+                <button type="button" class="layui-btn" id="del"
+                onclick="BlackList.delete()"><i class="layui-icon">&#xe640;</i>删除</button>
+            </div>
+        </div>
+    </form>
+    <table id="BlackListTable" ></table>
+</div>
+<script src="${ctxPath}/static/salary/PermissionManagement/blackList/blackList.js"></script>
+@}

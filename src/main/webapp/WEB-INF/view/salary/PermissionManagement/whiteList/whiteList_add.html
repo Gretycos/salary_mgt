@@ -1,0 +1,33 @@
+@layout("/common/layout.html",{title:'添加'}){
+<div class="weadmin-body-1 layui-form" style="padding-bottom:50px;">
+            <div class="layui-form-item">
+                    <label class="layui-form-label">员工ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="staffId" name="staffId" class="layui-input"
+                               placeholder="请输入员工ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">部门ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="departmentId" name="departmentId" class="layui-input"
+                               placeholder="请输入部门ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">权限ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="permissionId" name="permissionId" class="layui-input"
+                               placeholder="请输入权限ID">
+                    </div>
+                </div>
+    <div class="layerBtnCenter btn-box btn-box-1">
+        <button type="button" name="取消" class="layui-btn btn-close" id="cancel"
+        onclick="WhiteListInfoDlg.close()"><i class="iconfont">&#x1006;</i>取消</button>
+        <button type="button" name="提交" class="layui-btn btn-save" id="ensure"
+        onclick="WhiteListInfoDlg.addSubmit()"><i class="iconfont">&#xe009;</i>保存</button>
+    </div>
+</div>
+<script src="${ctxPath}/static/salary/PermissionManagement/whiteList/whiteList_info.js"></script>
+@}
+
