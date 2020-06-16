@@ -23,7 +23,7 @@ Staff.initColumn = function () {
     return [
         {checkbox:true, halign:'center',align:"center",width: 50},
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (Staff.pageNumber-1)*Staff.pageSize +1 +index ;}},
-            {title: '员工id', field: 'staffId', align: 'center',halign:'center'},
+            {title: '员工ID', field: 'staffId', align: 'center',halign:'center'},
             {title: '姓名', field: 'staffName', align: 'center',halign:'center'},
             {title: '性别', field: 'gender', align: 'center',halign:'center'},
             {title: '部门ID', field: 'departmentId', align: 'center',halign:'center'},
