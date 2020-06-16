@@ -1,0 +1,77 @@
+##########################################################
+###################  开发环境的profile  ###################
+##########################################################
+spring:
+  profiles: test
+  redis:
+    host: redis.jxdinfo.com
+    port: 6379
+    password:
+    jedis:
+      pool:
+        max-active: 3 # 连接池最大连接数（使用负值表示没有限制）
+        max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-idle: 3 # 连接池中的最大空闲连接
+        min-idle: 0 # 连接池中的最小空闲连接
+    timeout: 0      # 连接超时时间（毫秒）
+  ###################  mongodb配置  ###################
+#  data:
+#    mongodb:
+#      host: mongodb.jxdinfo.com
+#      port: 27017
+#      database: log4j
+###################  mysql配置  ###################
+#  datasource:
+#    url: jdbc:mysql://127.0.0.1:3306/hussar?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+#    username: root
+#    password: 123456
+#    db-name: hussar
+#    filters: log4j,wall,mergeStat
+#    driverClassName: com.mysql.cj.jdbc.Driver
+###################  oracle配置  ###################
+  datasource:
+    url: jdbc:oracle:thin:@test.oracle.jxdinfo.com:1521:orcl
+    username: hussar_security
+    password: hussar_security
+    db-name: hussar_security
+    filters: log4j,wall,mergeStat
+    driverClassName: oracle.jdbc.OracleDriver
+    validation-query: select 1 from dual
+#  datasource-one:
+#    url: jdbc:mysql://127.0.0.1:3306/hussar_v8_clean?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+#    username: root
+#    password: root
+#    driverClassName: com.mysql.jdbc.Driver
+#    validation-query: select 1
+#  datasource-two:
+#    url: jdbc:mysql://127.0.0.1:3306/hussar_v8_clean?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+#    username: root
+#    password: root
+#    driverClassName: com.mysql.jdbc.Driver
+#    validation-query: select 1
+###################  DM7配置  ###################
+#  datasource:
+#    driverClassName: dm.jdbc.driver.DmDriver
+#    url: jdbc:dm://dm.jxdinfo.com:5236
+#    username: HUSSAR_V8
+#    password: HUSSAR_V8
+#    db-name: HUSSAR_V8
+#    filters: log4j,mergeStat
+###################  Oscar配置  ###################
+#  datasource:
+#    url: jdbc:oscar://192.168.2.164:2004/osrdb2
+#    username: FOREIGPROJECT
+#    password: 1qaz@WSXed
+#    db-name: FOREIGPROJECT
+#    filters: log4j,mergeStat
+#    driverClassName: com.oscar.Driver
+#    validation-query: select 1 from dual
+###################  KingBase配置  ###################
+#  datasource:
+#      url: jdbc:kingbase://192.168.14.118/HUSSAR_V8
+#      username: system
+#      password: system
+#      db-name: HUSSAR_V8
+#      filters: log4j,mergeStat
+#      driverClassName: com.kingbase.Driver
+#      validation-query: SET SEARCH_PATH TO PUBLIC,wmsys,SYS_CATALOG;SELECT 1 FROM DUAL

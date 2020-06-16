@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>汉字转拼音demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style>
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+        p {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div>
+                    <p>1、将汉字转为拼音，全部大写</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item clearfix">
+                            <div class="layui-input-inline">
+                                <input id="beforeChangeOne" name="beforeChangeOne"  class="layui-input" placeholder=" 待转换内容"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button lay-submit lay-filter="verify" type="button" class="layui-btn" id="changeToPinyinUp">转换</button>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input id="afterChangeOne" name="afterChangeOne"  class="layui-input" placeholder="转换后的拼音"  >
+                            </div>
+                        </div><br>
+                    </form>
+                </div>
+
+                <div>
+                    <p>2、将汉字转为拼音，全部小写</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item clearfix">
+                            <div class="layui-input-inline">
+                                <input id="beforeChangeTwo" name="beforeChangeTwo"  class="layui-input" placeholder=" 待转换内容"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button lay-submit lay-filter="verify" type="button" class="layui-btn" id="changeToPinyinLow">转换</button>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input id="afterChangeTwo" name="afterChangeTwo"  class="layui-input" placeholder="转换后的拼音"  >
+                            </div>
+                        </div><br>
+                    </form>
+                </div>
+
+                <div>
+                    <p>3、获取每个汉字的首字母大写</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item clearfix">
+                            <div class="layui-input-inline">
+                                <input id="beforeChangeThree" name="beforeChangeThree"  class="layui-input" placeholder=" 待转换内容"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button lay-submit lay-filter="verify" type="button" class="layui-btn" id="getFirstLettersUp">转换</button>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input id="afterChangeThree" name="afterChangeThree"  class="layui-input" placeholder="转换后的拼音"  >
+                            </div>
+                        </div><br>
+                    </form>
+                </div>
+
+                <div>
+                    <p>4、获取每个汉字的首字母小写</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item clearfix">
+                            <div class="layui-input-inline">
+                                <input id="beforeChangeFour" name="beforeChangeFour"  class="layui-input" placeholder=" 待转换内容"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button lay-submit lay-filter="verify" type="button" class="layui-btn" id="getFirstLettersLow">转换</button>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input id="afterChangeFour" name="afterChangeFour"  class="layui-input" placeholder="转换后的拼音"  >
+                            </div>
+                        </div><br>
+                    </form>
+                </div>
+
+                <blockquote class="layui-elem-quote">
+                    汉字转换拼音是项目中比较常用的功能，本Demo提供全部拼音转换（大小写）和首字母拼音转换（大小写）。<br>
+                    全部拼音转换一般用于根据用户名生成对应账户。<br>
+                    首字母拼音转换一般用于业务编号生成，如部门首字母-流水号的形式。
+                </blockquote>
+            </div>
+            <div class="layui-tab-item">
+        <pre><code class="java">/**
+ * 类的用途：汉字转拼音Demo
+ * 创建日期：2018年10月17日
+ * 修改历史：
+ * 修改日期：2018年10月17日
+ * 修改作者：XinXueLei
+ * 修改内容：修改内容
+ * \@author XinXueLei
+ * \@version 1.0
+ */
+\@RequestMapping("/changeToPinyinDemo")
+\@Controller
+public class ChangeToPinyinDemo extends BaseController {
+    /**
+     *
+     * 汉字转拼音demo页面
+     * \@Title: view
+     * \@author: XinXueLei
+     * \@return 页面
+     */
+    \@RequestMapping("/view")
+    public String view(Model model) {
+        return "/hussardemo/changeToPinyinDemo.html";
+    }
+
+    /**
+     *
+     * 将汉字转为拼音，全部大写
+     * \@author: XinXueLei
+     * \@return String
+     */
+    \@RequestMapping("/changeToPinyinUp")
+    \@ResponseBody
+    public String changeToPinyinUp() {
+        String beforeChangeStr = super.getPara("beforeChangeOne");
+        String afterChangeStr = ProjectTool.changeToPinyinUp(beforeChangeStr);
+        return afterChangeStr;
+    }
+
+    /**
+     *
+     * 将汉字转为拼音，全部小写
+     * \@author: XinXueLei
+     * \@return String
+     */
+    \@RequestMapping("/changeToPinyinLow")
+    \@ResponseBody
+    public String changeToPinyinLow() {
+        String beforeChangeStr = super.getPara("beforeChangeTwo");
+        String afterChangeStr = ProjectTool.changeToPinyinLow(beforeChangeStr);
+        return afterChangeStr;
+    }
+
+    /**
+     *
+     * 获取每个汉字的首字母大写
+     * \@author: XinXueLei
+     * \@return String
+     */
+    \@RequestMapping("/getFirstLettersUp")
+    \@ResponseBody
+    public String getFirstLettersUp() {
+        String beforeChangeStr = super.getPara("beforeChangeThree");
+        String afterChangeStr = ProjectTool.getFirstLettersUp(beforeChangeStr);
+        return afterChangeStr;
+    }
+
+    /**
+     *
+     * 获取每个汉字的首字母小写
+     * \@author: XinXueLei
+     * \@return String
+     */
+    \@RequestMapping("/getFirstLettersLow")
+    \@ResponseBody
+    public String getFirstLettersLow() {
+        String beforeChangeStr = super.getPara("beforeChangeFour");
+        String afterChangeStr = ProjectTool.getFirstLettersLow(beforeChangeStr);
+        return afterChangeStr;
+    }
+}
+        </code></pre>
+            </div>
+            <div class="layui-tab-item">
+        <pre><code class="javaScrift">/**
+ * \@Description: 汉字转拼音Demo脚本文件
+ * \@Author: xinxuelei
+ * \@Date: 2018/10/17
+ */
+layui.use(['jquery','layer','Hussar','HussarAjax','form','element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var form = layui.form;
+    var element = layui.element;
+
+    /**
+     * 汉字转拼音Demo的单例
+     */
+    var changeToPinyinDemo = {
+        layerIndex: -1
+    };
+
+    /**
+     *  初始化按钮事件
+     */
+    changeToPinyinDemo.initButtonEvnts = function () {
+        $("#changeToPinyinUp").click(function(){
+            changeToPinyinDemo.changeToPinyinUp();
+        });
+        $("#changeToPinyinLow").click(function(){
+            changeToPinyinDemo.changeToPinyinLow();
+        });
+        $("#getFirstLettersUp").click(function(){
+            changeToPinyinDemo.getFirstLettersUp();
+        });
+        $("#getFirstLettersLow").click(function(){
+            changeToPinyinDemo.getFirstLettersLow();
+        });
+    }
+
+    /**
+     *  将汉字转为拼音，全部大写
+     */
+    changeToPinyinDemo.changeToPinyinUp = function () {
+        var beforeChangeStr = $('#beforeChangeOne').val();
+        if("" != beforeChangeStr && null != beforeChangeStr){
+            var ajax = new $ax(Hussar.ctxPath + "/changeToPinyinDemo/changeToPinyinUp",
+                function(data) {
+                    if(data.length==0){
+                        $("#afterChangeOne").val("无");
+                    }else{
+                        $("#afterChangeOne").val(data);
+                    }
+                },
+                function(data) {
+                    Hussar.error("汉字转拼音转换失败!");
+                });
+            ajax.set("beforeChangeOne",beforeChangeStr);
+            ajax.start();
+        }else{
+            Hussar.info("待转换内容不能为空！");
+        }
+    }
+
+    /**
+     *  将汉字转为拼音，全部小写
+     */
+    changeToPinyinDemo.changeToPinyinLow = function () {
+        var beforeChangeStr = $('#beforeChangeTwo').val();
+        if("" != beforeChangeStr && null != beforeChangeStr) {
+            var ajax = new $ax(Hussar.ctxPath + "/changeToPinyinDemo/changeToPinyinLow",
+                function (data) {
+                    if (data.length == 0) {
+                        $("#afterChangeTwo").val("无");
+                    } else {
+                        $("#afterChangeTwo").val(data);
+                    }
+                },
+                function (data) {
+                    Hussar.error("汉字转拼音转换失败!");
+                });
+            ajax.set("beforeChangeTwo", beforeChangeStr);
+            ajax.start();
+        }else{
+            Hussar.info("待转换内容不能为空！");
+        }
+    }
+
+    /**
+     *  获取每个汉字的首字母大写
+     */
+    changeToPinyinDemo.getFirstLettersUp = function () {
+        var beforeChangeStr = $('#beforeChangeThree').val();
+        if("" != beforeChangeStr && null != beforeChangeStr) {
+            var ajax = new $ax(Hussar.ctxPath + "/changeToPinyinDemo/getFirstLettersUp",
+                function (data) {
+                    if (data.length == 0) {
+                        $("#afterChangeThree").val("无");
+                    } else {
+                        $("#afterChangeThree").val(data);
+                    }
+                },
+                function (data) {
+                    Hussar.error("汉字转拼音转换失败!");
+                });
+            ajax.set("beforeChangeThree", beforeChangeStr);
+            ajax.start();
+        }else{
+            Hussar.info("待转换内容不能为空！");
+        }
+    }
+
+    /**
+     *  获取每个汉字的首字母小写
+     */
+    changeToPinyinDemo.getFirstLettersLow = function () {
+        var beforeChangeStr = $('#beforeChangeFour').val();
+        if("" != beforeChangeStr && null != beforeChangeStr) {
+            var ajax = new $ax(Hussar.ctxPath + "/changeToPinyinDemo/getFirstLettersLow",
+                function (data) {
+                    if (data.length == 0) {
+                        $("#afterChangeFour").val("无");
+                    } else {
+                        $("#afterChangeFour").val(data);
+                    }
+                },
+                function (data) {
+                    Hussar.error("汉字转拼音转换失败!");
+                });
+            ajax.set("beforeChangeFour", beforeChangeStr);
+            ajax.start();
+        }else{
+            Hussar.info("待转换内容不能为空！");
+        }
+    }
+
+    $(function () {
+        changeToPinyinDemo.initButtonEvnts();  //初始化按钮事件
+    });
+});
+</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/changeToPinyinDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

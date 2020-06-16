@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>级联下拉框demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    @include("/common/plugins_ext.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <script src="${ctxPath}/static/js/hussardemo/cascadeDemo.js"></script>
+    <style>
+        #content .layui-form-select{
+            float: left;
+        }
+        #content2 .layui-form-select{
+            float: left;
+        }
+    </style>
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form">
+                    <p>1)、指定字典类时</p>
+                    <div id="content" style="height: 40px"></div><br>
+                    <p>2)、不指定字典类时</p>
+                    <div id="content2" style="height: 40px"></div>
+                </form><br>
+                <blockquote class="layui-elem-quote" style="font-size: 15px">
+                    1.需要加载layui的"form"模块以及"cascadeSelect"模块，并将容器放在form表单中 <br>
+                    2.指定父级时从父级类开始选择，不指定时从最大类开始选择 <br>
+                    3.下拉框的name属性在参数selectName中指定，以","隔开<br>
+                </blockquote>
+            </div>
+            <div class="layui-tab-item">
+                <pre><code class="java">
+
+/**
+* 类的用途：字典级联的下拉框Demo
+* 创建日期：2018年12月6日
+* 修改历史：
+* 修改日期：
+* 修改作者：
+* 修改内容：
+* \@author zhaopengcheng
+* \@version 1.0
+*/
+\@Controller
+\@RequestMapping("/cascadeDemo")
+public class CascadeDemo extends BaseController {
+
+    /**
+    * 跳转到级联页面
+    * \@return String html页面路径
+    */
+    \@RequestMapping("/returnCascadeDemo")
+    public String doReturnCascadeDemo(){
+        return "/hussardemo/cascadeDemo.html";
+    }
+}
+                </code></pre>
+            </div>
+            <div class="layui-tab-item">
+                <pre><code class="javaScript">
+/**
+* Created by zhaopengcheng on 2018/12/4.
+*/
+layui.use(['element','form','cascadeSelect'],function(){
+    var cas = layui.cascadeSelect,
+    $ = layui.jquery,
+    form = layui.form;
+
+    // 示例1
+    var cas1 = cas.render({
+        container:"#content", // 指定容器
+        id:"6812929ae0ab448b9f3cc0d5ec96783c" ,// 第一级开始的父级主键，不指定id则从最大类开始
+        selectName:"cascade001,cascade002,cascade003",// 下拉框的name属性，以","隔开
+        cascadeCount:3 // 最多可联动的下拉框数量
+    });
+
+    // 示例2
+    var cas2 = new cas.render({
+        container:"#content2",
+        id:"" ,// 或者不写
+        selectName:"cascade1,cascade2,cascade3,cascade4",
+        cascadeCount:4
+    })
+});
+
+                </code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>最大号表序号demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+<div class="layui-tab layui-tab-brief">
+  <ul class="layui-tab-title">
+    <li class="layui-this">Demo</li>
+    <li>Java</li>
+    <li>JavaScript</li>
+  </ul>
+  <div class="layui-tab-content">
+  <div class="layui-tab-item layui-show">
+	<form class="layui-form" action="" id="searchForm">
+        <div class="layui-form-item clearfix">
+            <div class="fr">
+                <button type="button" class="layui-btn" id="save"><i class="layui-icon" >&#xe009;</i>保存</button>
+            </div>
+        </div>
+    </form>
+	<div class="tableBox">
+	<div class="layui-form-item layui-form-text">
+        <table class="layui-hide" id="typeTable" lay-filter="test"></table>
+        </div>
+    </div>
+        <blockquote class="layui-elem-quote">
+            可编辑列表支持text格式，在cols列参数里添加<em> edit:'text'</em><br>
+    对table设置监听事件，获取修改的值<em> table.on('edit(test)', function(obj){});</em><br>
+          <em> var value = obj.value //得到修改后的值
+		     var data = obj.data //得到所在行所有键值
+		     var field = obj.field; //得到字段</em>
+        </blockquote>
+</div>
+	<div class="layui-tab-item">
+	<pre><code class="java">    /**
+     * 
+     * 可编辑列表demo页面
+     * \@Title: view 
+     * \@author: ChenXin
+     * \@return 页面
+     */
+    \@RequestMapping("/view")
+    public String view() {
+        return "/hussardemo/editListDemo.html";
+    }
+	</code></pre>
+	</div>
+	<div class="layui-tab-item">
+	<pre><code class="javaScript">/**
+ * \@Description: 可编辑列表Demo脚本文件
+ * \@Author: ChenXin
+ * \@Date: 2018/05/30.
+ */
+layui.use(['jquery','layer','Hussar','HussarAjax','table','element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var table = layui.table;
+    var element = layui.element;
+    var arr = [];
+    var arrary={};
+    
+		table.render({
+			elem : '#typeTable',
+			url : Hussar.ctxPath+'/orgType/list',
+			cols : [ [ 
+			           {type : 'checkbox',width : 40}, 
+			           {title : '序号',type : 'numbers',align : 'center',width:50}, 
+			           {field : 'ORGANTYPE',title : '组织类型代码',width : 200,align : 'center'}, 
+			           {field : 'TYPENAME',title : '组织类型名称',width : 200,align : 'center',edit:'text'}, 
+			           {field : 'PARENTTYPE',title : '上级组织类型',align : 'center',edit:'text'}
+			           ] ],
+			id : 'testReload',
+			even: true
+		});
+
+		
+		table.on('edit(test)', function(obj){
+			var key=obj.data.ORGANTYPE;
+			arrary[key]=obj.value;
+		    /*var value = obj.value //得到修改后的值
+		    ,data = obj.data //得到所在行所有键值
+		    ,field = obj.field; //得到字段
+		    */
+		  });
+		$("#save").click(function(){
+			layer.msg(JSON.stringify(arrary));
+		})
+});</code></pre>
+	</div>
+</div>
+</div>
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/editListDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:hussar="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>自定义标签</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this"> Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <!-- 第一个tab页内容-->
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form" >
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">下拉框展示</label>
+                            <div class="layui-input-inline">
+                                <hussar:select id="select1" name="select" dicType="oa_leave_type" selected="${selectCheck}" onlyShow="1-2-3-5" laySearch="true" layFilter="s1"></hussar:select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">单选框展示</label>
+                            <div class="layui-input-inline">
+                                <hussar:radio name="radio" dicType="oa_leave_type" disabled="1" checked="${radioCheck}" notShow="2-3"></hussar:radio>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">复选框展示</label>
+                            <div class="layui-input-inline">
+                                <hussar:checkbox name="checkbox" dicType="oa_leave_type" disabled="2" checked="${checkboxCheck}"></hussar:checkbox>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <blockquote class="layui-elem-quote">
+                    这三个表单元素使用了平台封装的自定义标签。<br>
+                    可以看到，使用自定义标签，无需多写js代码和后台代码便可拿到字典数据并渲染。<br>
+                    标签详细属性及介绍请参考<em>《轻骑兵平台开发手册》</em>。
+                </blockquote>
+            </div>
+            <!-- 第二个tab页内容-->
+            <div class="layui-tab-item">
+                <pre><code class="java">/**
+ * 类的用途：自定义标签Demo 控制器
+ * 创建日期：2018/9/11 9:36 ;
+ * 修改历史：
+ * 修改日期：2018/9/11 9:36 ;
+ * 修改作者：LiangDong ;
+ * 修改内容：
+ * \@author LiangDong ;
+ * \@version 1.0
+ */
+\@Controller
+\@RequestMapping("/customTag")
+public class CustomTagDemo {
+
+    /**
+     * 跳转到自定义标签页面
+     * \@author      LiangDong
+     * \@return      java.lang.String
+     * \@date        2018/9/11 9:38
+     */
+    \@RequestMapping("/view")
+    \@RequiresPermissions("customTag:view")
+    public String index() {
+        return "/hussardemo/customTagDemo.html";
+    }
+
+}</code></pre>
+            </div>
+            <!-- 第三个tab页内容-->
+            <div class="layui-tab-item">
+                <pre><code class="javaScript">/**
+* \@Description:    自定义标签Demo 脚本文件
+* \@Author:         LiangDong
+* \@CreateDate:     2018/9/11 11:48
+* \@UpdateUser:     LiangDong
+* \@UpdateDate:     2018/9/11 11:48
+* \@UpdateRemark:   修改内容
+* \@Version:        1.0
+*/
+layui.use(['element','form'], function() {
+    var form = layui.form;
+});</code></pre>
+            </div>
+
+        </div>
+    </div>
+
+
+
+</div>
+
+</body>
+<script src="${ctxPath}/static/js/hussardemo/customTagDemo.js"></script>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

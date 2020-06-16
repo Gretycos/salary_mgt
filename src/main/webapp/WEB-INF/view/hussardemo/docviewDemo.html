@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>svg预览</title>
+    @include("/common/plugins.html"){}
+    @include("/common/plugins_ext.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/css/hussardemo/docviewDemo.css">
+</head>
+<body>
+    <div class="main" id="wenku-content">
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xs-9 wenku-left wenku-nopadding">
+                        <div class="panel panel-default wenku-noborder">
+                            <div class="panel-body">
+                                <h1>文档标题</h1>
+                                <div class="wenku-viewer" id="viewer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-3 wenku-right">
+                        <div class="panel panel-default wenku-noborder">
+                            <div class="panel-heading">
+                                <div class="strong">热门文档</div>
+                            </div>
+                            <div class="panel-body">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+<script src="${ctxPath}/static/js/hussardemo/docviewDemo.js"></script>
+</html>

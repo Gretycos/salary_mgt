@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>身份证号验证demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style>
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+        p {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div>
+                    <p>1、验证身份证号是否正确</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item clearfix">
+                            <div class="layui-input-inline">
+                                <input id="idCardNum" name="idCardNum"  class="layui-input" placeholder="请输入身份证号"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button lay-submit lay-filter="verify" type="button" class="layui-btn" id="checkBtn">校验</button>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input id="result" name="result"  class="layui-input" placeholder="校验结果"  >
+                            </div>
+                        </div><br>
+                    </form>
+                </div>
+                <blockquote class="layui-elem-quote">
+                    在项目中，录入人员信息时，通常会对输入的内容进行校验<br>
+                    本Demo提供了身份证号的校验方法。<br>
+                </blockquote>
+            </div>
+            <div class="layui-tab-item">
+        <pre><code class="java">/**
+ * 类的用途：身份证号验证Demo
+ * 创建日期：2018年10月18日
+ * 修改历史：
+ * 修改日期：2018年10月18日
+ * 修改作者：XinXueLei
+ * 修改内容：修改内容
+ * \@author XinXueLei
+ * \@version 1.0
+ */
+\@RequestMapping("/idCardCheckDemo")
+\@Controller
+public class IdCardCheckDemo extends BaseController {
+    /**
+     *
+     * 身份证号验证demo页面
+     * \@Title: view
+     * \@author: XinXueLei
+     * \@return 页面
+     */
+    \@RequestMapping("/view")
+    public String view(Model model) {
+        return "/hussardemo/idCardCheckDemo.html";
+    }
+
+    /**
+     *
+     * 校验
+     * \@author: XinXueLei
+     * \@return boolean
+     */
+    \@RequestMapping("/check")
+    \@ResponseBody
+    public boolean check() {
+        String idCard = super.getPara("idCardNum");
+        boolean flag = ProjectTool.checkIdCard(idCard);
+        return flag;
+    }
+}
+        </code></pre>
+            </div>
+            <div class="layui-tab-item">
+        <pre><code class="javaScrift">/**
+ * \@Description: 身份证号验证Demo脚本文件
+ * \@Author: xinxuelei
+ * \@Date: 2018/10/18
+ */
+layui.use(['jquery','layer','Hussar','HussarAjax','form','element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var form = layui.form;
+    var element = layui.element;
+
+    /**
+     * 身份证号验证Demo的单例
+     */
+    var idCardCheckDemo = {
+        layerIndex: -1
+    };
+
+    /**
+     *  初始化按钮事件
+     */
+    idCardCheckDemo.initButtonEvnts = function () {
+        $("#checkBtn").click(function(){
+            idCardCheckDemo.check();
+        });
+    }
+
+    /**
+     *  校验
+     */
+    idCardCheckDemo.check = function () {
+        var idCardNum = $('#idCardNum').val();
+        if("" != idCardNum && null != idCardNum){
+            var ajax = new $ax(Hussar.ctxPath + "/idCardCheckDemo/check",
+                function(result) {
+                    if(result.length==0){
+                        $("#result").val("无");
+                    }else{
+                        if(!result){
+                            $("#result").val("错误");
+                        }else{
+                            $("#result").val("正确");
+                        }
+                    }
+                },
+                function(result) {
+                    Hussar.error("校验失败!");
+                });
+            ajax.set("idCardNum",idCardNum);
+            ajax.start();
+        }else{
+            Hussar.info("身份证号不能为空！");
+        }
+    }
+
+    $(function () {
+        idCardCheckDemo.initButtonEvnts();  //初始化按钮事件
+    });
+});
+</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/idCardCheckDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

@@ -1,0 +1,81 @@
+##########################################################
+###################  开发环境的profile  ###################
+##########################################################
+spring:
+  profiles: dev
+###################  mysql配置  ###################
+  datasource:
+    url: jdbc:mysql://rm-bp1667p54qs54l1lq9o.mysql.rds.aliyuncs.com/xcgl_db?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+    username: salary
+    password: test@1234
+    db-name: xcgl_db
+    filters: log4j,wall,mergeStat
+    driverClassName: com.mysql.cj.jdbc.Driver
+###################  oracle配置  ###################
+#  datasource:
+#    url: jdbc:oracle:thin:@oracle.jxdinfo.com:1521:orcl
+#    username: hussar_v8
+#    password: hussar_v8
+#    db-name: hussar_v8
+#    filters: log4j,wall,mergeStat
+#    driverClassName: oracle.jdbc.OracleDriver
+#    validation-query: select 1 from dual
+#  datasource-one:
+#    url: jdbc:mysql://127.0.0.1:3306/hussar_v8_clean?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+#    username: root
+#    password: root
+#    driverClassName: com.mysql.jdbc.Driver
+#    validation-query: select 1
+#  datasource-two:
+#    url: jdbc:mysql://127.0.0.1:3306/hussar_v8_clean?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+#    username: root
+#    password: root
+#    driverClassName: com.mysql.jdbc.Driver
+#    validation-query: select 1
+###################  DM7配置  ###################
+#  datasource:
+#    driverClassName: dm.jdbc.driver.DmDriver
+#    url: jdbc:dm://dm.jxdinfo.com:5236
+#    username: HUSSAR_V8
+#    password: HUSSAR_V8
+#    db-name: HUSSAR_V8
+#    filters: log4j,mergeStat
+###################  Oscar配置  ###################
+#  datasource:
+#    url: jdbc:oscar://192.168.2.164:2004/osrdb2
+#    username: FOREIGPROJECT
+#    password: 1qaz@WSXed
+#    db-name: FOREIGPROJECT
+#    filters: log4j,mergeStat
+#    driverClassName: com.oscar.Driver
+#    validation-query: select 1 from dual
+###################  KingBase配置  ###################
+#  datasource:
+#      url: jdbc:kingbase://192.168.14.118/HUSSAR_V8
+#      username: system
+#      password: system
+#      db-name: HUSSAR_V8
+#      filters: log4j,mergeStat
+#      driverClassName: com.kingbase.Driver
+#      validation-query: SET SEARCH_PATH TO PUBLIC,wmsys,SYS_CATALOG;SELECT 1 FROM DUAL
+hussar:
+  csrf-whitelist:       # 天斧需要开启的白名单，该白名单仅限在开发模式下开启，生产模式下建议不要开启
+    - /projectInfo/*
+    - /apis/*
+    - /commonstyle/*
+    - /component/*
+    - /customComponent/*
+    - /databind/*
+    - /page/*
+    - /pageTemplate/*
+    - /preview/*
+    - /publish/*
+    - /resources/*
+    - /staticResource/*
+    - /design/table/*
+    - /generator/*
+    - /sys/dic/*
+    - /model/*
+    - /service/*
+    - /bpmMainController/*
+    - /assigneeChoose/*

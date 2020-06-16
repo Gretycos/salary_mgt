@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>组织机构树demo</title>
+    @include("/common/plugins.html"){}
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style>
+        .layui-form-label{width: 122px}
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+        .ztree li span.button.icon11_ico_open, .ztree li span.button.icon11_ico_close,.ztree li span.button.icon11_ico_docu{margin-right:2px; background: url(${ctxPath}/static/assets/img/treeContext/${session.theme}/root.png) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+        .ztree li span.button.icon1_ico_open, .ztree li span.button.icon1_ico_close,.ztree li span.button.icon1_ico_docu{margin-right:2px; background: url(${ctxPath}/static/assets/img/treeContext/${session.theme}/com.png) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+        .ztree li span.button.icon2_ico_open, .ztree li span.button.icon2_ico_close,.ztree li span.button.icon2_ico_docu{margin-right:2px; background: url(${ctxPath}/static/assets/img/treeContext/${session.theme}/dept.png) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+        .ztree li span.button.icon3_ico_open, .ztree li span.button.icon3_ico_close,.ztree li span.button.icon3_ico_docu{margin-right:2px; background: url(${ctxPath}/static/assets/img/treeContext/${session.theme}/station.png) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+        .ztree li span.button.icon9_ico_open, .ztree li span.button.icon9_ico_close,.ztree li span.button.icon9_ico_docu{margin-right:2px; background: url(${ctxPath}/static/assets/img/treeContext/${session.theme}/empl.png) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+        #rMenu {position:fixed;}
+    </style>
+</head>
+<body>
+<div class="weadmin-body">
+
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">组织机构zTree树：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="orgTree" id="orgTree"  readonly="readonly" placeholder="组织机构树" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <!-- 组织机构树 -->
+                <div id="orgTreeDiv" class="formmargin" style="display: none;">
+                    <div id="showOrgTree" class="ztree" style="overflow: auto;height: 400px"></div>
+                    <div class="btn-box" style="text-align: center">
+                        <button type="reset" class="layui-btn"  id="treeRest">重置</button>
+                        <button type="button" class="layui-btn" id="treeSave">确定</button>
+                    </div>
+                    <div id="rMenu">
+                        <ul class="vakata-context jstree-contextmenu jstree-default-contextmenu">
+                            <li id="add"><a href="#"><i style="background:url(/static/assets/img/treeContext/5011.png) center center no-repeat"></i>新增</a></li>
+                            <li id="edit" ><a href="#"><i style="background:url(/static/assets/img/treeContext/53.png) center center no-repeat"></i>修改</a></li>
+                            <li id="del"><a href="#"><i style="background:url(/static/assets/img/treeContext/57.png) center center no-repeat"></i>删除</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 人员树 -->
+                <div id="employeeTreeDiv" style="display: none;"  class="formmargin">
+                    <div id="showEmployeeTree" class="jsTree"></div>
+                </div>
+
+                <blockquote class="layui-elem-quote">
+                    <table class="layui-table">
+                        <colgroup>
+                            <col width="50">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <td>1.</td>
+                            <td>为了防止数据误删， 树的根节点采用后台维护，如：<em>{"id":"id","pId":"parent","name":"name","iconSkin":"iconSkin","open":"open"}</em>
+                                <div class="layui-text">
+                                    <ul>
+                                        <li>
+                                            <em>iconSkin:</em>图标的 className,需要修改 css，增加相应 className 的设置
+                                        </li>
+                                        <li>
+                                            <em>open:</em>节点是否展开
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2.</td>
+                            <td>
+                                树右键菜单实现：
+                                <div class="layui-text">
+                                    <ul>
+                                        <li>在<em>zTree callback</em>配置里利用<em>beforeRightClick / onRightClick</em>事件回调函数简单实现的右键菜单</li>
+                                        <li>
+                                            <em>var setting = {<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback: {<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;onRightClick: function(event, treeId, treeNode)<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                                &nbsp;&nbsp;};
+                                            </em>
+                                            <br>event event 对象, treeId 对应 zTree 的 treeId,treeNode  鼠标右键点击时所在节点的 JSON 数据对象，如果不在节点上，则返回 null
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3.</td>
+                            <td> 树采用<em>zTree</em> 插件实现，需要注意：
+                                <div class="layui-text">
+                                    <ul>
+                                        <li>zTree的节点属性为小写且属性名必须一致，不可改变。
+                                            <ul>
+                                                <li style="list-style-type: none">①如果采用简单JSON数据，必须设置 <em>setting.data.simple</em> 内的属性，详细请参见 demo js中的相关内容</li>
+                                                <li style="list-style-type: none">②默认展开的节点，请设置 <em>treeNode.open</em> 属性</li>
+                                                <li style="list-style-type: none">③无子节点的父节点，请设置 <em>treeNode.isParent</em> 属性</li>
+                                            </ul>
+                                        </li>
+                                        <li>此demo是异步加载节点数据的树，使用异步加载，必须设置 setting.async 中的各个属性，详细请参见 demo js中的相关内容</li>
+                                    </ul>
+                                </div></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </blockquote>
+            </div>
+
+            <div class="layui-tab-item">
+                <pre><code class="java">    /**
+     * 类的用途：zTree Demo
+     * 创建日期：2019-02-13 09:30;
+     * 修改者：ChenXin;
+     *
+     * \@author ChenXin;
+     * \@version 1.0
+     */
+    \@Controller
+    \@RequestMapping("/ztreeDemo")
+    public class zTreeDemo extends BaseController{
+
+        /**
+         * 组织机构工具类
+         */
+        \@Resource
+        private OrganUtil organUtil;
+
+
+         /**
+          * 跳转ztree demo页面
+          * \@return
+          */
+        \@RequestMapping("/view")
+        \@RequiresPermissions("ztreeDemo:view")
+        public String view(){
+            return "/hussardemo/ztreeDemo.html";
+        }
+
+         /**
+          * 获取ztree数据
+          * \@return
+          */
+        \@RequestMapping("/getNodes")
+        \@ResponseBody
+        public List&lt;ZTreeModel&gt; getNodes(){
+            String parentId = super.getPara("id");
+            ZTreeModel zTreeModel = new ZTreeModel();
+            List&lt;ZTreeModel&gt; zTree = new ArrayList&lt;&gt;();
+            //懒加载，首次加载parentId为null
+            if(ToolUtil.isEmpty(parentId)){
+                parentId = Constants.ROOT_NODE_ID;
+                zTreeModel.setId(Constants.ROOT_NODE_ID);
+                zTreeModel.setName("组织机构");
+                zTreeModel.setpId(Constants.ROOT_NODE_PARENT);
+                //根节点图标className
+                zTreeModel.setIconSkin(Constants.ROOT_NODE_ID);
+                //根节点是否展开
+                zTreeModel.setOpen(true);
+                //拼入接根节点
+                zTree.add(zTreeModel);
+            }
+            zTree.addAll(organUtil.getZtreeToOrg(parentId));
+            return zTree;
+        }
+    }
+</code></pre>
+            </div>
+            <div class="layui-tab-item">
+                <pre><code class="javaScript">    /**
+     * Created by ChenXin on 2019/2/13.
+     */
+    layui.use(['jquery','Hussar','layer','ztree','element','ztree_excheck'], function(){
+
+        var Hussar = layui.Hussar;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        var ZTreeObj;
+
+        var ZTree = {};
+        var $zTree = $("#showOrgTree");
+
+        var setting = {
+            async: {
+                enable: true,
+                type: "post",
+                dataType: "json",
+                url: Hussar.ctxPath + "/ztreeDemo/getNodes",
+                autoParam: ["id"] //异步加载时需要自动提交父节点属性的参数
+            },
+            data : {
+                simpleData : {
+                    enable : true,
+                    idKey : "id", //定义的节点属性名
+                    pIdKey : "pId", //定的义父节点属性名
+                    rootPId : 11 //父节点id
+                }
+            },
+            check: {
+                enable: true,
+                chkStyle: "checkbox", //readio
+                //Y 属性定义 checkbox 被勾选后的情况；N 属性定义 checkbox 取消勾选后的情况；"p" 表示操作会影响父级节点；"s" 表示操作会影响子级节点。
+                chkboxType: { "Y": "ps", "N": "ps" }
+                //radioType: "level" //区分大小写!!!! "level" 时，在每一级节点范围内当做一个分组, "all" 时，在整棵树范围内当做一个分组。
+            },
+            callback: {
+                 /**
+                  * TODO 用于捕获异步加载出现异常错误的事件回调函数
+                  * event js event 对象
+                  * treeId 对应 zTree 的 treeId，便于用户操控
+                  * treeNode 进行异步加载的父节点 JSON 数据对象，针对根进行异步加载时，treeNode = null
+                  * XMLHttpRequest 标准 XMLHttpRequest 对象
+                  * textStatus 请求状态：success，error
+                  * errorThrown errorThrown 只有当异常发生时才会被传递
+                  */
+                onAsyncError: function (event, treeId, treeNode, XMLHttpRequest, textStatus, errorThrown) {
+
+                },
+                 /**
+                  * TODO 用于捕获异步加载正常结束的事件回调函数，注意，为异步加载时，展开节点也会触发
+                  * treeNode 进行异步加载的父节点 JSON 数据对象
+                  * msg 异步获取的节点数据字符串
+                  */
+                onAsyncSuccess: function (event, treeId, treeNode, msg) {
+
+                },
+                 /**
+                  * TODO 点击事件
+                  */
+                onClick: function (event, treeId, treeNode) {
+                    layer.msg("节点id："+treeNode.id+"&lt;/br&gt;节点名称："+treeNode.name)
+                },
+                 /**
+                  * TODO 右键事件
+                  */
+                onRightClick: function (event, treeId, treeNode){
+                    if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
+                        ZTreeObj.cancelSelectedNode();
+                        ZTree.showRMenu("treeNode", event.clientX, event.clientY);
+                    } else if (treeNode && !treeNode.noR) {
+                        ZTreeObj.selectNode(treeNode);
+                        ZTree.showRMenu(treeNode.id, event.clientX, event.clientY);
+                    }
+                },
+                /**
+                 * TODO 节点展开事件
+                 */
+                onExpand: function (event, treeId, treeNode) {
+                    layer.msg("您展开了&lt;/br&gt;节点名称："+treeNode.name)
+                },
+                /**
+                 * TODO 节点折叠事件
+                 */
+                onCollapse: function (event, treeId, treeNode) {
+                    layer.msg("您折叠了&lt;/br&gt;节点名称："+treeNode.name)
+                }
+            }
+        };
+
+        ZTree.showRMenu = function (type, x, y) {
+            //右键不是节点时不显示菜单
+            if (type == "treeNode") {
+                $("#add").hide();
+                $("#edit").hide();
+                $("#del").hide();
+            } else {
+                $("#rMenu ul").show();
+                //根节点显示的菜单
+                if(type == "11"){
+                    $("#add").show();
+                    $("#edit").hide();
+                    $("#del").hide();
+                }else{
+                    $("#edit").show();
+                    $("#add").show();
+                    $("#del").show();
+                }
+                y += document.body.scrollTop;
+                x += document.body.scrollLeft;
+                $("#rMenu").css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+
+                $("body").bind("mousedown", ZTree.onBodyMouseDown);
+            }
+
+        };
+
+         /**
+          * 隐藏右键菜单
+          */
+        ZTree.onBodyMouseDown = function(event){
+            if (!(event.target.id == "rMenu" || $(event.target).parents("#rMenu").length&gt;0)) {
+                $("#rMenu").css({"visibility" : "hidden"});
+            }
+        };
+
+        ZTree.initButton = function () {
+
+            $("#orgTree").click(function(){
+                layer.open({
+                    type: 1,
+                    area: ['350px','500px'],
+                    fix: false, //不固定
+                    maxmin: true,
+                    shadeClose: false,
+                    shade: 0.4,
+                    title: "组织机构zTree树",
+                    content: $("#orgTreeDiv")
+                });
+            });
+
+            $("#add").click(function () {
+                ZTree.hideRMenu();
+                layer.msg("您点击了新增！");
+            });
+
+            $("#del").click(function () {
+                ZTree.hideRMenu();
+                layer.msg("您点击了删除！");
+            });
+
+            $("#edit").click(function () {
+                ZTree.hideRMenu();
+                layer.msg("您点击了修改！");
+            });
+
+            $("#treeSave").click(function () {
+                var nodes = ZTreeObj.getCheckedNodes(true);
+                var checkIds = [];
+                for(node in nodes){
+                    if(!nodes[node].isParent){
+                        checkIds.push(nodes[node].id)
+                    }
+                }
+                layer.msg("您选中的子节点id：&lt;/br&gt;"+checkIds.join(','));
+            });
+
+             //重置
+            $("#treeRest").click(function () {
+                ZTreeObj.checkAllNodes(false);
+            })
+        };
+
+         /**
+          * 点击菜单按钮，隐藏右键菜单
+          */
+        ZTree.hideRMenu = function () {
+            if ($("#rMenu")) $("#rMenu").css({"visibility": "hidden"});
+            $("body").unbind("mousedown", ZTree.onBodyMouseDown);
+        };
+
+
+        $(function() {
+            /**
+             * zTree 初始化方法：$.fn.zTree.init(t, setting, zNodes)
+             * t:用于展现 zTree 的 DOM 容器
+             * setting:zTree 的配置数据
+             * zNodes:zTree 的节点数据，异步加载数据时可不写
+             *
+             */
+            $.fn.zTree.init($zTree, setting);
+            ZTreeObj = $.fn.zTree.getZTreeObj("showOrgTree");
+            ZTree.initButton();
+        });
+
+    });</code></pre>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+<!--脚本区域开始-->
+<script src="${ctxPath}/static/js/hussardemo/zTreeDemo.js"></script>
+<!--脚本区域结束-->
+<link rel="stylesheet" href="${ctxPath}/static/css/common/project_ext.css">
+</html>

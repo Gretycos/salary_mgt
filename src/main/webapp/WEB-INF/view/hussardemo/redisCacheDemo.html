@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>缓存管理demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/css/hussar.css">
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style type="text/css">
+        p {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <h2>对缓存的操作，可以通过工具类和注解两种方式来实现</h2><br>
+
+                <p>1、使用工具类增删缓存数据</p>
+                <div style="margin-left: 2%">
+                    <p>A、缓存数据</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-input-inline">
+                                <input id="key1"  class="layui-input" placeholder="key" lay-verify="required"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <input id="value"  class="layui-input" placeholder="value" lay-verify="required"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button type="button" class="layui-btn" id="btnSave" lay-submit lay-filter="save"><i class="iconfont">&#xe009;</i>缓存</button>
+                                <button type="reset" class="layui-btn"  ><i class="layui-icon">&#xe00A;</i>重置</button>
+                            </div>
+                        </div><br>
+                    </form>
+
+                    <p>B、根据确定的key删除单个缓存</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-input-inline">
+                                <input id="key2"  class="layui-input" placeholder="key" lay-verify="required"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button type="button" class="layui-btn" id="btnDeleteOne" lay-submit lay-filter="deleteOne"><i class="layui-icon">&#xe640;</i>删除</button>
+                                <button type="reset" class="layui-btn"  ><i class="layui-icon">&#xe00A;</i>重置</button>
+                            </div>
+                        </div><br>
+                    </form>
+
+                    <p>C、根据key模糊查询删除多个缓存</p>
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-input-inline">
+                                <input id="key3"  class="layui-input" placeholder="key" lay-verify="required"  >
+                            </div>
+                            <div class="layui-input-inline">
+                                <button type="button" class="layui-btn" id="btnDeleteMore" lay-submit lay-filter="deleteMore"><i class="layui-icon">&#xe640;</i>删除</button>
+                                <button type="reset" class="layui-btn"  ><i class="layui-icon">&#xe00A;</i>重置</button>
+                            </div>
+                        </div><br>
+                    </form>
+
+                    <blockquote class="layui-elem-quote">
+                        在进行上方缓存新增和删除操作后，可在<em> 服务治理->缓存监控->内容监控 </em>中查看操作的结果
+                    </blockquote><br>
+                </div>
+
+                <p>2、使用注解增删缓存数据</p>
+                <div style="margin-left: 2%">
+                    <p>A、缓存数据</p>
+                    <div class="ibox-title ibox-title-b">
+                        \@Cacheable(value = Cache.AuthorizationInfo, key = "'" + CacheKey.CACHE_AUTH_INFO + "'+#shiroUser.account")
+                    </div><br>
+
+                    <p>B、根据确定的key删除单个缓存</p>
+                    <div class="ibox-title ibox-title-b">
+                        \@CacheEvict(value = Cache.AuthorizationInfo, key = "'" + CacheKey.CACHE_AUTH_INFO + "'+#sysUsers.userId")
+                    </div><br>
+
+                    <p>C、删除一个缓存名称下所有的缓存数据</p>
+                    <div class="ibox-title ibox-title-b">
+                        \@CacheEvict(value = Cache.MENUSINFO, allEntries = true)
+                    </div><br>
+
+                    <blockquote class="layui-elem-quote">
+                        注解<em>Cacheable</em>是缓存数据，<em>CacheEvict</em>是删除缓存数据<br>
+                        其中<em>value</em>就是缓存名称，<em>key</em>为缓存的键<br>
+                        可以通过<em>Spring</em>的<em>EL</em>表达式来指定我们的<em>key</em>，用<em>#</em>获取方法上的参数<br>
+                        如果方法中的参数是个对象，也可得到其某个属性的值，如上示例
+                    </blockquote><br>
+
+                </div>
+            </div>
+
+            <div class="layui-tab-item">
+                <pre><code class="java">/**
+ * 类的用途：缓存管理Demo 控制器
+ * 创建日期：2018/5/30 15:32 ;
+ * 修改历史：
+ * 修改日期：2018/5/30 15:32 ;
+ * 修改作者：LiangDong ;
+ * 修改内容：
+ * \@author LiangDong ;
+ * \@version 1.0
+ */
+\@Controller
+\@RequestMapping("/cacheDemo")
+public class CacheDemo extends BaseController {
+
+    /**
+     *  hussar缓存 接口
+     */
+    \@Autowired
+    private HussarCacheManager hussarCacheManager;
+
+    /**
+     * 返回缓存管理Demo
+     * \@author      LiangDong
+     * \@return      java.lang.String
+     * \@date        2018/5/30 15:35
+     */
+    \@RequestMapping("/view")
+    \@RequiresPermissions("cacheDemo:view")
+    public String index() {
+        return "/hussardemo/redisCacheDemo.html";
+    }
+
+
+    /**
+     * 缓存数据
+     * \@author      LiangDong
+     * \@return      com.jxdinfo.hussar.core.base.tips.Tip
+     * \@date        2018/5/31 9:04
+     */
+    \@RequestMapping("/saveRedisCache")
+    \@ResponseBody
+    public Tip saveRedisCache() {
+        String key = super.getPara("key").trim();
+        String value = super.getPara("value").trim();
+        hussarCacheManager.setObject(null, key, value);
+        return SUCCESS_TIP;
+    }
+
+    /**
+     * 根据确定的缓存名称和key删除一个缓存数据
+     * \@author      LiangDong
+     * \@return      com.jxdinfo.hussar.core.base.tips.Tip
+     * \@date        2018/5/31 9:11
+     */
+    \@RequestMapping("/deleteOneRedisCache")
+    \@ResponseBody
+    public Tip deleteOneRedisCache() {
+        String key = super.getPara("key").trim();
+        hussarCacheManager.delete(null, key);
+        return SUCCESS_TIP;
+    }
+
+    /**
+     * 根据确定的缓存名称和模糊key查询删除多个缓存数据
+     * \@author      LiangDong
+     * \@return      com.jxdinfo.hussar.core.base.tips.Tip
+     * \@date        2018/5/31 9:16
+     */
+    \@RequestMapping("/deleteMoreRedisCache")
+    \@ResponseBody
+    public Tip deleteMoreRedisCache() {
+        String key = super.getPara("key").trim();
+        hussarCacheManager.deleteMore(null, key);
+        return SUCCESS_TIP;
+    }
+
+}
+
+
+/********************************注解代码示例********************************/
+
+/**
+ *
+ * 获取用户的权限信息
+ * \@Title: getAuthInfo
+ * \@param shiroUser
+ * \@return
+ */
+\@Override
+\@Cacheable(value = Cache.AuthorizationInfo, key = "'" + CacheKey.CACHE_AUTH_INFO + "'+#shiroUser.account")
+public Map&lt;String, List&lt;String&gt;&gt; getAuthInfo(ShiroUser shiroUser) {
+	List&lt;String&gt; permissionList = this.sysResourcesMapper.getResourceByUserId(shiroUser.getAccount());
+	List&lt;String&gt; repeatAuthenticateList = this.sysResourcesMapper.getIsRepeatAuthenticateId(shiroUser.getAccount());
+	Map&lt;String, List&lt;String&gt;&gt; map = new HashMap&lt;&gt;();
+	map.put(Const.USERPERMISSION, permissionList);
+	map.put(Const.REPEATAUTHENTICATE, repeatAuthenticateList);
+	return map;
+}
+
+/**
+ *
+ * 通过注解的方式删除缓存的权限信息
+ * 通过缓存工具类删除用户的菜单信息
+ * \@Title: delRedisAuthInfo
+ * \@author: liangdong
+ * \@param userId
+ */
+\@Override
+\@CacheEvict(value = Cache.AuthorizationInfo, key = "'" + CacheKey.CACHE_AUTH_INFO + "'+#userId")
+public void delRedisAuthInfo(String userId) {
+	/**
+	 * 删除菜单缓存
+	 */
+	this.hussarCacheManager.delete(Cache.MENUSINFO, CacheKey.SHIRO_MENUS + userId);
+}
+
+
+
+/**
+ * 资源修改保存
+ * \@Title: resourceSave
+ * \@author: SunZengXin
+ * \@param request HttpServletRequest
+ * \@param sysResources SysResources
+ */
+\@RequiresPermissions("resource:resourceEditSave")
+\@RequestMapping("resourceEditSave")
+\@ResponseBody
+\@CacheEvict(value = { Cache.AuthorizationInfo, Cache.MENUSINFO }, allEntries = true)
+public void resourceEditSave(HttpServletRequest request, SysResources sysResources) {
+	if (sysResources.getResTypeId().equals("1")) {
+		sysResources.setIsRepeatAuthenticate("0");
+	}
+	this.sysResManageService.resourceSave(sysResources);
+}</code></pre>
+            </div>
+
+            <div class="layui-tab-item">
+                <pre><code class="javascript">/**
+ * \@Description: 定义Redis缓存管理Demo脚本文件
+ * \@Author: liangdong
+ * \@Date: 2018/5/29.
+ */
+layui.use(['jquery','layer','Hussar','jstree','HussarAjax','form', 'laydate', 'element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var form = layui.form;
+    var laydate = layui.laydate;
+    var element = layui.element;
+
+    /**
+     * Redis缓存管理Demo的单例
+     */
+    var RedisCacheDemo = {
+        layerIndex: -1
+    };
+
+    /**
+     *  初始化按钮事件
+     */
+    RedisCacheDemo.initButtonEvnts = function () {
+        $("#btnSave").click(function(){
+            form.on('submit(save)', function(data){
+                RedisCacheDemo.saveCache();
+            });
+        });
+        $("#btnDeleteOne").click(function(){
+            form.on('submit(deleteOne)', function(data){
+                RedisCacheDemo.deleteOneCache();
+            });
+        });
+        $("#btnDeleteMore").click(function(){
+            form.on('submit(deleteMore)', function(data){
+                RedisCacheDemo.deleteMoreCache();
+            });
+        });
+    }
+
+    /**
+     *  缓存数据
+     */
+    RedisCacheDemo.saveCache = function () {
+        var key = $('#key1').val();
+        var value = $('#value').val();
+        var ajax = new $ax(Hussar.ctxPath + "/cacheDemo/saveRedisCache",
+            function(data) {
+                if (data.code == '200') {
+                    Hussar.success("缓存数据成功！");
+                }
+            },
+            function(data) {
+                Hussar.error("缓存数据失败！");
+            });
+        ajax.set("key", key);
+        ajax.set("value", value);
+        ajax.start();
+    }
+
+    /**
+     *  根据确定的缓存名称和key删除一个缓存数据
+     */
+    RedisCacheDemo.deleteOneCache = function () {
+        var key = $('#key2').val();
+        var ajax = new $ax(Hussar.ctxPath + "/cacheDemo/deleteOneRedisCache",
+            function(data) {
+                if (data.code == '200') {
+                    Hussar.success("删除单个缓存数据成功！");
+                }
+            },
+            function(data) {
+                Hussar.error("删除单个缓存数据失败！");
+            });
+        ajax.set("key", key);
+        ajax.start();
+    }
+
+    /**
+     *  根据确定的缓存名称和模糊key查询删除多个缓存数据
+     */
+    RedisCacheDemo.deleteMoreCache = function() {
+        var key = $('#key3').val();
+        var ajax = new $ax(Hussar.ctxPath + "/cacheDemo/deleteMoreRedisCache",
+            function(data) {
+                if (data.code == '200') {
+                    Hussar.success("删除多个缓存数据成功！");
+                }
+            },
+            function(data) {
+                Hussar.error("删除多个缓存数据失败！");
+            });
+        ajax.set("key", key);
+        ajax.start();
+
+    }
+
+    $(function () {
+        RedisCacheDemo.initButtonEvnts();  //初始化按钮事件
+    });
+
+});</code></pre>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/redisCacheDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

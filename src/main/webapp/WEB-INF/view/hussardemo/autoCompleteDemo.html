@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>联想查询</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins_ext.html"){}
+    @include("/common/plugins.html"){}
+	<link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this"> Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-input-inline">
+                    <input id="userName" name="userName" class="layui-input" placeholder="用户账号">
+                </div>
+            </div>
+            <div class="layui-tab-item">
+        <pre><code class="java">    /**
+            *
+            * 联想查询
+            * \@Title: view
+            * \@author: ChenChang
+            * \@return 页面
+            */
+            \@RequestMapping("/view")
+            \@ResponseBody
+            public Object auto(String term){
+            String table= "SYS_USERS";
+            String label ="USER_NAME";
+            String value="USER_ID";
+            if (null!=term&&!("".equals(term))){
+            List userList=autocompleteService.inputPrompt(table,label,value,term);
+                return userList;
+                }else {
+                return "error";
+                }
+                }
+
+           </code></pre>
+            </div>
+            <div class="layui-tab-item">
+        <pre><code class="javaScript">/**
+ * \@Description: 定义联想Demo脚本文件
+ * \@Author: ChenChang
+ * \@Date: 2018/6/6.
+ */
+layui.use(['Hussar','element','jqueryui'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+
+    $("#userName").autocomplete({
+        source: Hussar.ctxPath + "/autocomplete/auto",
+        select: function(event, ui){
+            // 这里的this指向当前输入框的DOM元素
+            // event参数是事件对象
+            // ui对象只有一个item属性，对应数据源中被选中的对象
+            $("#userName").val( ui.item.label );
+            // 必须阻止事件的默认行为，否则autocomplete默认会把ui.item.value设为输入框的value值
+            event.preventDefault();
+        }
+    });
+
+
+});
+            </code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/js/hussardemo/autoComplateDemo.js"></script>
+</body>
+</html>

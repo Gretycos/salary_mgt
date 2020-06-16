@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>轻骑兵 - 登录</title>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/css/login.css">
+    <script src="${ctxPath}/static/js/login.js"></script>
+    <script language="javascript">
+        if (window.parent != window) {
+            top.location.href = window.location.href;
+        }
+      @if(tool.isNotEmpty(session.welcome_page)){
+            home_path= hussar_path +"${session.welcome_page}";
+      @}else{
+            home_path= hussar_path;
+      @}
+    </script>
+</head>
+<body>
+<div class="content-box">
+    <div class="loginLeft-box">
+        <div class="logo"></div>
+        <div class="loginLeft-info">
+            <div class="title">
+                <!--轻骑兵<span class="title-special">V8</span>快速开发平台-->
+                轻骑兵V8快速开发平台
+                <!--<img src="${ctxPath}/static/img/login-title.png"/>-->
+            </div>
+            <div class="sub-title">
+                <span class="sub-title-item">高安全</span>
+                <span class="sub-title-item">高性能</span>
+                <span class="sub-title-item">快速开发</span>
+                <!--计算、存储、分析、查询-->
+                <!--<div class="sub-title-1">一站式云端大数据服务</div>-->
+            </div>
+            <!--<div class="loginLeft-img"> </div>-->
+            <div class="computer">
+                <img class="computer-bg2 animation-img" src="${ctxPath}/static/img/computer-bottom2.png">
+                <img class="computer-bg1 animation-img" src="${ctxPath}/static/img/computer-bottom1.png">
+                <img class="computer-bg animation-img" src="${ctxPath}/static/img/computer.png">
+                <!--左上角图标-->
+                <img class="login-bg-safe animation-img" src="${ctxPath}/static/img/safe.png">
+                <!--左下角图标-->
+                <img class="login-bg-box animation-img" src="${ctxPath}/static/img/box.png">
+                <img class="login-bg-box login-bg-box-top animation-img" src="${ctxPath}/static/img/box.png">
+                <!--右下角图标-->
+                <img class="login-bg-menu animation-img" src="${ctxPath}/static/img/menu.png">
+                <!--右上角图标-->
+                <img class="login-bg-book animation-img" src="${ctxPath}/static/img/book.png">
+                <!--左侧小浮动物件-->
+                <img class="float-item-left animation-img" src="${ctxPath}/static/img/float-item.png">
+                <!--右上侧小浮动物件-->
+                <img class="float-item-top animation-img" src="${ctxPath}/static/img/float-item.png">
+                <!--右下侧小浮动物件-->
+                <img class="float-item-bottom animation-img" src="${ctxPath}/static/img/float-item.png">
+            </div>
+        </div>
+    </div>
+    <div class="login-box">
+        <div class="login">
+
+            <form class="layui-form" id="tokenForm">
+                <div class="login-form">
+                    <div class="login-title">
+                        欢迎登录
+                        <!--<img src="${ctxPath}/static/img/welcome.png">-->
+                    </div>
+                    <!--<div class="login-form-item item-blur">-->
+                    <label>用户名</label>
+                    <input name="username" type="text" class="login-input login-input-1" placeholder="请输入账号" autocomplete="username">
+                    <!--</div>-->
+                    <!--<div class="login-form-item item-blur">-->
+                    <label>密码</label>
+                    <input name="cipher" type="password" class="login-input" placeholder="请输入密码"  autocomplete="new-password">
+                    <!--</div>-->
+                    @if(kaptcha== true){
+                    <input id="kaptchaOnOff" value="true" hidden="hidden">
+                    <div class="layui-form-item" style="position: relative">
+                        <label>验证码</label>
+                        <input class="login-input" type="text" name="kaptcha" placeholder="请输入验证码" style="width: calc(100% - 124px);">
+                        <img src="${ctxPath}/kaptcha" id="kaptcha" style="margin-left: 4px;position: absolute;right: 0;top: 17px;" />
+                    </div>
+                    @}
+                    @if(totp == true){
+                    <input id="totpOnOff" value="true" hidden="hidden">
+                    <div class="layui-form-item" style="position: relative">
+                        <label>动态密码</label>
+                        <input class="login-input" type="text" name="totp" placeholder="请输入动态密码">
+                    </div>
+                    @}
+                    <div class="error"></div>
+                    <div>
+                        <input type="checkbox" name="remember" title="${rememberme}天免登录" lay-skin="primary">
+                        <a class="view-forget" href="${ctxPath}/getBackPwd/view">忘记密码？</a>
+                    </div>
+                    <div style="text-align: center;">
+                        <button type="button" lay-filter="login" lay-submit id="login" class="login-btn">登&nbsp;&nbsp;&nbsp;&nbsp;录</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

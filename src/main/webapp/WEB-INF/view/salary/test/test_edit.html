@@ -1,0 +1,32 @@
+@layout("/common/layout.html",{title:'详情'}){
+<div class="weadmin-body-1 layui-form" style="padding-bottom:50px;">
+            <div class="layui-form-item">
+                    <label class="layui-form-label">主键：</label>
+                    <div class="layui-input-inline">
+                        <input id="id" name="id" class="layui-input"
+                               placeholder="请输入" value="${item.id}">
+                    </div>
+             </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">姓名：</label>
+                    <div class="layui-input-inline">
+                        <input id="name" name="name" class="layui-input"
+                               placeholder="请输入姓名" value="${item.name}">
+                    </div>
+             </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">电话：</label>
+                    <div class="layui-input-inline">
+                        <input id="phone" name="phone" class="layui-input"
+                               placeholder="请输入电话" value="${item.phone}">
+                    </div>
+             </div>
+    <div class="layerBtnCenter btn-box btn-box-1">
+        <button type="button" name="取消" class="layui-btn btn-close" id="cancel"
+        onclick="TestInfoDlg.close()"><i class="iconfont">&#x1006;</i>取消</button>
+        <button type="button" name="提交" class="layui-btn btn-save" id="ensure"
+        onclick="TestInfoDlg.editSubmit()"><i class="iconfont">&#xe009;</i>保存</button>
+    </div>
+</div>
+<script src="${ctxPath}/static/salary/test/test_info.js"></script>
+@}

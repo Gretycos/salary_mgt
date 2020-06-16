@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>数据字典demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/css/hussar.css">
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style type="text/css">
+        p {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+        .bold {
+            font-weight: bold;
+            font-style: italic;
+        }
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <p>选择某一天，判断当天是否是工作日</p>
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <input id="day" name="day" class="layui-input" placeholder="请选择一个日期" lay-verify="required" readonly >
+                        </div>
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn" id="btn1" lay-submit lay-filter="isWorkDay">判断</button>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select id="whether" name="whether" disabled></select>
+                        </div>
+                    </div><br>
+                </form>
+
+                <p>选择一个月份，获取当月有多少个工作日</p>
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <input id="month1" name="month1" class="layui-input" placeholder="请选择一个月份" lay-verify="required" readonly >
+                        </div>
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn" id="btn2" lay-submit lay-filter="workNum">获取</button>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input id="workNum" name="workNum" class="layui-input" placeholder="当月工作日天数" readonly >
+                        </div>
+                    </div><br>
+                </form>
+
+                <p>选择一个月份，获取当月有多少个休息日</p>
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <input id="month2" name="month2" class="layui-input" placeholder="请选择一个月份" lay-verify="required" readonly >
+                        </div>
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn" id="btn3" lay-submit lay-filter="holidayNum">获取</button>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input id="holidayNum" name="holidayNum" class="layui-input" placeholder="当月休息日天数" readonly >
+                        </div>
+                    </div><br><br>
+                </form>
+
+                <blockquote class="layui-elem-quote">
+                    默认条件下周一到周五为工作日，周六、周日为休息日<br>
+                    工作日历中可以新建事件“班”或“休”，“班”代表工作日，“休”代表休息日<br>
+                    当在周一到周五新建“休”时，当天为休息日；当在周六周日新建“班”时，当天为工作日<br>
+                    因此只有当一个月的事件安排全部确定时，得到的工作日和休息日天数才是有意义的<br>
+                    工作日历事件请在<span class="bold">系统管理->工作日历</span>中进行维护
+                </blockquote>
+            </div>
+
+            <div class="layui-tab-item">
+                <pre><code class="java">/**
+ * 类的用途：工作日历Demo 控制器
+ * 创建日期：2018/5/29 13:41 ;
+ * 修改历史：
+ * 修改日期：2018/5/29 13:41 ;
+ * 修改作者：LiangDong ;
+ * 修改内容：
+ * \@author LiangDong ;
+ * \@version 1.0
+ */
+\@Controller
+\@RequestMapping("/workCalendarDemo")
+public class WorkCalendarDemo extends BaseController {
+
+    /**
+     * 字典工具接口
+     */
+    \@Resource
+    private DictionaryUtil dictionaryUtil;
+
+    /**
+     *  工作日历工具接口
+     */
+    \@Resource
+    private WorkCalendarUtil workCalendarUtil;
+
+    /**
+     * 返回工作日历Demo
+     * \@author      LiangDong
+     * \@return      java.lang.String
+     * \@date        2018/5/29 18:01
+     */
+    \@RequestMapping("/view")
+    \@RequiresPermissions("workCalendarDemo:view")
+    public String index() {
+        return "/hussardemo/workCalendarDemo.html";
+    }
+
+    /**
+     * 返回“是否”下拉框数据字典值
+     * \@author      LiangDong
+     * \@return      java.lang.Object
+     * \@date        2018/5/29 18:02
+     */
+    \@RequestMapping("/options")
+    \@ResponseBody
+    public Object getSelectOptions() {
+        List&lt;Map&lt;String,Object&gt;&gt; list = this.dictionaryUtil.getDictListByType("yes_no");
+        return list;
+    }
+
+    /**
+     * 判断某一天是否是工作日
+     * \@author      LiangDong
+     * \@return      boolean
+     * \@date        2018/5/30 10:34
+     */
+    \@RequestMapping("/isWorkDay")
+    \@ResponseBody
+    public boolean isWorkDay() {
+        String date = super.getPara("date").trim();
+        boolean flag = workCalendarUtil.isWorkDay(date);
+        return flag;
+    }
+
+    /**
+     * 获取某月工作日天数
+     * \@author      LiangDong
+     * \@return      int
+     * \@date        2018/5/30 10:35
+     */
+    \@RequestMapping("/workDayNum")
+    \@ResponseBody
+    public int getWorkDayNum() {
+        String month = super.getPara("month").trim();
+        return workCalendarUtil.getWorkDayNum(month);
+    }
+
+    /**
+     * 获取某月休息日天数
+     * \@author      LiangDong
+     * \@return      int
+     * \@date        2018/5/30 10:35
+     */
+    \@RequestMapping("/holidayNum")
+    \@ResponseBody
+    public int getHolidayNum() {
+        String month = super.getPara("month").trim();
+        return workCalendarUtil.getHolidayNum(month);
+    }
+
+}</code></pre>
+            </div>
+
+            <div class="layui-tab-item">
+                <pre><code class="javascript">/**
+ * \@Description: 定义工作日历Demo脚本文件
+ * \@Author: liangdong
+ * \@Date: 2018/5/28.
+ */
+layui.use(['jquery','layer','Hussar','jstree','HussarAjax','form', 'laydate', 'element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var form = layui.form;
+    var laydate = layui.laydate;
+    var element = layui.element;
+
+    /**
+     * 工作日历Demo的单例
+     */
+    var workCalendarDemo = {
+        layerIndex: -1
+    };
+
+    /**
+     *  初始化时间控件
+     */
+    workCalendarDemo.initLaydate = function () {
+        laydate.render({
+            elem: '#day',
+            type : 'date',
+        });
+        laydate.render({
+            elem: '#month1',
+            type : 'month',
+        });
+        laydate.render({
+            elem: '#month2',
+            type : 'month',
+        });
+    }
+
+    /**
+     *  初始化下拉框option
+     */
+    workCalendarDemo.initSelectOption = function () {
+        var ajax = new $ax(Hussar.ctxPath + "/workCalendarDemo/options",
+            function(data) {
+                $("select[name='whether']").html("&lt;option value=''&gt;请选择&lt;/option&gt;");
+                for (var i = 0; i &lt; data.length; i++) {
+                    $("select[name='whether']").append(
+                        "&lt;option value='" + data[i].VALUE + "'&gt;"
+                        + data[i].LABEL + "&lt;/option&gt;");
+                }
+            }, function(data) {
+                Hussar.error("获取是否下拉框options失败!");
+            });
+        ajax.start();
+        form.render();
+    }
+
+    /**
+     *  初始化按钮事件
+     */
+    workCalendarDemo.initButtonEvnts = function () {
+        $("#btn1").click(function(){
+            form.on('submit(isWorkDay)', function(data){
+                workCalendarDemo.isWorkDay();
+            });
+        });
+        $("#btn2").click(function(){
+            form.on('submit(workNum)', function(data){
+                workCalendarDemo.getWorkDayNum();
+            });
+        });
+        $("#btn3").click(function(){
+            form.on('submit(holidayNum)', function(data){
+                workCalendarDemo.getHolidayNum();
+            });
+        });
+    }
+
+    /**
+     *  判断某一天是否是工作日
+     */
+    workCalendarDemo.isWorkDay = function () {
+        var date = $('#day').val();
+        var ajax = new $ax(Hussar.ctxPath + "/workCalendarDemo/isWorkDay",
+            function(data) {
+                if (data) {
+                    //如果是工作日
+                    $('#whether').val("1");
+                } else {
+                    //如果是非工作日
+                    $('#whether').val("0");
+                }
+                form.render();
+            },
+            function(data) {
+                Hussar.error("判断失败！");
+            });
+        ajax.set("date", date);
+        ajax.start();
+
+    }
+
+    /**
+     *  获取某月工作日的天数
+     */
+    workCalendarDemo.getWorkDayNum = function () {
+        var month = $('#month1').val();
+        var ajax = new $ax(Hussar.ctxPath + "/workCalendarDemo/workDayNum",
+            function(data) {
+                $('#workNum').val(data + "天");
+            },
+            function(data) {
+                Hussar.error("获取当月工作日天数失败！");
+            });
+        ajax.set("month", month);
+        ajax.start();
+    }
+
+    /**
+     *  获取某月休息日的天数
+     */
+    workCalendarDemo.getHolidayNum = function () {
+        var month = $('#month2').val();
+        var ajax = new $ax(Hussar.ctxPath + "/workCalendarDemo/holidayNum",
+            function(data) {
+                $('#holidayNum').val(data + "天");
+            },
+            function(data) {
+                Hussar.error("获取当月休息日天数失败！");
+            });
+        ajax.set("month", month);
+        ajax.start();
+    }
+
+    $(function () {
+        workCalendarDemo.initButtonEvnts();  //初始化按钮事件
+        workCalendarDemo.initLaydate();     //初始化时间控件
+        workCalendarDemo.initSelectOption();    //初始化下拉框option
+    });
+
+});</code></pre>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/workCalendarDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

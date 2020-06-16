@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>数据字典demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/css/hussar.css">
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style type="text/css">
+        .textareaHeight{min-height: 180px;}
+        .labelWidth{width: 100px;}
+        .layui-form-text .layui-input-inline{width: 540px}
+        .bold {
+            font-weight: bold;
+            font-style: italic;
+        }
+        p {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+
+                <p>根据<span class="bold">系统管理->字典管理</span>中的字典类型获得所有的选项：</p>
+                <div class="layui-form-item clearfix">
+                    <div class="layui-input-inline">
+                        <input id="dicType" name="dicType" class="layui-input" placeholder="请输入字典类型" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <button type="button" class="layui-btn" id="btnList">List数据</button>
+                        <button type="button" class="layui-btn"  id="btnMap">Map数据</button>
+                    </div>
+                </div><br>
+
+                <p>根据字典类型和选项值数组获取指定的选项：</p>
+                <div class="layui-form-item clearfix">
+                    <div class="layui-input-inline">
+                        <input id="dicType2" name="dicType" class="layui-input" placeholder="请输入字典类型" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <input id="optionValues" name="optionValues" class="layui-input" placeholder="请以“-”隔开输入选项的值" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <button type="button" class="layui-btn" id="btnCertain">指定选项</button>
+                    </div>
+                </div><br>
+
+                <p><em>select</em>下拉框效果展示：</p>
+                <form class="layui-form ">
+                    <div class="layui-row ">
+                        <div class="layui-col-md6">
+                            <div class="layui-form-item ">
+                                <label class="layui-form-label labelWidth">下拉框展示：</label>
+                                <div class="layui-input-inline">
+                                    <select name="listSelect" ></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div><br>
+                </form>
+
+                <p>点击上面的按钮可以看到从后台传回来的json数据：</p>
+                <div class="layui-row ">
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item layui-form-text">
+                            <div class="layui-input-inline">
+                <textarea id="listData" name="listData" placeholder="List数据展示"
+                          class="layui-textarea textareaHeight" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item layui-form-text">
+                            <div class="layui-input-inline">
+                <textarea id="mapData" name="mapData" placeholder="Map数据展示"
+                          class="layui-textarea textareaHeight" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div><br>
+
+                <p>根据字典类型和选项值获取选项标签：</p>
+                <div class="layui-form-item clearfix">
+                    <div class="layui-input-inline">
+                        <input id="dicType3" name="dicType" class="layui-input" placeholder="请输入字典类型" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <input id="value" name="value" class="layui-input" placeholder="请输入选项值" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <button type="button" class="layui-btn" id="btnGetLabel">获取标签</button>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input id="label" name="label" class="layui-input" placeholder="标签内容" >
+                    </div>
+                </div><br>
+
+                <p>根据字典类型和选项内容获取选项值：</p>
+                <div class="layui-form-item clearfix">
+                    <div class="layui-input-inline">
+                        <input id="dicType4" name="dicType" class="layui-input" placeholder="请输入字典类型" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <input id="label2" name="label" class="layui-input" placeholder="请输入标签内容" >
+                    </div>
+                    <div class="layui-input-inline">
+                        <button type="button" class="layui-btn" id="btnGetValue">获取值</button>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input id="value2" name="value" class="layui-input" placeholder="选项值" >
+                    </div>
+                </div><br>
+
+                <blockquote class="layui-elem-quote">
+                    数据字典最常用来填充<em>select</em>下拉框的option<br>
+                    开发人员可查看此demo的代码了解相应的方法<br>
+                    需要注意的是，如果你的<em>select</em>下拉框在<em>form</em>中，数据填充之后需要加一行代码<em>form.render();</em>
+                </blockquote>
+            </div>
+            <div class="layui-tab-item">
+                <pre><code class="java">/**
+ * 类的用途：数据字典Demo 控制器
+ * 创建日期：2018/5/28 9:50 ;
+ * 修改历史：
+ * 修改日期：2018/5/28 9:50 ;
+ * 修改作者：LiangDong ;
+ * 修改内容：
+ * \@author LiangDong ;
+ * \@version 1.0
+ */
+\@Controller
+\@RequestMapping("/dataDicDemo")
+public class DataDicDemo extends BaseController {
+
+    /**
+     * 字典工具接口
+     */
+    \@Resource
+    private DictionaryUtil dictionaryUtil;
+
+    /**
+     * 返回数据字典Demo
+     * \@author      LiangDong
+     * \@return      java.lang.String
+     * \@date        2018/5/28 10:13
+     */
+    \@RequestMapping("/view")
+    \@RequiresPermissions("dataDicDemo:view")
+    public String index() {
+        return "/hussardemo/dataDicDemo.html";
+    }
+
+    /**
+     * 根据字典类型获取字典数据List
+     * \@author      LiangDong
+     * \@return      java.lang.Object
+     * \@date        2018/5/28 14:19
+     */
+    \@RequestMapping("/listData")
+    \@ResponseBody
+    public Object getListData() {
+        String dicType = super.getPara("dicType").trim();
+        List&lt;Map&lt;String,Object&gt;&gt; list = this.dictionaryUtil.getDictListByType(dicType);
+        return list;
+    }
+
+    /**
+     * 根据字典类型获取字典数据Map
+     * \@author      LiangDong
+     * \@return      java.lang.Object
+     * \@date        2018/5/28 14:19
+     */
+    \@RequestMapping("/mapData")
+    \@ResponseBody
+    public Object getMapData() {
+        String dicType = super.getPara("dicType").trim();
+        LinkedHashMap&lt;String, Object&gt; map = this.dictionaryUtil.getDictMapByType(dicType);
+        return map;
+    }
+
+    /**
+     * 根据字典类型和选项值数组获取指定的选项
+     * \@author      LiangDong
+     * \@return      java.lang.Object
+     * \@date        2018/6/6 15:01
+     */
+    \@RequestMapping("/certainData")
+    \@ResponseBody
+    public Object getCertainData() {
+        String dicType = super.getPara("dicType").trim();
+        String[] optionValues = super.getPara("optionValues").trim().split("-");
+        List&lt;Map&lt;String,Object&gt;&gt; list = this.dictionaryUtil.getCertainDictOptions(dicType, optionValues);
+        return list;
+    }
+
+    /**
+     * 根据字典类型和单个选项值获取选项标签
+     * \@author      LiangDong
+     * \@return      java.lang.Object
+     * \@date        2018/6/12 11:02
+     */
+    \@RequestMapping("/getLabel")
+    \@ResponseBody
+    public Object getLabel() {
+        String dicType = super.getPara("dicType").trim();
+        String value = super.getPara("value").trim();
+        String label = dictionaryUtil.getDictLabel(dicType, value);
+        return label;
+    }
+
+    /**
+     * 根据字典类型和选项标签获取选项值
+     * \@author      LiangDong
+     * \@return      java.lang.Object
+     * \@date        2018/6/12 11:15
+     */
+    \@RequestMapping("/getValue")
+    \@ResponseBody
+    public Object getValue() {
+        String dicType = super.getPara("dicType").trim();
+        String label = super.getPara("label").trim();
+        String value = dictionaryUtil.getDictValue(dicType, label);
+        return value;
+    }
+
+}</code></pre>
+            </div>
+            <div class="layui-tab-item">
+                <pre><code class="javascript">/**
+ * \@Description: 定义字典管理Demo脚本文件
+ * \@Author: liangdong
+ * \@Date: 2018/5/28.
+ */
+layui.use(['jquery','layer','Hussar','jstree','HussarAjax','form', 'element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var form = layui.form;
+    var element = layui.element;
+
+    /**
+     * 字典管理Demo的单例
+     */
+    var dataDicdemo = {
+        layerIndex: -1
+    };
+
+    /**
+     *  初始化按钮事件
+     */
+    dataDicdemo.initButtonEvnts = function () {
+        $("#btnList").click(function(){
+            dataDicdemo.searchListData();
+        });
+        $("#btnMap").click(function(){
+            dataDicdemo.searchMapData();
+        });
+        $("#btnCertain").click(function(){
+            dataDicdemo.searchCertainData();
+        });
+        $("#btnGetLabel").click(function(){
+            dataDicdemo.getLabel();
+        });
+        $("#btnGetValue").click(function(){
+            dataDicdemo.getvalue();
+        });
+
+    }
+
+    /**
+     *  根据字典类型和单个选项值获取选项标签
+     */
+    dataDicdemo.getLabel = function () {
+        var dicType = $('#dicType3').val();
+        var value = $('#value').val();
+        var ajax = new $ax(Hussar.ctxPath + "/dataDicDemo/getLabel",
+            function(data) {
+                if ( data != "") {
+                    $('#label').val(data);
+                } else {
+                    Hussar.info("该字典类型下没有该选项！");
+                }
+            },
+            function(data) {
+                Hussar.error("根据字典类型和单个选项值获取选项标签失败!");
+            });
+        ajax.set("dicType",dicType);
+        ajax.set("value",value);
+        ajax.start();
+    }
+
+    /**
+     *  根据字典类型和选项标签获取选项值
+     */
+    dataDicdemo.getvalue = function () {
+        var dicType = $('#dicType4').val();
+        var label = $('#label2').val();
+        var ajax = new $ax(Hussar.ctxPath + "/dataDicDemo/getValue",
+            function(data) {
+                if ( data != "") {
+                    $('#value2').val(data);
+                } else {
+                    Hussar.info("该字典类型下没有该选项！");
+                }
+            },
+            function(data) {
+                Hussar.error("根据字典类型和选项标签获取选项值失败!");
+            });
+        ajax.set("dicType",dicType);
+        ajax.set("label",label);
+        ajax.start();
+    }
+
+    /**
+     *  根据字典类型和选项值数组获取指定的选项
+     */
+    dataDicdemo.searchCertainData = function () {
+        var dicType = $('#dicType2').val();
+        var optionValues = $('#optionValues').val();
+        var ajax = new $ax(Hussar.ctxPath + "/dataDicDemo/certainData",
+            function(data) {
+                $('#listData').val(JSON.stringify(data));   //将数据展示到textarea中
+                dataDicdemo.initListSelect(data);   //加载list数据下拉框
+            },
+            function(data) {
+                Hussar.error("获取指定的字典选项失败!");
+            });
+        ajax.set("dicType",dicType);
+        ajax.set("optionValues",optionValues);
+        ajax.start();
+    }
+
+    /**
+     *  根据字典类型获得List数据
+     */
+    dataDicdemo.searchListData = function () {
+        var dicType = $('#dicType').val();
+        var ajax = new $ax(Hussar.ctxPath + "/dataDicDemo/listData",
+            function(data) {
+                $('#listData').val(JSON.stringify(data));   //将数据展示到textarea中
+                dataDicdemo.initListSelect(data);   //加载list数据下拉框
+            },
+            function(data) {
+                Hussar.error("获取List数据失败!");
+            });
+        ajax.set("dicType",dicType);
+        ajax.start();
+    }
+
+    /**
+     *  根据字典类型获得Map数据
+     */
+    dataDicdemo.searchMapData = function () {
+        var dicType = $('#dicType').val();
+        var ajax = new $ax(Hussar.ctxPath + "/dataDicDemo/mapData",
+            function(data) {
+                $('#mapData').val(JSON.stringify(data));    //将数据展示到textarea中
+            },
+            function(data) {
+                Hussar.error("获取Map数据失败!");
+            });
+        ajax.set("dicType",dicType);
+        ajax.start();
+    }
+
+    /**
+     * 加载list数据下拉框
+     * \@param data
+     */
+    dataDicdemo.initListSelect = function (data) {
+        $("select[name='listSelect']").html("&lt;option value=''&gt;请选择&lt;/option&gt;");
+        for (var i = 0; i &lt; data.length; i++) {
+            $("select[name='listSelect']").append(
+                "&lt;option value='" + data[i].VALUE + "'&gt;"
+                + data[i].LABEL + "&lt;/option&gt;");
+        }
+        form.render();
+    }
+
+    $(function () {
+        dataDicdemo.initButtonEvnts();  //初始化按钮事件
+    });
+
+});</code></pre>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/dataDicDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

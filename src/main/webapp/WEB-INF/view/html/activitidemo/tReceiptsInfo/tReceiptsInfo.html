@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>activiti相关demo管理</title>
+    @include("/common/plugins.html"){}
+    @include("/common/plugins_ext.html"){}
+    <link rel="stylesheet" type="text/css" href="${ctxPath}/static/bpm/jxdbpm/processdefinition/css/processDefinition.css">
+    <!--[if lt IE 9]>
+    <script src="${ctxPath}/static/common/IE9/html5shiv.min.js"></script>
+    <script src="${ctxPath}/static/common/IE9/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="layui-fluid weadmin-body">
+    <form class="layui-form" action="">
+        <div class="layui-elem-quote">
+            <label>activiti相关demo管理---待办列表</label>
+        </div>
+        <input type="hidden" id="userId" value="${userId}">
+        <br />
+        <div class="layui-form-item clearfix">
+            <div class="layui-input-inline">
+                <input type="text" id="condition" placeholder="请输入名称" autocomplete="off" class="layui-input" >
+            </div>
+            <div class="layui-input-inline">
+                <button class="layui-btn" data-type="reload" type="button" onclick="TReceiptsInfo.search()"><i class="layui-icon">&#xe615;</i>查询</button>
+                <button class="layui-btn" type="reset"><i class="layui-icon">&#xe00A;</i>重置</button>
+            </div>
+            <div class="fr">
+                <button type="button" class="layui-btn" id="add"
+                onclick="TReceiptsInfo.openAddTReceiptsInfo()"><i class="layui-icon">&#xe654;</i>新增</button>
+                <button type="button" class="layui-btn" id="submit"
+                onclick="TReceiptsInfo.submit()"><i class="layui-icon"></i>提交/审核</button>
+                <button type="button" class="layui-btn" id="disagree"
+                onclick="TReceiptsInfo.disagree()"><i class="layui-icon"></i>驳回</button>
+                <button type="button" class="layui-btn" id="entrust"
+                onclick="TReceiptsInfo.entrust()"><i class="layui-icon"></i>委托</button>
+                <button type="button" class="layui-btn" id="edit"
+                onclick="TReceiptsInfo.openTReceiptsInfoDetail()"><i class="layui-icon">&#xe642;</i>修改</button>
+                <button type="button" class="layui-btn" id="del"
+                onclick="TReceiptsInfo.delete()"><i class="layui-icon">&#xe640;</i>删除</button>
+            </div>
+        </div>
+    </form>
+    <!-- 用户树 -->
+    <div id="userTreeDiv" style="display: none;"  class="formmargin">
+        <div id="showUserTree" class="jsTree" style="overflow: auto;height: 400px"></div>
+    </div>
+    <table id="TReceiptsInfoTable" ></table>
+    <div id="picWindow"  align="left" class="formmargin" style="display: none">
+        <div id="main">
+            <div id="flowImageAndRect">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/activitidemo/tReceiptsInfo/tReceiptsInfo2.js"></script>
+</body>
+</html>

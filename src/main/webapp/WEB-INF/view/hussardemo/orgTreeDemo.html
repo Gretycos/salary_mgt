@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>组织机构树demo</title>
+  @include("/common/plugins.html"){}
+  <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+  	<link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+   	<style>
+        .layui-form-label{width: 112px}
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+    </style>
+</head>
+<body>
+<div class="weadmin-body">
+
+<div class="layui-tab layui-tab-brief">
+  <ul class="layui-tab-title">
+    <li class="layui-this">Demo</li>
+    <li>Java</li>
+    <li>JavaScript</li>
+  </ul>
+  <div class="layui-tab-content">
+  <div class="layui-tab-item layui-show">
+	<div class="layui-form-item">
+		 <label class="layui-form-label">组织机构树：</label>
+		<div class="layui-input-inline">
+             <input type="text" name="orgTree" id="orgTree"  readonly="readonly" placeholder="组织机构树" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		 <label class="layui-form-label">当前角色用户树：</label>
+		 <div class="layui-input-inline">
+             <input type="text"  id="roleId" placeholder="public_role" value="public_role" autocomplete="off" class="layui-input" >
+    	</div>
+    	<div class="layui-input-inline">
+        	<button class="layui-btn"  data-type="reload" id="search" type="button"><i class="layui-icon">&#xe615;</i>查询</button>
+    	</div>
+	</div>
+	<div class="layui-form-item">
+		 <label class="layui-form-label">人员树：</label>
+		<div class="layui-input-inline">
+             <input type="text" name="employeeTree" id="employeeTree"  readonly="readonly" placeholder="人员树" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		 <label class="layui-form-label">用户树：</label>
+		<div class="layui-input-inline">
+             <input type="text" name="userTree" id="userTree"  readonly="readonly" placeholder="用户树" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	
+ <!-- 组织机构树 -->
+<div id="orgTreeDiv" style="display: none;"  class="formmargin">
+    <div id="showOrgTree" class="jsTree"></div>
+</div>
+ <!-- 人员树 -->
+<div id="employeeTreeDiv" style="display: none;"  class="formmargin">
+    <div id="showEmployeeTree" class="jsTree"></div>
+</div> 
+ <!-- 当前角色用户树 -->
+ <div>
+<div id="roleUserTreeDiv" style="display: none;"  class="weadmin-body-1" >
+    <div  id="showRoleUserTree" class="jsTree" style="overflow: auto;height: 400px"></div>
+    <div class="btn-box" style="text-align: center">
+	<button type="reset" class="layui-btn"  id="roleUserTreeRest">重置</button>
+    <button type="button" class="layui-btn" id="roleUserTreeSave">确定</button>
+	</div>
+</div> 
+</div>
+ <!-- 用户树 -->
+<div id="userTreeDiv" style="display: none;"  class="formmargin">
+    <div id="showUserTree" class="jsTree" style="overflow: auto;height: 400px"></div>
+    <div class="btn-box" style="text-align: center">
+		<button type="reset" class="layui-btn"  id="userTreeRest">重置</button>
+		<button type="button" class="layui-btn" id="userTreeSave">确定</button>
+		</div>
+</div> 
+        <blockquote class="layui-elem-quote">
+            <table class="layui-table">
+        <colgroup>
+          <col width="50">
+          <col>
+        </colgroup>
+        <tbody>
+          <tr>
+            <td>1.</td>
+            <td>为了防止数据误删， 树的根节点采用后台维护，如：<em>{"id":"id","code":"code","parent":"parent","text":"text","type":"type"}</em> </td>
+          </tr>
+          <tr>
+            <td>2.</td>
+            <td>
+              树右键菜单实现：
+              <div class="layui-text">
+                <ul>
+                  <li>在<em>jstree core</em>核心参数里添加 <em>plugins: ['contextmenu']</em></li>
+                  <li>
+                  	<em>'contextmenu' : {  
+       					 'items' : customMenu 
+    				}</em>//每个节点都会调用这个函数 
+    				</li>
+                  <li>
+                  <em>
+                 var items = { 
+                  				'item1' : {  
+           						'label' : '父节点',  
+            					'action' : function () { /* 写点击处理函数 */ }  
+        						}
+        						return items;
+                  			}
+    				</em>
+    				</li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>3.</td>
+            <td> 树采用<em>jstree</em> 插件实现，需要注意：
+            <div class="layui-text">
+                <ul>
+                  <li>jstree的节点属性为小写，如：<em>{"id":"id","code":"code","parent":"parent","text":"text","type":"type"}，可以使用bean进行转型</em></li>
+                  <li>节点属性<em>type</em>应用为节点图标的显示</li>
+                </ul>
+              </div></td>
+          </tr>
+        </tbody>
+      </table>
+        </blockquote>
+        </div>
+        <div class="layui-tab-item">
+                <pre><code class="java">    /**
+     * 
+     * 组织机构树demo页面
+     * \@Title: view 
+     * \@author: ChenXin
+     * \@return 页面
+     */
+    \@RequestMapping("/view")
+    public String view(Model model, HttpServletRequest request) {
+        JSONObject json = new JSONObject();
+        List list = this.sysOrganTypeMapper.getOrganTypeList(new Page(), null, null);
+        for (int i = 0; i &lt; list.size(); i++) {
+            Map&lt;String, String&gt; map = (Map) list.get(i);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("icon", request.getServletContext().getContextPath() + map.get("IMGURL"));
+            json.put(map.get("ORGANTYPE"), jsonObject);
+        }
+        model.addAttribute("imgUrl", json);// 后台获取节点图标
+        return "/hussardemo/orgTreeDemo.html";
+    }
+
+    /**
+     * 
+     * 获取组织机构树
+     * \@Title: orgTree 
+     * \@author: ChenXin
+     * \@return List&lt;Map&lt;String, Object&gt;&gt;
+     */
+    \@RequestMapping("/orgTree")
+    \@ResponseBody
+    public List&lt;Map&lt;String, Object&gt;&gt; orgTree() {
+        String treeType = super.getPara("treeType");
+        List&lt;Map&lt;String, Object&gt;&gt; result = this.organUtil.getOrgTreeByTreeType(treeType);
+        // 根节点名称
+        Map&lt;String, Object&gt; root = new HashMap&lt;String, Object&gt;();
+        root.put("ID", "11");
+        root.put("CODE", "");
+        root.put("TEXT", "组织机构");
+        root.put("PARENT", "#");
+        root.put("STRULEVEL", "0");
+        root.put("ISLEAF", "0");
+        root.put("TYPE", "isRoot");
+        result.add(root);
+        return result;
+
+    }
+
+    /**
+     * 
+     * 获取人员树
+     * \@Title: employeeTree 
+     * \@author: ChenXin
+     * \@return List&lt;Map&lt;String, Object&gt;&gt;
+     */
+    \@RequestMapping("/employeeTree")
+    \@ResponseBody
+    public List&lt;Map&lt;String, Object&gt;&gt; employeeTree() {
+        String treeType = super.getPara("treeType");
+        List&lt;Map&lt;String, Object&gt;&gt; result = this.organUtil.getOrgTreeByTreeType(treeType);
+        // 根节点名称
+        Map&lt;String, Object&gt; root = new HashMap&lt;String, Object&gt;();
+        root.put("ID", "11");
+        root.put("CODE", "11");
+        root.put("TEXT", "人员组织机构");
+        root.put("PARENT", "#");
+        root.put("STRULEVEL", "0");
+        root.put("ISLEAF", "0");
+        root.put("TYPE", "isRoot");
+        result.add(root);
+        return result;
+
+    }
+
+    /**
+     * 
+     * 当前角色用户树
+     * \@Title: roleUserTree 
+     * \@author: ChenXin
+     * \@return List&lt;Map&lt;String, Object&gt;&gt;
+     */
+    \@RequestMapping("/roleUserTree")
+    \@ResponseBody
+    public List&lt;Map&lt;String, Object&gt;&gt; roleUserTree() {
+        // roleId 为角色id,当前以'public_role' 为例
+        String roleId = super.getPara("roleId");
+        List&lt;Map&lt;String, Object&gt;&gt; result = this.userUtil.getUserByRole(roleId);
+        // 根节点名称
+        Map&lt;String, Object&gt; root = new HashMap&lt;String, Object&gt;();
+        root.put("ID", "11");
+        root.put("CODE", "11");
+        root.put("TEXT", "当前角色用户树");
+        root.put("PARENT", "#");
+        root.put("TYPE", "isRoot");
+        result.add(root);
+        return result;
+
+    }
+
+    /**
+     * 
+     * 用户树
+     * \@Title: userTree 
+     * \@author: ChenXin
+     * \@return List&lt;Map&lt;String, Object&gt;&gt;
+     */
+    \@RequestMapping("/userTree")
+    \@ResponseBody
+    public List&lt;Map&lt;String, Object&gt;&gt; userTree() {
+        String treeType = super.getPara("treeType");
+        List&lt;Map&lt;String, Object&gt;&gt; result = this.organUtil.getOrgTreeByTreeType(treeType);
+        // 拼入根节点
+        Map&lt;String, Object&gt; root = new HashMap&lt;String, Object&gt;();
+        root.put("ID", "11");
+        root.put("CODE", "11");
+        root.put("TEXT", "系统用户");
+        root.put("PARENT", "#");
+        root.put("ISLEAF", "0");
+        root.put("TYPE", "isRoot");
+        result.add(root);
+        return result;
+
+    }</code></pre>
+        </div>
+        <div class="layui-tab-item">
+        <pre><code class="javaScript">    /**
+     * \@Description: 组织机构树demo脚本文件
+     * \@Author: chenxin
+     * \@Date: 2018/5/28.
+     */
+
+    layui.use(['jquery','layer','Hussar','jstree','HussarAjax','element'], function(){
+
+        var Hussar = layui.Hussar;
+        var $ = layui.jquery;
+        var layer=layui.layer;
+        var jstree=layui.jstree;
+        var $ax=layui.HussarAjax;
+        var element = layui.element;
+        var layerView;
+        var OrgTreeDemo = {};
+        var userTreeArry=[];
+        var RoleUserTreeArry=[];
+
+
+        $("#orgTree").click(function(){
+            layerView=layer.open({
+                type: 1,
+                area: ['350px','500px'],
+                fix: false, //不固定
+                maxmin: true,
+                shadeClose: false,
+                shade: 0.4,
+                title: "组织机构树",
+                content: $("#orgTreeDiv"),
+                success:function(){
+                    var data;
+                    var ajax = new $ax(Hussar.ctxPath + "/orgTreeDemo/orgTree",function(result) {
+                        data = result;
+                    }, function(data) {
+                        Hussar.error("获取组织机构树失败！");
+                    });
+                    ajax.set("treeType", 1);
+                    ajax.start();
+                    OrgTreeDemo.initOrgTreeDemo(data);
+                }
+            });
+        });
+
+        $("#employeeTree").click(function(){
+            layerView=layer.open({
+                type: 1,
+                area: ['350px','500px'],
+                fix: false, //不固定
+                maxmin: true,
+                shadeClose: false,
+                shade: 0.4,
+                title: "人员树",
+                content: $("#employeeTreeDiv"),
+                success:function(){
+                    var data;
+                    var ajax = new $ax(Hussar.ctxPath + "/orgTreeDemo/employeeTree",function(result) {
+                        data = result;
+                    }, function(data) {
+                        Hussar.error("获取人员失败！");
+                    });
+                    ajax.set("treeType", 2);
+                    ajax.start();
+                    OrgTreeDemo.initEmployeeTree(data);
+                }
+            });
+        });
+
+        $("#search").click(function(){
+            layerView=layer.open({
+                type: 1,
+                area: ['350px','500px'],
+                fix: false, //不固定
+                maxmin: true,
+                shadeClose: false,
+                shade: 0.4,
+                title: "当前角色用户树",
+                content: $("#roleUserTreeDiv"),
+                success:function(){
+                    var data;
+                    var ajax = new $ax(Hussar.ctxPath + "/orgTreeDemo/roleUserTree",function(result) {
+                        OrgTreeDemo.initRoleUserTree(result);
+                    }, function(data) {
+                        Hussar.error("获取当前角色用户树失败！");
+                    });
+                    ajax.set("roleId", $("#roleId").val());
+                    ajax.start();
+                }
+            });
+        });
+
+        $("#userTree").click(function(){
+            layerView=layer.open({
+                type: 1,
+                area: ['350px','500px'],
+                fix: false, //不固定
+                maxmin: true,
+                shadeClose: false,
+                shade: 0.4,
+                title: "用户树",
+                content: $("#userTreeDiv"),
+                success:function(){
+                    var data;
+                    var ajax = new $ax(Hussar.ctxPath + "/orgTreeDemo/userTree",function(result) {
+                        data = result;
+                    }, function(data) {
+                        Hussar.error("获取用户树失败！");
+                    });
+                    ajax.set("treeType", 3);
+                    ajax.start();
+                    OrgTreeDemo.initUserTree(data);
+                }
+            });
+        });
+
+        $("#userTreeRest").click(function(){
+            var $tree = $("#showUserTree");
+            var ref =$tree.jstree(true);
+            ref.uncheck_node(userTreeArry[0]);
+            userTreeArry=[];
+        })
+
+        $("#userTreeSave").click(function(){
+            var nodes = $("#showUserTree").jstree(true).get_checked();//使用get_checked方法
+            if(nodes.length==0){
+                layer.msg("请选择用户！");
+            }else{
+                layer.msg("你选中了："+userTreeArry[1]+"&nbsp;&nbsp;节点id："+userTreeArry[0])
+                layer.close(layerView);
+            }
+        })
+
+        $("#roleUserTreeRest").click(function(){
+            var $tree = $("#showRoleUserTree");
+            var ref =$tree.jstree(true);
+            ref.uncheck_node(RoleUserTreeArry[0]);
+            RoleUserTreeArry=[];
+        })
+
+        $("#roleUserTreeSave").click(function(){
+            var nodes = $("#showRoleUserTree").jstree(true).get_checked();//使用get_checked方法
+            if(nodes.length==0){
+                layer.msg("请选择用户！");
+            }else{
+                layer.msg("你选中了："+RoleUserTreeArry[0]+"&nbsp;&nbsp;节点id："+RoleUserTreeArry[1])
+                layer.close(layerView);
+            }
+        })
+
+        OrgTreeDemo.initOrgTreeDemo = function(data) {
+            var $tree = $("#showOrgTree");
+            $tree.jstree({
+                core: {
+                    data: data
+                },
+                plugins: ['types'],
+                types:{
+                    "1":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/com.png"},
+                    "2":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/dept.png"},
+                    "3":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/station.png"},
+                    "9":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/empl.png"}
+                }
+            });
+            $tree.bind('activate_node.jstree', function (obj,e){
+                layer.msg("你点击了："+e.node.original.text+"&nbsp;&nbsp;节点id："+e.node.original.id)
+            })
+        }
+
+        OrgTreeDemo.initEmployeeTree = function(data) {
+            var $tree = $("#showEmployeeTree");
+            $tree.jstree({
+                core: {
+                    data: data
+                },
+                plugins: ['types'],
+                types:{
+                    "1":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/com.png"},
+                    "2":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/dept.png"},
+                    "3":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/station.png"},
+                    "9":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/empl.png"}
+                }
+            });
+            $tree.bind('activate_node.jstree', function (obj,e){
+                layer.msg("你点击了："+e.node.original.text+"&nbsp;&nbsp;节点id："+e.node.original.id)
+            })
+        }
+
+        OrgTreeDemo.initRoleUserTree = function(data) {
+            var $tree = $("#showRoleUserTree");
+            $tree.jstree({
+                core: {
+                    data: null
+                },
+                plugins: ['types','checkbox'],
+                checkbox: {
+                    keep_selected_style : false,
+                    three_state : true,
+                    tie_selection : false
+                },
+                types:{
+                    "1":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/com.png"},
+                    "2":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/dept.png"},
+                    "3":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/station.png"},
+                    "9":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/empl.png"},
+                    "USER":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/user.png"},
+                }
+            });
+            $tree.jstree(true).settings.core.data=data;
+            $tree.jstree(true).refresh();
+            $tree.bind('activate_node.jstree', function (obj,e){
+                OrgTreeDemo.getCheckedId($tree);
+                //layer.msg("你选中了："+OrgTreeDemo.getCheckedId($tree)[1]+"&nbsp;&nbsp;节点id："+OrgTreeDemo.getCheckedId($tree)[0])
+            })
+        }
+
+        OrgTreeDemo.initUserTree = function(data) {
+            var $tree = $("#showUserTree");
+            $tree.jstree({
+                core: {
+                    data: data
+                },
+                plugins: ['types','checkbox'],
+                checkbox: {
+                    keep_selected_style : false,
+                    three_state : true,
+                    tie_selection : false
+                },
+                types:{
+                    "1":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/com.png"},
+                    "2":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/dept.png"},
+                    "3":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/station.png"},
+                    "9":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/empl.png"},
+                    "USER":{'icon' : Hussar.ctxPath+"/static/assets/img/treeContext/" +theme +"/user.png"}
+                }
+            });
+            $tree.bind('activate_node.jstree', function (obj,e){
+                var ref =$tree.jstree(true);
+                if(e.node.type=="USER"){
+                    var nodes = ref.get_checked(); //使用get_checked方法
+                    if(nodes.length&gt;1){
+                        $.each(nodes, function(i, nd) {
+                            if(nd != e.node.id){
+                                otherNode = nd;
+                            }
+                        })
+                        ref.uncheck_node(otherNode);
+                    }
+                    OrgTreeDemo.getUserCheckedId($tree);
+                    //layer.msg("你选中了："+OrgTreeDemo.getUserCheckedId($tree)[1]+"&nbsp;&nbsp;节点id："+OrgTreeDemo.getUserCheckedId($tree)[0])
+                }else{
+                    ref.uncheck_node(e.node.id);
+                    return;
+                }
+            })
+        }
+
+        /**
+         * 获取选中资源id
+         */
+        OrgTreeDemo.getCheckedId = function (tree) {
+            var ref = tree.jstree(true);
+            var nodes = ref.get_checked(true);  //使用get_checked方法
+            var nds =[];
+            var names='';
+            $.each(nodes, function(i, nd) {
+                var type=nd.original.type;
+                if(type=="USER"){
+                    nds.push(nd.id);
+                    names +=","+nd.text
+                }
+            });
+            RoleUserTreeArry=[];
+            RoleUserTreeArry.push(nds);
+            RoleUserTreeArry.push(names.substring(1));
+            return RoleUserTreeArry;
+        }
+
+        /**
+         * 获取选中资源id
+         */
+        OrgTreeDemo.getUserCheckedId = function (tree) {
+            var ref = tree.jstree(true);
+            var nodes = ref.get_checked(true);  //使用get_checked方法
+            var nds =[];
+            var names='';
+            $.each(nodes, function(i, nd) {
+                var type=nd.original.type;
+                if(type=="USER"){
+                    nds.push(nd.id);
+                    names +=","+nd.text
+                }
+            });
+            userTreeArry=[];
+            userTreeArry.push(nds);
+            userTreeArry.push(names.substring(1));
+            return userTreeArry;
+        }
+    });</code></pre>
+        </div>
+        </div>
+        </div>
+</div> 
+</body>
+<!--脚本区域开始-->
+<script type="text/javascript">
+var icon=${imgUrl};
+</script>
+<script src="${ctxPath}/static/js/hussardemo/orgTreeDemo.js"></script>
+<!--脚本区域结束-->
+<link rel="stylesheet" href="${ctxPath}/static/css/common/project_ext.css">
+</html>

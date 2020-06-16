@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UEditor 富文本编辑器</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <style type="text/css">
+        div{
+            width:100%;
+        }
+        
+        .btnDiv {
+        	width:1024px;
+        	height:30px;
+        }
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">UEditor Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <!-- 第一个tab页内容-->
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form" >
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label " style="width:120px;">富文本编辑器展示</label>
+                        </div>
+                        <div class="layui-inline">
+                            <div class="layui-input-inline">
+                                <div>
+								    <div id="editor" style="width:1024px;height:350px;"></div>
+								</div>
+								<div id="btns">
+								    <div class="btnDiv">
+								        <button id="getAllHtml" >获得整个html的内容</button>
+								        <button id="getContent" >获得内容</button>
+								        <button id="setContent" >写入内容</button>
+								        <button id="appendContent" >追加内容</button>
+								        <button id="getContentTxt" >获得纯文本</button>
+								        <button id="getPlainTxt" >获得带格式的纯文本</button>
+								        <button id="hasContent" >判断是否有内容</button>
+								        <button id="setFocus" >使编辑器获得焦点</button>
+								        <button id="isFocus" >编辑器是否获得焦点</button>
+								        <button id="setblur" >编辑器失去焦点</button>
+								    </div>
+								    <div class="btnDiv">
+								        <button id="getText"  >获得当前选中的文本</button>
+								        <button id="insertHtml"  >插入给定的内容</button>
+								        <button id="setHide" >隐藏编辑器</button>
+								        <button id="setShow"  >显示编辑器</button>
+								        <button id="setHeight" >设置高度为300默认关闭了自动长高</button>
+								    </div>
+								    <div class="btnDiv">
+								        <button id="getLocalData" onclick="getLocalData()" >获取草稿箱内容</button>
+								        <button id="clearLocalData" onclick="clearLocalData()" >清空草稿箱</button>
+								    </div>
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <blockquote class="layui-elem-quote">
+                  <em>《轻骑兵平台开发手册》</em>。
+                </blockquote>
+            </div>
+            <!-- 第二个tab页内容-->
+            <div class="layui-tab-item">
+                <pre><code class="java">     /**
+     * 类的用途：富文本编辑示例&lt;p&gt;
+     * 创建日期：2018年11月14日 &lt;br&gt;
+     * 修改历史：&lt;br&gt;
+     * 修改日期：2018年11月14日 &lt;br&gt;
+     * 修改作者：WangBinBin &lt;br&gt;
+     * 修改内容：修改内容 &lt;br&gt;
+     * \@version 1.0
+     */
+    \@Controller
+    \@RequestMapping("/ueditor")
+    public class UEditorController extends BaseController {
+
+        /**
+         * 返回富文本编辑框页面
+         * \@Title: index
+         * \@author: WangBinBin
+         * \@return
+         */
+        \@RequestMapping("/view")
+        public String index() {
+            return "/hussardemo/ueditorDemo.html";
+        }
+
+        \@RequestMapping("/config")
+        \@ResponseBody
+        public String config(HttpServletRequest request) {
+            String rootPath = "";
+
+            return new ActionEnter(request, rootPath).exec();
+        }
+
+    }</code></pre>
+            </div>
+            <!-- 第三个tab页内容-->
+            <div class="layui-tab-item">
+                <pre><code class="javaScript">    /**
+     * \@Description: 定义工作日历Demo脚本文件
+     * \@Author: liangdong
+     * \@Date: 2018/5/28.
+     */
+    layui.use([ 'jquery','ueditorConfig','ueditor','element' ], function() {
+        var $ = layui.jquery;
+
+        var Ueditor = {
+            id: "editor",	//divId
+            ue:"",
+            layerIndex: -1
+        };
+
+        // 建议使用工厂方法getEditor创建和引用编辑器实例，如果在某个闭包下引用该编辑器，直接调用UE.getEditor('editor')就能拿到相关的实例
+        Ueditor.initEditor = function(){
+            Ueditor.ue = UE.getEditor('editor');
+        }
+
+        // 初始化页面按钮事件&lt;示例&gt;
+        Ueditor.initButtonEvents = function(){
+            /*
+             * 获取整个html的内容
+             */
+            $("#getAllHtml").click(function(){
+                alert(Ueditor.ue.getAllHtml());
+                return false;
+            });
+
+            /**
+             * 获得编辑框内容
+             */
+            $("#getContent").click(function(){
+                var arr = [];
+                arr.push("使用editor.getContent()方法可以获得编辑器的内容");
+                arr.push("内容为：");
+                arr.push(Ueditor.ue.getContent());
+                alert(arr.join("\n"));
+                return false;
+            });
+
+            /**
+             * 写入内容
+             */
+            $("#setContent").click(function(){
+                var arr = [];
+                arr.push("使用editor.setContent('欢迎使用轻骑兵开发平台  V8 ')方法可以设置编辑器的内容");
+                Ueditor.ue.setContent('欢迎使用轻骑兵开发平台  V8 ', false);
+                alert(arr.join("\n"));
+                return false;
+            });
+
+            /**
+             * 追加写入内容
+             */
+            $("#appendContent").click(function(){
+                var arr = [];
+                arr.push("使用editor.setContent('欢迎使用轻骑兵开发平台  V8 ')方法可以设置编辑器的内容");
+                Ueditor.ue.setContent('欢迎使用轻骑兵开发平台  V8 ', true);
+                alert(arr.join("\n"));
+                return false;
+            });
+
+            /**
+             * 以获得编辑器的纯文本内容
+             */
+            $("#getContentTxt").click(function(){
+                var arr = [];
+                arr.push("使用editor.getContentTxt()方法可以获得编辑器的纯文本内容");
+                arr.push("编辑器的纯文本内容为：");
+                arr.push(Ueditor.ue.getContentTxt());
+                alert(arr.join("\n"));
+                return false;
+            });
+
+            /**
+             * 获得带格式的纯文本
+             */
+            $("#getPlainTxt").click(function(){
+                var arr = [];
+                arr.push("使用editor.getPlainTxt()方法可以获得编辑器的带格式的纯文本内容");
+                arr.push("内容为：");
+                arr.push(Ueditor.ue.getPlainTxt());
+                alert(arr.join('\n'));
+                return false;
+            });
+
+            /**
+             * 判断编辑器里是否有内容
+             */
+            $("#hasContent").click(function(){
+                var arr = [];
+                arr.push("使用editor.hasContents()方法判断编辑器里是否有内容");
+                arr.push("判断结果为：");
+                arr.push(Ueditor.ue.hasContents());
+                alert(arr.join("\n"));
+                return false;
+            });
+
+            /**
+             * 使编辑器获得焦点
+             */
+            $("#setFocus").click(function(){
+                Ueditor.ue.focus();
+                return false;
+            });
+
+            /**
+             * 编辑器是否获得焦点
+             */
+            $("#isFocus").mouseover(function(e){
+                alert(Ueditor.ue.isFocus());
+                UE.dom.domUtils.preventDefault(e);
+                return false;
+            });
+
+            /**
+             * 编辑器失去焦点
+             */
+            $("#setblur").mouseover(function(e){
+                Ueditor.ue.blur();
+                UE.dom.domUtils.preventDefault(e);
+                return false;
+            });
+
+            /**
+             * 获得当前选中的文本
+             */
+            $("#getText").click(function(e){
+                // 当你点击按钮时编辑区域已经失去了焦点，如果直接用getText将不会得到内容，所以要在选回来，然后取得内容
+                var range = Ueditor.ue.selection.getRange();
+                range.select();
+                var txt = Ueditor.ue.selection.getText();
+                alert(txt);
+                return false;
+            });
+
+            /**
+             * 插入给定的内容
+             */
+            $("#insertHtml").click(function(e){
+                var value = prompt('插入html代码', '');
+                Ueditor.ue.execCommand('insertHtml', value);
+                return false;
+            });
+
+            /**
+             * 隐藏编辑器
+             */
+            $("#setHide").click(function(e){
+                Ueditor.ue.setHide();
+                return false;
+            });
+
+            /**
+             * 显示编辑器
+             */
+            $("#setShow").click(function(e){
+                Ueditor.ue.setShow();
+                return false;
+            });
+
+
+            /**
+             * 设置高度为300
+             */
+            $("#setHeight").click(function(e){
+                Ueditor.ue.setHeight(300);
+                return false;
+            });
+
+
+            /**
+             * 获取草稿箱内容
+             */
+            $("#getLocalData").click(function(e){
+                alert(Ueditor.ue.execCommand("getlocaldata"));
+                return false;
+            });
+
+            /**
+             * 清空草稿箱
+             */
+            $("#clearLocalData").click(function(e){
+                Ueditor.ue.execCommand("clearLocalData");
+                alert("已清空草稿箱");
+                return false;
+            });
+
+        }
+
+        $(function () {
+            Ueditor.initEditor();   //初始化UEditor
+            Ueditor.initButtonEvents();   //初始化按钮事件
+        });
+    });
+                </code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script src="${ctxPath}/static/js/hussardemo/ueditorDemo.js"></script>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

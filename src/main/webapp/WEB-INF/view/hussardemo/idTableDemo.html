@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>最大号表序号demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+	<link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+   	<style>
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+        p {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+    </style>
+    <!--外部css和js结束-->
+
+</head>
+<body>
+<div class="weadmin-body">
+<div class="layui-tab layui-tab-brief">
+  <ul class="layui-tab-title">
+    <li class="layui-this">Demo</li>
+    <li>Java</li>
+    <li>JavaScript</li>
+  </ul>
+  <div class="layui-tab-content">
+  <div class="layui-tab-item layui-show">
+  <div style="margin-top: 2%">
+  <p>1、生成序号</p>
+  <p>选择业务名称，业务表获取最大号表序号</p>
+			<form class="layui-form">      
+        <div class="layui-form-item clearfix">
+        <div class="layui-input-inline">
+            	<select id="operation" name="operation" lay-search="" lay-filter="tableList" lay-verify="required">
+                         <option value="">业务名称查询</option>
+                         @for(ope in operation!){
+                         <option value="${ope.fieldName}">${ope.fieldName}</option>
+                         @}
+                 </select>
+            </div>
+            <div class="layui-input-inline">
+            	<select id="idTable" name="idTable" lay-search="" lay-filter="tableList" lay-verify="required">
+                         <option value="">业务表名查询</option>
+                         @for(table in tables!){
+                         <option value="${table.TABLENAME}">${table.TABLENAME}-${table.TABLECOMMENT}</option>
+                         @}
+                 </select>
+            </div>
+            <div class="layui-input-inline">
+                <button lay-submit lay-filter="verify" type="button" class="layui-btn" id="search">生成序号</button>
+            </div>
+        </div><br>
+			</form>  
+
+			<p>生成序号：</p>
+                <form class="layui-form">
+                    <div class="layui-form-item clearfix">
+                        <div class="layui-col-md5">
+                        <textarea id="idValue" name="idValue" placeholder="最大号表序号展示"
+                          class="layui-textarea" readonly></textarea>
+                        </div>
+                    </div><br>
+                </form>
+                </div>
+
+
+<div>
+  <p>2、生成层级码</p>
+  <p>选择业务名称，业务表获取最大号表序号</p>
+			<form class="layui-form">      
+        <div class="layui-form-item clearfix">
+        <div class="layui-input-inline">
+            	<select id="operationTwo" name="operation" lay-search="" lay-filter="tableList" lay-verify="required">
+                         <option value="">业务名称查询</option>
+                         @for(ope in operation!){
+                         <option value="${ope.fieldName}">${ope.fieldName}</option>
+                         @}
+                 </select>
+            </div>
+            <div class="layui-input-inline">
+            	<select id="idTableTwo" name="idTable" lay-search="" lay-filter="tableList" lay-verify="required">
+                         <option value="">业务表名查询</option>
+                         @for(table in tables!){
+                         <option value="${table.TABLENAME}">${table.TABLENAME}-${table.TABLECOMMENT}</option>
+                         @}
+                 </select>
+            </div>
+            <div class="layui-input-inline">
+                  <input id="parentNumber" name="parentNumber"  class="layui-input" placeholder="上级编码"  >
+            </div>
+            <div class="layui-input-inline">
+                <button lay-submit lay-filter="getLevel" type="button" class="layui-btn" id="getLevel">生成层级码</button>
+            </div>
+        </div><br>
+			</form>  
+
+			<p>生成层级码：</p>
+                <form class="layui-form">
+                    <div class="layui-form-item clearfix">
+                        <div class="layui-col-md5">
+                        <textarea id="idValueTwo" name="idValue" placeholder="最大号表序号展示"
+                          class="layui-textarea" readonly></textarea>
+                        </div>
+                    </div><br>
+                </form>
+                </div>
+                
+        <blockquote class="layui-elem-quote">
+            最大号表常用在生成系统编码，如：组织机构编码，资源编码<br>
+            系统编码的生成规则可以根据业务需求自行定义<br>
+            需要注意的是，如果涉及业务需要系统编码，请先维护最大号表
+        </blockquote>
+        </div>
+        <div class="layui-tab-item">
+        <pre><code class="java">/**
+ * 类的用途：
+ * 创建日期：2018年5月29日 
+ * 修改历史：
+ * 修改日期：2018年5月29日 
+ * 修改作者：ChenXin 
+ * 修改内容：修改内容 
+ * \@author ChenXin
+ * \@version 1.0
+ */
+\@RequestMapping("/idTableDemo")
+\@Controller
+public class IdTableDemo extends BaseController {
+
+    /**
+     * 获取表名接口
+     */
+    \@Resource
+    private TableService tableService;
+
+    /**
+     * 最大号表接口
+     */
+    \@Resource
+    ISysIdtableService sysIdtableService;
+
+    /**
+     *
+     * 最大号表demo页面
+     * \@Title: view
+     * \@author: ChenXin
+     * \@return 页面
+     */
+    \@RequestMapping("/view")
+    public String view(Model model) {
+        model.addAttribute("tables", tableService.getTables());
+        model.addAttribute("operation", sysIdtableService.selectList(new EntityWrapper<SysIdtable>()));
+        return "/hussardemo/idTableDemo.html";
+    }
+
+    /**
+     *
+     * 获取最大号表序号
+     * \@Title: getNumber
+     * \@author: ChenXin
+     * \@return String
+     */
+    \@RequestMapping("/getNumber")
+    \@ResponseBody
+    public String getNumber() {
+        String idTable = super.getPara("idTable").toLowerCase();
+        String operation = super.getPara("operation");
+        String currentCode = sysIdtableService.getCurrentCode(operation, idTable);
+        return currentCode;
+    }
+
+    /**
+    *
+    * 获取最大号表序号
+    * \@Title: getNumber
+    * \@author: ChenXin
+    * \@return String
+    */
+    \@RequestMapping("/getLevel")
+    \@ResponseBody
+    public String getLevel() {
+        String idTable = super.getPara("idTable").toLowerCase();
+        String operation = super.getPara("operation");
+        String parentNumber = super.getPara("parentNumber");
+        String currentCode = sysIdtableService.getCurrentCode(operation, idTable, parentNumber);
+        return currentCode;
+    }
+}</code></pre>
+        </div>
+        <div class="layui-tab-item">
+        <pre><code class="javaScrift">/**
+ * \@Description: 最大号表Demo脚本文件
+ * \@Author: chenxin
+ * \@Date: 2018/05/29.
+ */
+layui.use(['jquery','layer','Hussar','HussarAjax','form','element'], function(){
+    var Hussar = layui.Hussar;
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var $ax = layui.HussarAjax;
+    var form = layui.form;
+    var element = layui.element;
+
+    /**
+     * 字典管理Demo的单例
+     */
+    var idTableDemo = {
+        layerIndex: -1
+    };
+
+    /**
+     *  初始化按钮事件
+     */
+    idTableDemo.initButtonEvnts = function () {
+        $("#search").click(function(){
+        	form.on('submit(verify)', function(data){
+        		idTableDemo.getNumber();
+        	});
+        });
+        
+        $("#getLevel").click(function(){
+        	form.on('submit(getLevel)', function(data){
+        		idTableDemo.getLevel();
+        	});
+        });
+    }
+
+    /**
+     *  获取序号
+     */
+    idTableDemo.getNumber = function () {
+        var idTable = $('#idTable').val();
+        var operation = $('#operation').val();
+        var ajax = new $ax(Hussar.ctxPath + "/idTableDemo/getNumber",
+            function(data) {
+        	if(data.length==0){
+        		$("#idValue").val("无");
+        	}else{
+        		$("#idValue").val(data)
+        	}
+            },
+            function(data) {
+                Hussar.error("获取最大化表的序号失败!");
+            });
+        ajax.set("idTable",idTable);
+        ajax.set("operation",operation);
+        ajax.start();
+    }
+
+    /**
+     *  获取层级码
+     */
+    idTableDemo.getLevel = function () {
+        var idTable = $('#idTableTwo').val();
+        var operation = $('#operationTwo').val();
+        var parentNumber = $('#parentNumber').val();
+        var ajax = new $ax(Hussar.ctxPath + "/idTableDemo/getLevel",
+            function(data) {
+        	if(data.length==0){
+        		$("#idValueTwo").val("无");
+        	}else{
+        		$("#idValueTwo").val(data)
+        	}
+            },
+            function(data) {
+                Hussar.error("获取最大化表的序号失败!");
+            });
+        ajax.set("idTable",idTable);
+        ajax.set("operation",operation);
+        ajax.set("parentNumber",parentNumber);
+        ajax.start();
+    }
+
+
+
+    $(function () {
+        idTableDemo.initButtonEvnts();  //初始化按钮事件
+    });
+
+});</code></pre>
+        </div>
+        </div>
+</div>
+</div>
+
+<script src="${ctxPath}/static/js/hussardemo/idTableDemo.js"></script>
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/bsp/project_ext.css">
+</html>

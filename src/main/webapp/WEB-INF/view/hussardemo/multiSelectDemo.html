@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:hussar="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>多选下拉框demo</title>
+
+    <!--外部css和js开始-->
+    @include("/common/plugins.html"){}
+    <link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+    <script src="${ctxPath}/static/js/hussardemo/multiSelectDemo.js"></script>
+    <!--外部css和js结束-->
+</head>
+<body>
+<div class="weadmin-body">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">Demo</li>
+            <li>Java</li>
+            <li>JavaScript</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form" id="form">
+                    <p>1、自定义标签的多选下拉框</p><br/>
+                    <div class="layui-input-inline layui-col-md3 layui-col-md-offset1">
+                        <hussar:multiSelect id="select1" name="select1" multiple="multiple" selected="3-1-5" disabledOptions="2" dicType="oa_leave_type"></hussar:multiSelect>
+                    </div>
+                    <div class="layui-input-inline layui-col-md-offset1">
+                        <input type="button" id="btn" class="layui-btn layui-btn-normal" value="获取选中的值">
+                    </div><br/><br/>
+                    <p>2、一般标签的多选下拉框</p><br/>
+                    <div class="layui-input-inline layui-col-md3 layui-col-md-offset1">
+                        <select  id="select2" multiple="multiple">
+                            <option value="1" disabled>示例1</option>
+                            <option value="2">示例2</option>
+                            <option value="3">示例3</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline layui-col-md-offset1">
+                        <input type="button" id="btn1" class="layui-btn layui-btn-normal" value="获取选中的值">
+                    </div>
+                </form><br><br><br>
+                <blockquote class="layui-elem-quote">
+                    1.只需要在标签中加入 multiple="multiple" 并加载模块"multiSelect"即可使用<br>
+                    2.一般标签&lt;option&gt;中设置"disabled"属性或者平台自定义标签中设置disabledOptions = "属性值1-属性值2"(必须以"-"分隔)，可将选项设置为不可选<br/>
+                    3.更详细的属性设置请查看《轻骑兵平台开发手册》
+                </blockquote>
+            </div>
+            <div class="layui-tab-item">
+            <pre><code class="javaScript">
+                /**
+                * 类的用途：多选下拉框Demo
+                * 创建日期：2018/12/3 9:31;
+                * 修改历史：
+                * 修改日期：2018/12/3 9:31;
+                * 修改作者：zhaopengcheng ;
+                * 修改内容：
+                * \@author zhaopengcheng ;
+                * \@version 1.0
+                */
+                \@Controller
+                \@RequestMapping("/multiSelectDemoController")
+                public class MultiSelectDemoController extends BaseController{
+
+                    /**
+                    * 跳转到多选下拉框页面
+                    * \@param model 传值
+                    * \@return String
+                    */
+                    \@RequestMapping("/returnMultiSelect")
+                    public String doReturnMultiSelectM(Model model){
+                        model.addAttribute("selectCheck",'3');
+                        return "/hussardemo/multiSelectDemo.html";
+                    }
+                }
+            </code></pre>
+            </div>
+            <div class="layui-tab-item">
+            <pre><code class="javaScript">
+                /**
+                * \@Description: 多选下拉框
+                * \@Author: zhaopengcheng
+                * \@Date: 2018/11/30
+                */
+
+                layui.use(['multiSelect','element','form','Hussar','jquery'],function() {
+                    var multiSelect = layui.multiSelect
+                        ,$ = layui.jquery
+                        ,Hussar = layui.Hussar;
+
+                    // 取值
+                    $("#btn").click(function() {
+                        var msg = $("#select1").val();
+                        Hussar.info(msg.toString());
+                    })
+
+                    // 取值
+                    $("#btn1").click(function() {
+                        var msg1 = $("#select2").val();
+                        Hussar.info(msg1.toString());
+                    })
+                });
+            </code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

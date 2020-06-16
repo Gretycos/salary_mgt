@@ -1,0 +1,79 @@
+.wenku-nopadding {
+    padding: 0px;
+}
+
+.panel {
+    border-radius: 0px;
+    border: none;
+}
+
+.panel-default {
+    font-size: 16px;
+}
+
+.wenku-noborder {
+    border: 0px;
+}
+
+.panel-body {
+    padding: 15px;
+}
+
+#wenku-content h1 {
+    font-size: 22px;
+    margin: 0px;
+    line-height: 150%;
+}
+
+.help-block {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #6b7a88;
+}
+
+#wenku-content .wenku-preview-tips {
+    border: 1px dashed #f1c40f;
+    padding: 5px;
+    border-radius: 3px;
+    clear: both;
+}
+
+.strong {
+    font-weight: bold;
+    font-style: normal;
+}
+
+.text-primary {
+    color: #1abc9c;
+}
+
+#wenku-content .wenku-viewer {
+    overflow-x: hidden;
+    border: 5px solid #F6F6F6;
+    border-bottom: 0px;
+    clear: both;
+}
+
+#wenku-content .wenku-viewer .wenku-viewer-img {
+    border-bottom: 5px solid #F6F6F6;
+    display: block;
+    width: 100%;
+}
+
+.wenku-viewer-img {
+    width: 100%;
+    min-height: 500px;
+}
+
+img {
+    vertical-align: middle;
+}
+
+#wenku-content .wenku-viewer-more {
+    border-bottom: 5px solid #F6F6F6;
+    padding: 30px 0px 20px;
+}
+
+.text-center {
+    text-align: center;
+}

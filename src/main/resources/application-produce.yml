@@ -1,0 +1,63 @@
+##########################################################
+###################  正式环境的profile  ###################
+##########################################################
+spring:
+  profiles: produce
+  cache:
+    type: redis
+  redis:
+    host: 127.0.0.1       #redis服务器地址
+    port: 6379            #redis服务器端口
+    password: admin123    #redis 密码
+    database: 1           #默认连接的库
+    timeout: 2000         #连接超时时间（毫秒）
+    jedis:
+      pool:
+        max-active: 3000        # 连接池最大连接数（使用负值表示没有限制）
+        max-idle: 3000          # 连接池中的最大空闲连接
+        min-idle: 0             # 连接池中的最小空闲连接
+        max-wait: -1            # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        time-between-eviction-runs: 60000  #空闲链接检测线程检测周期。如果为负值，表示不运行检测线程。（单位：毫秒，默认为-layer）
+#    cluster:
+#      max-redirects: 3          #跨集群执行命令时要遵循的最大重定向数量
+#      nodes:                    # cluster模式集群节点配置，或者host中配置，以英文逗号隔开127.0.0.1:6381,127.0.0.1:6382,......
+#      - 127.0.0.1:6380
+#      - 127.0.0.1:6381
+#      - 127.0.0.1:6382
+#      - 127.0.0.1:6383
+#      - 127.0.0.1:6384
+#      - 127.0.0.1:6385      
+#    sentinel:             # 哨兵模式配置
+#      master: hussarmaster        #哨兵节点名称 Name of Redis server
+#      nodes: 192.168.83.17:26379,192.168.83.17:26380,192.168.83.17:26381   #英文逗号（,）分割开的哨兵节点信息  Comma-separated list of host:port pairs.
+
+###################  mongodb配置  ###################
+#  data:
+#    mongodb:
+#      host: mongodb.jxdinfo.com
+#      port: 27017
+#      database: log4j
+###################  mysql配置  ###################
+#  datasource:
+#    url: jdbc:mysql://127.0.0.1:3306/hussar_v8_1.7.5?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+#    username: root
+#    password: root
+#    db-name: hussar_v8_1.7.5
+#    filters: log4j,wall,mergeStat
+#    driverClassName: com.mysql.cj.jdbc.Driver
+###################  oracle配置  ###################
+  datasource:
+    url: jdbc:oracle:thin:@oracle.jxdinfo.com:1521:orcl
+    username: hussar_v8
+    password: hussar_v8
+    db-name: hussar_v8
+    filters: log4j,wall,mergeStat
+    driverClassName: oracle.jdbc.OracleDriver
+    validation-query: select 1 from dual
+###################  DM7配置  ###################
+#  datasource:
+#    driverClassName: dm.jdbc.driver.DmDriver
+#    url: jdbc:dm://dm.jxdinfo.com:5236
+#    username: HUSSAR_V8
+#    password: HUSSAR_V8
+#    db-name: HUSSAR_V8

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>fileupload demo</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  @include("/common/plugins.html"){}
+  <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+	<link rel="stylesheet" href="${ctxPath}/static/assets/lib/highlight/styles/routeros.css">
+    <script src="${ctxPath}/static/assets/lib/highlight/highlight.pack.js"></script>
+    <script defer="defer">hljs.initHighlightingOnLoad();</script>
+   	<style>
+        .layui-form-label{width: 108px}
+        pre {
+            position: relative;
+            margin: 10px 0;
+            line-height: 20px;
+            border: 1px solid #ddd;
+            border-left-width: 6px;
+            background-color: #F2F2F2;
+        }
+  .layui-upload-img{width: 92px;height: 92px;margin: 0 10px 10px 0;}
+    </style>
+</head>
+<body>
+<div class="weadmin-body">
+<div class="layui-tab layui-tab-brief">
+  <ul class="layui-tab-title">
+    <li class="layui-this">Demo</li>
+    <li>Java</li>
+    <li>JavaScript</li>
+  </ul>
+  <div class="layui-tab-content">
+  <div class="layui-tab-item layui-show">
+<fieldset class="layui-elem-field layui-field-title">
+	<legend>普通上传</legend>
+</fieldset>
+<div class="layui-upload">
+  <button type="button" class="layui-btn" id="test1">上传图片</button>
+  <div class="layui-upload-list" >
+   	<img class="layui-upload-img" id="demo1">
+    <p id="demoText"></p>
+  </div>
+</div>
+ 
+<fieldset class="layui-elem-field layui-field-title">
+  <legend>上传多张图片</legend>
+</fieldset>
+ 
+<div class="layui-upload">
+  <button type="button" class="layui-btn" id="test2">多图片上传</button> 
+  <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 20px">
+    预览图：
+    <div class="layui-upload-list" id="demo2"></div>
+ </blockquote>
+</div>
+   
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px">
+  <legend>选完文件后不自动上传（进度条）</legend>
+</fieldset>
+ 
+<div class="layui-upload" id="demoText1">
+  <button type="button" class="layui-btn layui-btn-normal" id="test8">选择文件</button>
+  <button type="button" class="layui-btn site-demo-active" data-type="loading" id="test9" >开始上传</button>
+</div>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px">
+  <legend>选完文件后不自动上传（loading）</legend>
+</fieldset>
+ 
+<div class="layui-upload">
+  <button type="button" class="layui-btn layui-btn-normal" id="test10">选择文件</button>
+  <button type="button" class="layui-btn site-demo-active" data-type="loading" id="test11" >开始上传</button>
+</div>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px">
+  <legend>高级应用：制作一个多文件列表</legend>
+</fieldset> 
+ 
+<div class="layui-upload">
+  <button type="button" class="layui-btn layui-btn-normal" id="testList">选择多文件</button> 
+  <button type="button" class="layui-btn" id="testListAction">开始上传</button>
+  <div class="layui-upload-list">
+    <table class="layui-table">
+      <thead>
+        <tr><th>文件名</th>
+        <th>大小</th>
+        <th>状态</th>
+        <th>操作</th>
+      </tr></thead>
+      <tbody id="demoList"></tbody>
+    </table>
+  </div>
+</div> 
+          <blockquote class="layui-elem-quote">
+            <table class="layui-table">
+        <colgroup>
+          <col width="50">
+          <col>
+        </colgroup>
+        <tbody>
+          <tr>
+            <td>1.</td>
+            <td>接口返回的相应信息（response）必须是一个标准的 JSON 格式如：
+            <em>{"code": 0,"msg": "","data": {"src": ""}
+} 			</em> </td>
+          </tr>
+          <tr>
+            <td>2.</td>
+            <td>
+              接口的回调：
+              <div class="layui-text">
+                <ul>
+                  <li>选择文件的回调（choose），一般用于非自动上传（即 auto: false ）的场景，比如预览图片等。<em>choose：function(obj){}</em></li>
+                  <li>文件上传前的回调（before）
+                  在 choose 回调之后、done/error 回调之前触发。返回的参数完全类似 choose 回调。一般用于上传完毕前的loading、图片预览等
+                  	<em>before：function(obj){}</em>
+    				</li>
+                  <li>上传接口请求成功的回调（done）
+                  在上传接口请求完毕后触发，但文件不一定是上传成功的，只是接口的响应状态正常（200）。回调返回三个参数，分别为：服务端响应信息、当前文件的索引、重新上传的方法
+                  <em>done：function(res, index, upload){//res:自定义返回数据}</em>
+    				</li>
+    				<li>上传请求失败的回调（error）
+    				当请求上传时出现异常时触发（如网络异常、404/500等）。回调返回三个参数，分别为：当前文件的索引、重新上传的方法
+                  <em>error：function(index, upload){}</em>
+    				</li>
+    				<li>多文件上传完毕后的状态回调（allDone）
+    				只有当开启多文件时（即 multiple: true），该回调才会被触发。回调返回一个 object 类型的参数，包含一些状态数据：
+                  <em>allDone：function(obj){ obj.total 得到总文件数，obj.successful 请求成功的文件数，obj.aborted 请求失败的文件数}</em>
+    				</li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>3.</td>
+            <td>
+            <div class="layui-text">
+                <ul>
+                  <li>重新上传：在执行 upload.render(options) 方法时，其实有返回一个实例对象，以便对完成重新上传等操作。注意：这是对当前上传队列的全局重新上传，而 choose 回调返回的 obj.upload(index, file) 方法则是对单个文件进行重新上传
+                  具体实现方法，请看demo
+                  </li>
+                </ul>
+              </div></td>
+          </tr>
+        </tbody>
+      </table>
+        </blockquote>
+	</div>
+	<div class="layui-tab-item">
+	<pre><code class="java">    /**
+     * 附件管理demo页面
+     * \@Title: view 
+     * \@author: ChenXin
+     * \@return 返回页面
+     */
+    \@RequestMapping(value = "/view")
+    public String view() {
+        return "/hussardemo/attachmentDemo.html";
+    }
+
+    /**
+     * 多文件上传
+     * \@Title: uploadfileWithDrag 
+     * \@author: WangBinBin
+     * \@param request 请求
+     * \@param response 响应
+     * \@return 返回json
+     * \@throws Exception 
+     */
+    \@RequestMapping(method = RequestMethod.POST, path = "/uploadfilewithdrag")
+    \@ResponseBody
+    public JSONObject uploadfileWithDrag(MultipartHttpServletRequest multipartRequest) throws Exception {
+        multipartRequest.setCharacterEncoding("UTF-8");
+
+        // 多文件上传实现
+        MultipartFile multipartFile = null;
+        Map&lt;String, MultipartFile&gt;  map = multipartRequest.getFileMap();
+        for (Iterator i = map.keySet().iterator(); i.hasNext();) {
+            Object obj = i.next();
+            multipartFile =  map.get(obj);
+        }
+
+        JSONObject json = new JSONObject();
+        if (null != multipartFile) {
+            String fileName = multipartFile.getOriginalFilename();
+            // 获取文件后缀
+            String prefix = fileName.substring(fileName.lastIndexOf("."));
+            // 随机生成上传目录中的文件名称
+            String id = IdWorker.get32UUID();
+
+            try {
+                // 上传路径
+                String fileSavePath = this.hussarProperties.getFileUploadPath();
+                multipartFile.transferTo(new File(fileSavePath + id + prefix));
+
+                // 附件信息写数据库
+                AttachmentManagerModel attachment = new AttachmentManagerModel();
+                attachment.setId(id);
+                attachment.setAttachmentName(fileName);
+                attachment.setAttachmentType(prefix.replace(".", ""));
+                attachment.setUploadPer(ShiroKit.getUser().getId());
+                attachment.setAttachmentDir(fileSavePath);
+                attachment.setUploadDate(new Date());
+
+                this.attachmentManagerService.addAttachment(attachment);
+                json.put("fileName", fileName);
+            } catch (IOException e) {
+                throw new HussarException(BizExceptionEnum.UPLOAD_ERROR);
+            }
+        }
+
+        return json;
+
+    }
+
+    /**
+     * 文件下载
+     * \@param request 请求
+     * \@param response 响应
+     */
+    \@RequestMapping("/fileDownload")
+    public void fileDownload(HttpServletRequest request, HttpServletResponse response) {
+        // 下载的文件名
+        Map&lt;String, String&gt; fileMap = this.attachmentManagerService.findById(request.getParameter("fileId"));
+        String fileName = fileMap.get("NAME");
+        String id = fileMap.get("ID");
+        String prefix = fileName.substring(fileName.lastIndexOf("."));
+        // 文件路径
+        String path = this.attachmentManagerService.finddirById(id) + id + prefix;
+        InputStream bis = null;
+        BufferedOutputStream out = null;
+        // 获取输入流
+        try {
+            bis = new BufferedInputStream(new FileInputStream(new File(path)), 1024 * 10);
+            // 假如以中文名下载的话
+            // 转码，免得文件名中文乱码
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+            // 设置文件下载头
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
+            // 设置文件ContentType类型，这样设置，会自动判断下载文件类型
+            response.setContentType("multipart/form-data");
+            out = new BufferedOutputStream(response.getOutputStream());
+            int len = 0;
+            int i = bis.available();
+            byte[] buff = new byte[i];
+            while ((len = bis.read(buff)) > 0) {
+                out.write(buff, 0, len);
+            }
+        } catch (FileNotFoundException e) {
+            logger.error("文件未找到" + e.getMessage());
+            throw new HussarException(BizExceptionEnum.FILE_NOT_FOUND);
+        } catch (UnsupportedEncodingException e) {
+            logger.error("不支持的编码异常：" + e.getMessage());
+            throw new HussarException(BizExceptionEnum.DOWNLOAD_ERROR);
+        } catch (IOException e) {
+            logger.error("IO异常：" + e.getMessage());
+            throw new HussarException(BizExceptionEnum.DOWNLOAD_ERROR);
+        } finally {
+            try {
+                if (null != bis) {
+                    bis.close();
+                }
+                if (null != out) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                AttachmentManagerController.logger.error("流关闭异常" + e.getMessage());
+                throw new HussarException(BizExceptionEnum.DOWNLOAD_ERROR);
+            }
+        }
+    }
+    }</code></pre>
+	</div>
+	<div class="layui-tab-item">
+        <pre><code class="javaScript">/**
+ * \@Description: 附件典管理Demo脚本文件
+ * \@Author: chenxin
+ * \@Date: 2018/05/30.
+ */
+
+layui.use(['upload','element','Hussar'], function(){
+  var $ = layui.jquery
+  ,upload = layui.upload,element = layui.element
+  ,Hussar = layui.Hussar;
+ 
+  
+  //普通图片上传
+  var uploadInst = upload.render({
+    elem: '#test1'
+    ,url: Hussar.ctxPath+'/attachmentDemo/uploadfilewithdrag'
+    ,before: function(obj){
+      //预读本地文件示例，不支持ie8
+      obj.preview(function(index, file, result){
+    	  $('#demo1').attr('src', result);
+    	//$('#demo1').append('&lt;img src="'+ result +'" alt="'+ file.name +'" class="layui-upload-img" height="200" width="200"&gt;')
+      });
+    }
+    ,done: function(res, index, upload){
+      //如果上传失败
+      if(res.code &gt; 0){
+        return layer.msg('上传失败');
+      }
+      //上传成功
+      layer.msg("上传成功！");
+      var demoText = $('#demoText');
+      demoText.html('&lt;a class="layui-btn layui-btn-mini demo-reload" href="'+Hussar.ctxPath+'/attachmentDemo/fileDownload?fileId='+res.id+'"&gt;下载&lt;/a&gt;');
+    }
+    ,error: function(){
+      //演示失败状态，并实现重传
+      var demoText = $('#demoText');
+      demoText.html('&lt;span style="color: #FF5722;"&gt;上传失败&lt;/span&gt; &lt;a class="layui-btn layui-btn-mini demo-reload"&gt;重试&lt;/a&gt;');
+      demoText.find('.demo-reload').on('click', function(){
+        uploadInst.upload();
+      });
+    }
+    ,accept: 'images'//允许上传的文件类型
+  });
+  
+  //多图片上传
+  upload.render({
+    elem: '#test2'
+    ,url:Hussar.ctxPath+ '/attachmentDemo/uploadfilewithdrag'
+    ,multiple: true
+    ,before: function(obj){
+      //预读本地文件示例，不支持ie8
+      obj.preview(function(index, file, result){
+        $('#demo2').append('&lt;img src="'+ result +'" alt="'+ file.name +'" class="layui-upload-img" height="200" width="200"&gt;')
+      });
+    }
+    ,done: function(res){
+      //上传完毕
+      layer.msg("上传成功！",{time:1000});
+    }
+    ,accept: 'images'//允许上传的文件类型
+  });
+  
+  //选完文件后不自动上传
+  upload.render({
+    elem: '#test8'
+    ,url:Hussar.ctxPath+ '/attachmentDemo/uploadfilewithdrag'
+    ,auto: false
+    ,multiple: true
+    ,bindAction: '#test9'
+	,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+		/*  layer.load(1); //上传loading  */
+		layer.open({
+			  type: 1,
+			  title: false,
+			  closeBtn: 0,
+			  area: '516px',
+			  skin: 'layui-layer-nobg', //没有背景色
+			  shadeClose: true,
+			  content: '&lt;div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="proBar"&gt;&lt;div class="layui-progress-bar layui-bg-blue" lay-percent="0%"&gt;&lt;/div&gt;&lt;/div&gt;'
+			});
+	      var n = 0, timer = setInterval(function(){
+	          n = n + Math.random()*10|0;  
+	          if(n&gt;100){
+	            n = 100;
+	            clearInterval(timer);
+	          }
+	          element.progress('proBar', n+'%');
+			}, 300+Math.random()*1000);
+	}	
+    ,done: function(res){
+    	element.progress('proBar', '100%');//给进度条一个任意。尽量大一点
+		console.log(res)
+      	layer.closeAll(); //关闭loading 
+		layer.msg("上传成功！",{time:1000});
+		var demoText1 = $('#demoText1');
+	    demoText1.append('&lt;a class="layui-btn layui-btn-mini demo-reload" href="'+Hussar.ctxPath+'/attachmentDemo/fileDownload?fileId='+res.id+'"&gt;下载&lt;/a&gt;');
+    }
+	,accept: 'file'//允许上传的文件类型
+  });
+  
+  upload.render({
+	    elem: '#test10'
+	    ,url: Hussar.ctxPath+'/attachmentDemo/uploadfilewithdrag'
+	    ,auto: false
+	    ,multiple: true
+	    ,bindAction: '#test11'
+		,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+			layer.load(3); //上传loading  
+			/* layer.msg('文件上传中', {
+				  icon: 16
+				  ,shade: 0.01
+				}); */
+		}
+	    ,done: function(res){
+	    	
+			console.log(res)
+	      	layer.closeAll(); //关闭loading 
+			layer.msg("上传成功！",{time:1000});
+	    }
+		,accept: 'file'//允许上传的文件类型
+	  });
+  
+  //多文件列表示例
+  var demoListView = $('#demoList')
+  ,uploadListIns = upload.render({
+    elem: '#testList'
+    ,url: Hussar.ctxPath+'/attachmentDemo/uploadfilewithdrag'
+    ,accept: 'file'
+    ,multiple: true
+    ,auto: false
+    ,bindAction: '#testListAction'
+    ,choose: function(obj){   
+      var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+      //读取本地文件
+      obj.preview(function(index, file, result){
+        var tr = $(['&lt;tr id="upload-'+ index +'"&gt;'
+          ,'&lt;td&gt;'+ file.name +'&lt;/td&gt;'
+          ,'&lt;td&gt;'+ (file.size/1014).toFixed(1) +'kb&lt;/td&gt;'
+          ,'&lt;td&gt;等待上传&lt;/td&gt;'
+          ,'&lt;td&gt;'
+            ,'&lt;button class="layui-btn layui-btn-mini demo-reload layui-hide"&gt;重传&lt;/button&gt;'
+            ,'&lt;button class="layui-btn layui-btn-mini layui-btn-danger demo-delete"&gt;删除&lt;/button&gt;'
+          ,'&lt;/td&gt;'
+        ,'&lt;/tr&gt;'].join(''));
+        
+        //单个重传
+        tr.find('.demo-reload').on('click', function(){
+          obj.upload(index, file);
+        });
+        
+        //删除
+        tr.find('.demo-delete').on('click', function(){
+          delete files[index]; //删除对应的文件
+          tr.remove();
+          uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+        });
+        
+        demoListView.append(tr);
+      });
+    }
+    ,done: function(res, index, upload){
+     
+        var tr = demoListView.find('tr#upload-'+ index)
+        ,tds = tr.children();
+        tds.eq(2).html('&lt;span style="color: #5FB878;"&gt;上传成功&lt;/span&gt;');
+        tds.eq(3).html(''); //清空操作
+        return delete this.files[index]; //删除文件队列已经上传成功的文件
+     
+    }
+    ,error: function(index, upload){
+      var tr = demoListView.find('tr#upload-'+ index)
+      ,tds = tr.children();
+      tds.eq(2).html('&lt;span style="color: #FF5722;"&gt;上传失败&lt;/span&gt;');
+      tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+    }
+  });
+  
+});</code></pre>
+        </div>
+	</div>
+	</div>
+  </div>        
+<script src="${ctxPath}/static/js/hussardemo/attachmentDemo.js"></script>
+
+</body>
+<link rel="stylesheet" href="${ctxPath}/static/css/common/project_ext.css">
+</html>
