@@ -37,9 +37,20 @@ Staff.initColumn = function () {
                 formatter: function(value, item, index){
                     return value.departmentName
                 }},
-            {title: '职位ID', field: 'positionId', align: 'center',halign:'center'},
-            {title: '入职时间', field: 'entryTime', align: 'center',halign:'center'},
-            {title: '离职时间', field: 'departureTime', align: 'center',halign:'center'}
+            {title: '职位', field: 'position', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.positionName
+                }},
+            {title: '入职时间', field: 'entryTime', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.split(' ')[0]
+                }},
+            {title: '离职时间', field: 'departureTime', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    if(value){
+                        return value.split(' ')[0]
+                    }
+                }}
     ];
 };
 
