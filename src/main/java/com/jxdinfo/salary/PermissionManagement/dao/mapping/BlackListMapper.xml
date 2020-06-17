@@ -7,11 +7,22 @@
         <id column="STAFF_ID" property="staffId" />
         <result column="DEPARTMENT_ID" property="departmentId" />
         <result column="PERMISSION_ID" property="permissionId" />
+        <result column="STAFF_NAME" property="staffName" />
+        <result column="DEPARTMENT_NAME" property="departmentName" />
+        <result column="PERMISSION_NAME" property="permissionName" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         STAFF_ID AS staffId, DEPARTMENT_ID AS departmentId, PERMISSION_ID AS permissionId
     </sql>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        select a.STAFF_ID,d.STAFF_NAME, a.PERMISSION_Id,PERMISSION_NAME,a.DEPARTMENT_ID,DEPARTMENT_NAME
+        from t_black_list a,t_department b,t_permission c,t_staff d
+        <where>
+            a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.PERMISSION_ID = c.PERMISSION_ID and a.STAFF_ID = d.STAFF_ID
+        </where>
+    </select>
 
 </mapper>
