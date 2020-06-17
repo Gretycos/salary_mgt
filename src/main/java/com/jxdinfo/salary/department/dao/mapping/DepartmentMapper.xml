@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.department.dao.DepartmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.department.model.Department">
+        <id column="DEPARTMENT_ID" property="departmentId" />
+        <result column="DEPARTMENT_NAME" property="departmentName" />
+    </resultMap>
+
+    <resultMap id="WithStaffResultMap" type="com.jxdinfo.salary.department.model.Department" extends="BaseResultMap">
+        <collection property="staffList" javaType="ArrayList" ofType="com.jxdinfo.salary.staff.model.Staff" column="DEPARTMENT_ID"
+                    select="getStaffByStaffId"/>
+    </resultMap>
+
+    <select id="getStaffByStaffId" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
+        select * from t_staff where DEPARTMENT_ID=#{departmentId}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        DEPARTMENT_ID AS departmentId, DEPARTMENT_NAME AS departmentName
+    </sql>
+
+    <select id="selectPage" resultMap="WithStaffResultMap">
+        select * from t_department
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+</mapper>
