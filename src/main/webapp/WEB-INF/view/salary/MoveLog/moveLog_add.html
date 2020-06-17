@@ -1,0 +1,68 @@
+@layout("/common/layout.html",{title:'添加'}){
+<div class="weadmin-body-1 layui-form" style="padding-bottom:50px;">
+            <div class="layui-form-item">
+                    <label class="layui-form-label">操作ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="operationId" name="operationId" class="layui-input"
+                               placeholder="请输入操作ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">操作员ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="operatorId" name="operatorId" class="layui-input"
+                               placeholder="请输入操作员ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">被操做人员ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="moveId" name="moveId" class="layui-input"
+                               placeholder="请输入被操做人员ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">原部门ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="oldDepartmentId" name="oldDepartmentId" class="layui-input"
+                               placeholder="请输入原部门ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">新部门ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="newDepartmentId" name="newDepartmentId" class="layui-input"
+                               placeholder="请输入新部门ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">原职务ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="oldPositionId" name="oldPositionId" class="layui-input"
+                               placeholder="请输入原职务ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">新职务ID：</label>
+                    <div class="layui-input-inline">
+                        <input id="newPositionId" name="newPositionId" class="layui-input"
+                               placeholder="请输入新职务ID">
+                    </div>
+                </div>
+            <div class="layui-form-item">
+                    <label class="layui-form-label">操作时间：</label>
+                    <div class="layui-input-inline">
+                        <input id="operationTime" name="operationTime" class="layui-input dateType"
+                               placeholder="请输入操作时间" readonly>
+                    </div>
+                </div>
+    <div class="layerBtnCenter btn-box btn-box-1">
+        <button type="button" name="取消" class="layui-btn btn-close" id="cancel"
+        onclick="MoveLogInfoDlg.close()"><i class="iconfont">&#x1006;</i>取消</button>
+        <button type="button" name="提交" class="layui-btn btn-save" id="ensure"
+        onclick="MoveLogInfoDlg.addSubmit()"><i class="iconfont">&#xe009;</i>保存</button>
+    </div>
+</div>
+<script src="${ctxPath}/static/salary/MoveLog/moveLog_info.js"></script>
+@}
+
