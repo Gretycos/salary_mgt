@@ -25,7 +25,7 @@ MoveLog.initColumn = function () {
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (MoveLog.pageNumber-1)*MoveLog.pageSize +1 +index ;}},
             {title: '操作ID', field: 'operationId', align: 'center',halign:'center'},
             {title: '操作员ID', field: 'operatorId', align: 'center',halign:'center'},
-            {title: '被操做人员ID', field: 'moveId', align: 'center',halign:'center'},
+            {title: '调动人员ID', field: 'moveId', align: 'center',halign:'center'},
             {title: '原部门ID', field: 'oldDepartmentId', align: 'center',halign:'center'},
             {title: '新部门ID', field: 'newDepartmentId', align: 'center',halign:'center'},
             {title: '原职务ID', field: 'oldPositionId', align: 'center',halign:'center'},

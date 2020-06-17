@@ -3,7 +3,7 @@
 <mapper namespace="com.jxdinfo.salary.MoveLog.dao.MoveLogMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.MoveLog.model.MoveLog">
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.MoveLog.moveLog.model.MoveLog">
         <id column="OPERATION_ID" property="operationId" />
         <result column="OPERATOR_ID" property="operatorId" />
         <result column="MOVE_ID" property="moveId" />
