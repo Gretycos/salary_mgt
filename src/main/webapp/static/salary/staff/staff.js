@@ -1,5 +1,5 @@
 /**
- * 人员管理管理初始化
+ * 人员管理管理控制器
  */
 var Staff = {
     id: "StaffTable",	//表格id

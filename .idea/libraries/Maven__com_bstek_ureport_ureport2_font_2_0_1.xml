@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: com.bstek.ureport:ureport2-font:2.0.1">
     <CLASSES>
-      <root url="jar://$USER_HOME$/apache-maven-3.6.3/repository/reps/com/bstek/ureport/ureport2-font/2.0.1/ureport2-font-2.0.1.jar!/" />
+      <root url="jar://D:/maven/reps/com/bstek/ureport/ureport2-font/2.0.1/ureport2-font-2.0.1.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$USER_HOME$/apache-maven-3.6.3/repository/reps/com/bstek/ureport/ureport2-font/2.0.1/ureport2-font-2.0.1-javadoc.jar!/" />
+      <root url="jar://D:/maven/reps/com/bstek/ureport/ureport2-font/2.0.1/ureport2-font-2.0.1-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$USER_HOME$/apache-maven-3.6.3/repository/reps/com/bstek/ureport/ureport2-font/2.0.1/ureport2-font-2.0.1-sources.jar!/" />
+      <root url="jar://D:/maven/reps/com/bstek/ureport/ureport2-font/2.0.1/ureport2-font-2.0.1-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
