@@ -4,7 +4,7 @@
                     <label class="layui-form-label">员工id：</label>
                     <div class="layui-input-inline">
                         <input id="staffId" name="staffId" class="layui-input"
-                               placeholder="请输入员工id" value="${item.staffId}">
+                               placeholder="请输入员工id" value="${item.staffId}" readonly>
                     </div>
              </div>
             <div class="layui-form-item">
@@ -35,20 +35,7 @@
                                placeholder="请输入职位ID" value="${item.positionId}">
                     </div>
              </div>
-            <div class="layui-form-item">
-                    <label class="layui-form-label">入职时间：</label>
-                    <div class="layui-input-inline">
-                        <input id="entryTime" name="entryTime" class="layui-input dateType"
-                               placeholder="请输入入职时间" value="${strutil.formatDate(item.entryTime,'yyyy-MM-dd HH:mm:ss')}" readonly>
-                    </div>
-             </div>
-            <div class="layui-form-item">
-                    <label class="layui-form-label">离职时间：</label>
-                    <div class="layui-input-inline">
-                        <input id="departureTime" name="departureTime" class="layui-input dateType"
-                               placeholder="请输入离职时间" value="${strutil.formatDate(item.departureTime,'yyyy-MM-dd HH:mm:ss')}" readonly>
-                    </div>
-             </div>
+
     <div class="layerBtnCenter btn-box btn-box-1">
         <button type="button" name="取消" class="layui-btn btn-close" id="cancel"
         onclick="StaffInfoDlg.close()"><i class="iconfont">&#x1006;</i>取消</button>

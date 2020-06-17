@@ -57,8 +57,8 @@ StaffInfoDlg.collectData = function() {
     .set('gender')
     .set('departmentId')
     .set('positionId')
-    .set('entryTime')
-    .set('departureTime');
+    // .set('entryTime')
+    // .set('departureTime');
 };
 
 /**

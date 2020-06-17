@@ -25,8 +25,18 @@ Staff.initColumn = function () {
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (Staff.pageNumber-1)*Staff.pageSize +1 +index ;}},
             {title: '员工ID', field: 'staffId', align: 'center',halign:'center'},
             {title: '姓名', field: 'staffName', align: 'center',halign:'center'},
-            {title: '性别', field: 'gender', align: 'center',halign:'center'},
-            {title: '部门ID', field: 'departmentId', align: 'center',halign:'center'},
+            {title: '性别', field: 'gender', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    if(value === '0'){
+                        return '女'
+                    }else {
+                        return '男'
+                    }
+                }},
+            {title: '部门', field: 'department', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.departmentName
+                }},
             {title: '职位ID', field: 'positionId', align: 'center',halign:'center'},
             {title: '入职时间', field: 'entryTime', align: 'center',halign:'center'},
             {title: '离职时间', field: 'departureTime', align: 'center',halign:'center'}
