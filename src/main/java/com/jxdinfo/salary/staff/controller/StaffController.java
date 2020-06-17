@@ -1,5 +1,7 @@
 package com.jxdinfo.salary.staff.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
@@ -84,6 +86,7 @@ public class StaffController extends BaseController {
         List<Staff> list = staffService.selectPage(page, ew).getRecords();
         result.put("total", page.getTotal());
         result.put("rows", list);
+//        return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
         return result;
     }
 

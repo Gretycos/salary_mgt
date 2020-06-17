@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableName;
+import com.jxdinfo.salary.department.model.Department;
+
 import java.io.Serializable;
 
 /**
@@ -41,8 +43,14 @@ public class Staff extends Model<Staff> {
     /**
      * 部门ID
      */
-    @TableField("DEPARTMENT_ID")
-    private Integer departmentId;
+//    @TableField("DEPARTMENT_ID")
+//    private Integer departmentId;
+    /**
+     * 部门
+     */
+    @TableField(exist = false)
+    private Department department;
+
     /**
      * 职位ID
      */
@@ -84,12 +92,21 @@ public class Staff extends Model<Staff> {
         this.gender = gender;
     }
 
-    public Integer getDepartmentId() {
-        return departmentId;
+//    public Integer getDepartmentId() {
+//        return departmentId;
+//    }
+//
+//    public void setDepartmentId(Integer departmentId) {
+//        this.departmentId = departmentId;
+//    }
+
+
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setDepartmentId(Integer departmentId) {
-        this.departmentId = departmentId;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public Integer getPositionId() {
@@ -127,7 +144,7 @@ public class Staff extends Model<Staff> {
         "staffId=" + staffId +
         ", staffName=" + staffName +
         ", gender=" + gender +
-        ", departmentId=" + departmentId +
+        ", department=" + department.getDepartmentName() +
         ", positionId=" + positionId +
         ", entryTime=" + entryTime +
         ", departureTime=" + departureTime +
