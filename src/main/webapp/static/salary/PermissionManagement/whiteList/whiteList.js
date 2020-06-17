@@ -23,9 +23,10 @@ WhiteList.initColumn = function () {
     return [
         {checkbox:true, halign:'center',align:"center",width: 50},
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (WhiteList.pageNumber-1)*WhiteList.pageSize +1 +index ;}},
-            {title: '员工ID', field: 'staffId', align: 'center',halign:'center'},
-            {title: '部门ID', field: 'departmentId', align: 'center',halign:'center'},
-            {title: '权限ID', field: 'permissionId', align: 'center',halign:'center'}
+            {title: '员工工号', field: 'staffId', align: 'center',halign:'center'},
+            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center'},
+            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center'},
+            {title: '拥有的权限', field: 'permissionName', align: 'center',halign:'center'}
     ];
 };
 
