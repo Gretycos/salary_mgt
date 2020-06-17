@@ -37,50 +37,6 @@ public class WhiteList extends Model<WhiteList> {
     @TableField("PERMISSION_ID")
     private Integer permissionId;
 
-    // 员工姓名
-    private String staffName;
-
-    // 管理部门的名称
-    private String departmentName;
-
-    // 拥有的权限的名称
-    private String permissionName;
-
-    @Override
-    public String toString() {
-        return "WhiteList{" +
-                "staffId=" + staffId +
-                ", departmentId=" + departmentId +
-                ", permissionId=" + permissionId +
-                ", staffName='" + staffName + '\'' +
-                ", departmentName='" + departmentName + '\'' +
-                ", permissionName='" + permissionName + '\'' +
-                '}';
-    }
-
-    public String getStaffName() {
-        return staffName;
-    }
-
-    public void setStaffName(String staffName) {
-        this.staffName = staffName;
-    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
-    }
-
-    public String getPermissionName() {
-        return permissionName;
-    }
-
-    public void setPermissionName(String permissionName) {
-        this.permissionName = permissionName;
-    }
 
     public Integer getStaffId() {
         return staffId;
@@ -111,5 +67,12 @@ public class WhiteList extends Model<WhiteList> {
         return this.staffId;
     }
 
-
+    @Override
+    public String toString() {
+        return "WhiteList{" +
+        "staffId=" + staffId +
+        ", departmentId=" + departmentId +
+        ", permissionId=" + permissionId +
+        "}";
+    }
 }

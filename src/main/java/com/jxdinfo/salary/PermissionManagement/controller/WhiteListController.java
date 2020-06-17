@@ -78,8 +78,6 @@ public class WhiteListController extends BaseController {
     public Object list(String condition,
                        @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
-        System.out.println("+++++++++++++++++++"+pageNumber);
-        System.out.println("+++++++++++++++++++"+pageSize);
         Page<WhiteList> page = new Page<>(pageNumber, pageSize);
         Wrapper<WhiteList> ew = new EntityWrapper<>();
         Map<String, Object> result = new HashMap<>(5);
