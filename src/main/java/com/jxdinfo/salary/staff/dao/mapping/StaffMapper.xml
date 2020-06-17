@@ -7,19 +7,41 @@
         <id column="STAFF_ID" property="staffId" />
         <result column="STAFF_NAME" property="staffName" />
         <result column="GENDER" property="gender" />
-        <result column="POSITION_ID" property="positionId" />
         <result column="ENTRY_TIME" property="entryTime" />
         <result column="DEPARTURE_TIME" property="departureTime" />
     </resultMap>
 
+    <!-- 带关联查询映射结果 -->
+    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
+                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
+        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
+                     column="POSITION_ID" select="getPositionByPositionId"/>
+    </resultMap>
+
+    <!-- 带部门查询映射结果 -->
     <resultMap id="WithDepResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">
         <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
         <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
                      column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
     </resultMap>
 
+    <!-- 带职位查询映射结果 -->
+    <resultMap id="WithPosResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
+                     column="POSITION_ID" select="getPositionByPositionId"/>
+    </resultMap>
+
+    <!-- 关联查询部门 -->
     <select id="getDepartmentByDepartmentId" resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap">
         select * from t_department where DEPARTMENT_ID=#{departmentId}
+    </select>
+
+    <!-- 关联查询职位 -->
+    <select id="getPositionByPositionId" resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap">
+        select * from t_position where POSITION_ID=#{positionId}
     </select>
 
     <!-- 通用查询结果列 -->
@@ -27,7 +49,8 @@
         STAFF_ID AS staffId, STAFF_NAME AS staffName, GENDER AS gender, DEPARTMENT_ID AS departmentId, POSITION_ID AS positionId, ENTRY_TIME AS entryTime, DEPARTURE_TIME AS departureTime
     </sql>
 
-    <select id="selectPage" resultMap="WithDepResultMap">
+    <!-- 分页查询 -->
+    <select id="selectPage" resultMap="WithRefResultMap">
         select * from t_staff
         <where>
             ${ew.sqlSegment}

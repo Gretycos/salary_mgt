@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.position.model.Position;
 
 import java.io.Serializable;
 
@@ -41,21 +42,15 @@ public class Staff extends Model<Staff> {
     @TableField("GENDER")
     private String gender;
     /**
-     * 部门ID
-     */
-//    @TableField("DEPARTMENT_ID")
-//    private Integer departmentId;
-    /**
      * 部门
      */
     @TableField(exist = false)
     private Department department;
-
     /**
-     * 职位ID
+     * 职位
      */
-    @TableField("POSITION_ID")
-    private Integer positionId;
+    @TableField(exist = false)
+    private Position position;
     /**
      * 入职时间
      */
@@ -92,15 +87,6 @@ public class Staff extends Model<Staff> {
         this.gender = gender;
     }
 
-//    public Integer getDepartmentId() {
-//        return departmentId;
-//    }
-//
-//    public void setDepartmentId(Integer departmentId) {
-//        this.departmentId = departmentId;
-//    }
-
-
     public Department getDepartment() {
         return department;
     }
@@ -109,12 +95,12 @@ public class Staff extends Model<Staff> {
         this.department = department;
     }
 
-    public Integer getPositionId() {
-        return positionId;
+    public Position getPosition() {
+        return position;
     }
 
-    public void setPositionId(Integer positionId) {
-        this.positionId = positionId;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public Timestamp getEntryTime() {
@@ -145,7 +131,7 @@ public class Staff extends Model<Staff> {
         ", staffName=" + staffName +
         ", gender=" + gender +
         ", department=" + department.getDepartmentName() +
-        ", positionId=" + positionId +
+        ", position=" + position.getPositionName() +
         ", entryTime=" + entryTime +
         ", departureTime=" + departureTime +
         "}";

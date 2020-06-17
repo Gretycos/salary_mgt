@@ -8,12 +8,15 @@
         <result column="DEPARTMENT_NAME" property="departmentName" />
     </resultMap>
 
-    <resultMap id="WithStaffResultMap" type="com.jxdinfo.salary.department.model.Department" extends="BaseResultMap">
+    <!-- 带关联查询映射结果 -->
+    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.department.model.Department" extends="BaseResultMap">
+        <!--collection关联属性  property属性名 javaType属性类型 ofType每个对象类型 column在多的一方的表中的列名-->
         <collection property="staffList" javaType="ArrayList" ofType="com.jxdinfo.salary.staff.model.Staff" column="DEPARTMENT_ID"
-                    select="getStaffByStaffId"/>
+                    select="getStaffByDepId"/>
     </resultMap>
 
-    <select id="getStaffByStaffId" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
+    <!-- 关联查询员工和职位 -->
+    <select id="getStaffByDepId" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithPosResultMap">
         select * from t_staff where DEPARTMENT_ID=#{departmentId}
     </select>
 
@@ -22,7 +25,8 @@
         DEPARTMENT_ID AS departmentId, DEPARTMENT_NAME AS departmentName
     </sql>
 
-    <select id="selectPage" resultMap="WithStaffResultMap">
+    <!-- 分页查询 -->
+    <select id="selectPage" resultMap="WithRefResultMap">
         select * from t_department
         <where>
             ${ew.sqlSegment}
