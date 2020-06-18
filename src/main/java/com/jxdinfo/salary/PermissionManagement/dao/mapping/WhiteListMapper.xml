@@ -24,7 +24,9 @@
           from t_white_list a,t_department b,t_permission c,t_staff d
         <where>
               a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.PERMISSION_ID = c.PERMISSION_ID and a.STAFF_ID = d.STAFF_ID
+            <if test="ew.sqlSegment!=null">${ew.sqlSegment}</if>
         </where>
+        order by a.STAFF_ID ASC
     </select>
 
     <select id="selectStaffId" resultType="int">
@@ -47,6 +49,16 @@
         select distinct PERMISSION_NAME
         from t_white_list a, t_permission b
         where a.PERMISSION_ID = b.PERMISSION_ID
+    </select>
+
+    <select id="searchByCondition" resultMap="BaseResultMap" parameterType="string">
+        select a.STAFF_ID,d.STAFF_NAME, a.PERMISSION_Id,PERMISSION_NAME,a.DEPARTMENT_ID,DEPARTMENT_NAME
+        from t_white_list a,t_department b,t_permission c,t_staff d
+        <where>
+            (a.STAFF_ID like #{condition} or d.STAFF_NAME like #{condition}) and
+            a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.PERMISSION_ID = c.PERMISSION_ID and a.STAFF_ID = d.STAFF_ID
+        </where>
+        order by a.STAFF_ID ASC
     </select>
 
 </mapper>

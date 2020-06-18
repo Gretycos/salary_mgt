@@ -9,6 +9,17 @@ var WhiteList = {
     pageSize:20,
     pageNumber:1
 };
+
+/**
+ * 保存四个select的当前值对象
+ */
+var SelectValDict={
+    staffId:"",
+    staffName:"",
+    departmentName:"",
+    permissionName:""
+};
+
 layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
@@ -17,7 +28,38 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
 
+    /**
+     *  通过form.on监听select的选择事件
+     */
+    form.on('select', function(data){
 
+        // console.log(data.elem.id); //得到select原始DOM对象的id
+        // console.log(data.value); //得到被选中的值
+        var id = data.elem.id;
+        var val = data.value;
+        SelectValDict[id] = val;
+        console.log(SelectValDict)
+        // console.log(data.othis); //得到美化后的DOM对象
+
+        // 和黑名单一样 根据下拉选择框的SelectValDict去查询 更新bootstrapTable
+        var opt={
+            url: Hussar.ctxPath + "/whiteList/showBySelect",
+            silent: true,
+            query:{
+                staffId:SelectValDict.staffId,
+                staffName:SelectValDict.staffName,
+                departmentName:SelectValDict.departmentName,
+                permissionName:SelectValDict.permissionName
+            }
+        }
+        $('#WhiteListTable').bootstrapTable('refresh',opt);
+    });
+
+
+    /**
+     * 根据数据库的查询结果
+     * 动态地渲染四个下拉选择框
+     */
     WhiteList.createSelect = function(){
         var ajax = new $ax(Hussar.ctxPath + "/whiteList/select", function (data) {
             console.log(data);
@@ -52,10 +94,10 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
                 //key是list的下标
                 str4 += "<option value=\""+permissionNameList[key]+"\">"+permissionNameList[key]+"</option>";
 
-            $('#staffId').append(str1);
-            $('#staffName').append(str2);
-            $('#departmentName').append(str3);
-            $('#permissionName').append(str4);
+            $('#staffId').empty().append(str1);
+            $('#staffName').empty().append(str2);
+            $('#departmentName').empty().append(str3);
+            $('#permissionName').empty().append(str4);
             form.render('select')
 
         }, function (data) {
@@ -69,12 +111,12 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
  */
 WhiteList.initColumn = function () {
     return [
-        {checkbox:true, halign:'center',align:"center",width: 50},
-        {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (WhiteList.pageNumber-1)*WhiteList.pageSize +1 +index ;}},
-            {title: '员工工号', field: 'staffId', align: 'center',halign:'center'},
-            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center'},
-            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center'},
-            {title: '拥有的权限', field: 'permissionName', align: 'center',halign:'center'}
+        {checkbox:true, halign:'center',align:"center",width: "4%"},
+        {title: '序号',align:"center" ,halign:'center',width:"4%" ,formatter: function (value, row, index) {return (WhiteList.pageNumber-1)*WhiteList.pageSize +1 +index ;}},
+            {title: '员工工号', field: 'staffId', align: 'center',halign:'center',width:"23%"},
+            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center',width:"23%"},
+            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center',width:"23%"},
+            {title: '拥有的权限', field: 'permissionName', align: 'center',halign:'center',width:"23%"}
     ];
 };
 
@@ -144,7 +186,45 @@ WhiteList.delete = function () {
  * 查询薪资权限管理--白名单维护列表
  */
 WhiteList.search = function () {
-    $('#WhiteListTable').bootstrapTable('refresh');
+    var search_condition = $('#condition').val();
+    // 根据输入的条件去数据库查询
+
+    // var ajax = new $ax(Hussar.ctxPath + "/whiteList/searchByCondition",function (data) {
+    //     console.log(data);
+    //     $('#WhiteListTable').bootstrapTable('load',data);
+    //     }, function (data) {
+    //         Hussar.error("查询失败!" + data.responseJSON.message + "!");
+    //     });
+    // ajax.set("search_condition",search_condition);
+    // ajax.start();
+
+    var opt={
+        url: Hussar.ctxPath + "/whiteList/list",
+        silent: true,
+        query:{
+            search_condition:search_condition
+        }
+    }
+    $('#WhiteListTable').bootstrapTable('refresh',opt);
+
+};
+
+/**
+ * 重置功能 先将 $('#condition').val()设置为""
+ * 然后调用WhiteList.search
+ * 然后将select还原最初状态
+ */
+WhiteList.reset = function(){
+    $('#condition').val("");
+    WhiteList.search();
+    WhiteList.createSelect();
+    SelectValDict={
+        staffId:"",
+        staffName:"",
+        departmentName:"",
+        permissionName:""
+    };
+
 };
 
 $(function () {

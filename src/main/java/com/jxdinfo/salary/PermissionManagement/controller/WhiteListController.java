@@ -66,6 +66,47 @@ public class WhiteListController extends BaseController {
 
     }
 
+    /**
+     *  实现了根据前端传来的查询条件（可能是员工工号或者是员工的姓名）进行查询 并且返回结果
+     */
+    @ResponseBody
+    @RequestMapping("/searchByCondition")
+    public List<WhiteList> searchByCondition(String search_condition){
+        String condition = "%"+search_condition+"%";
+        return whiteListService.searchByCondition(condition);
+    }
+
+
+    /**
+     *
+     * 根据下拉选择框的值筛选
+     */
+    @ResponseBody
+    @RequestMapping("/showBySelect")
+    public Object showBySelect(String staffId,String staffName,String departmentName, String permissionName,
+                               @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                               @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+
+        Page<WhiteList> page = new Page<>(pageNumber, pageSize);
+        Wrapper<WhiteList> ew = new EntityWrapper<>();
+        if(staffId.length()>0)
+            ew.where("a.STAFF_ID = {0}", Integer.valueOf(staffId));
+        if(staffName.length()>0)
+            ew.where("d.STAFF_NAME = {0}", staffName);
+        if(departmentName.length()>0)
+            ew.where("DEPARTMENT_NAME = {0}", departmentName);
+        if(permissionName.length()>0)
+            ew.where("PERMISSION_NAME = {0}", permissionName);
+
+        // 控制台输出ew
+        System.out.println(ew.getSqlSegment());
+        Map<String, Object> result = new HashMap<>(5);
+        List<WhiteList> list = whiteListService.selectPage(page, ew).getRecords();
+        result.put("total", page.getTotal());
+        result.put("rows", list);
+        return result;
+
+    }
 
 
     /**
@@ -92,18 +133,24 @@ public class WhiteListController extends BaseController {
 
     /**
      * 获取薪资权限管理--白名单维护列表
+     * 添加了根据查询条件进行返回 没有查询条件时返回所有数据
      */
     @RequestMapping(value = "/list")
     @BussinessLog(key = "/whiteList/list", type = BussinessLogType.QUERY, value = "获取薪资权限管理--白名单维护列表")
     @RequiresPermissions("whiteList:list")
     @ResponseBody
-    public Object list(String condition,
+    public Object list(@RequestParam(value = "search_condition",required = false,defaultValue = "") String search_condition,
                        @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
-        System.out.println("+++++++++++++++++++"+pageNumber);
-        System.out.println("+++++++++++++++++++"+pageSize);
+        String condition = "%"+search_condition+"%";
+        System.out.println("in WhiteListController condition: "+condition);
+
         Page<WhiteList> page = new Page<>(pageNumber, pageSize);
         Wrapper<WhiteList> ew = new EntityWrapper<>();
+        ew.where("a.STAFF_ID like {0} or d.STAFF_NAME like {1}", condition,condition);
+        //输出ew
+        System.out.println(ew.getSqlSegment());
+
         Map<String, Object> result = new HashMap<>(5);
         List<WhiteList> list = whiteListService.selectPage(page, ew).getRecords();
         result.put("total", page.getTotal());

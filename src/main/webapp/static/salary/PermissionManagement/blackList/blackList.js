@@ -9,6 +9,18 @@ var BlackList = {
     pageSize:20,
     pageNumber:1
 };
+
+/**
+ *  保存四个select选择的当前值
+ * @type {{staffId: string, staffName: string, departmentName: string, permissionName: string}}
+ */
+var SelectValDict={
+    staffId:"",
+    staffName:"",
+    departmentName:"",
+    permissionName:""
+};
+
 layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
@@ -17,7 +29,38 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
 
-BlackList.createSelect = function(){
+    /**
+     * 监听select的选择事件
+     */
+    form.on('select', function(data){
+
+        // console.log(data.elem.id); //得到select原始DOM对象的id
+        // console.log(data.value); //得到被选中的值
+        // console.log(data.othis); //得到美化后的DOM对象
+
+        var id = data.elem.id;
+        var val = data.value;
+        SelectValDict[id] = val;
+        console.log(SelectValDict);
+        // 接下来根据当前的SelectValDict查询相应结果 更新bootstrapTable
+        var opt={
+            url: Hussar.ctxPath + "/blackList/showBySelect",
+            silent: true,
+            query:{
+                staffId:SelectValDict.staffId,
+                staffName:SelectValDict.staffName,
+                departmentName:SelectValDict.departmentName,
+                permissionName:SelectValDict.permissionName
+            }
+        }
+        $('#BlackListTable').bootstrapTable('refresh',opt);
+
+    });
+
+    /**
+     *  生成select
+     */
+    BlackList.createSelect = function(){
     var ajax = new $ax(Hussar.ctxPath + "/blackList/select", function (data) {
         console.log(data);
         //得到员工工号列表、姓名列表、权限部门名称列表、权限名称列表
@@ -51,10 +94,10 @@ BlackList.createSelect = function(){
             //key是list的下标
             str4 += "<option value=\""+permissionNameList[key]+"\">"+permissionNameList[key]+"</option>";
 
-        $('#staffId').append(str1);
-        $('#staffName').append(str2);
-        $('#departmentName').append(str3);
-        $('#permissionName').append(str4);
+        $('#staffId').empty().append(str1);
+        $('#staffName').empty().append(str2);
+        $('#departmentName').empty().append(str3);
+        $('#permissionName').empty().append(str4);
         form.render('select')
 
     }, function (data) {
@@ -67,8 +110,8 @@ BlackList.createSelect = function(){
  * 获取table各列的宽度
  */
 BlackList.getTableColWidth = function(){
-  var elements = $('th');
-  console.log(elements)
+  var table = $('#WhiteListTable').width();
+  console.log(table)
 
 };
 
@@ -78,12 +121,12 @@ BlackList.getTableColWidth = function(){
  */
 BlackList.initColumn = function () {
     return [
-        {checkbox:true, halign:'center',align:"center",width: 50},
-        {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (BlackList.pageNumber-1)*BlackList.pageSize +1 +index ;}},
-            {title: '员工工号', field: 'staffId', align: 'center',halign:'center'},
-            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center'},
-            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center'},
-            {title: '被限制的权限', field: 'permissionName', align: 'center',halign:'center'}
+        {checkbox:true, halign:'center',align:"center",width: "4%"},
+        {title: '序号',align:"center" ,halign:'center',width: "4%",formatter: function (value, row, index) {return (BlackList.pageNumber-1)*BlackList.pageSize +1 +index ;}},
+            {title: '员工工号', field: 'staffId', align: 'center',halign:'center',width: "23%"},
+            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center',width: "23%"},
+            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center',width: "23%"},
+            {title: '被限制的权限', field: 'permissionName', align: 'center',halign:'center',width: "23%"}
     ];
 };
 
@@ -153,7 +196,33 @@ BlackList.delete = function () {
  * 查询薪资权限管理---黑名单维护列表
  */
 BlackList.search = function () {
-    $('#BlackListTable').bootstrapTable('refresh');
+    var search_condition = $('#condition').val();
+    var opt={
+        url: Hussar.ctxPath + "/blackList/list",
+        silent: true,
+        query:{
+            search_condition:search_condition
+        }
+    }
+    $('#BlackListTable').bootstrapTable('refresh',opt);
+};
+
+
+
+/**
+ * 重置功能 先将 $('#condition').val()设置为""
+ * 然后调用WhiteList.search即可
+ */
+BlackList.reset = function(){
+    $('#condition').val("");
+    BlackList.search();
+    BlackList.createSelect();
+    SelectValDict={
+        staffId:"",
+        staffName:"",
+        departmentName:"",
+        permissionName:""
+    };
 };
 
 $(function () {

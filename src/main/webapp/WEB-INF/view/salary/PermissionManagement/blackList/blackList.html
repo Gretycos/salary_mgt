@@ -8,11 +8,11 @@
         <br />
         <div class="layui-form-item clearfix">
             <div class="layui-input-inline">
-                <input type="text" id="condition" placeholder="请输入名称" autocomplete="off" class="layui-input" >
+                <input type="text" id="condition" placeholder="请输入名称" autocomplete="off" class="layui-input" value="">
             </div>
             <div class="layui-input-inline">
                 <button class="layui-btn" data-type="reload" type="button" onclick="BlackList.search()"><i class="layui-icon">&#xe615;</i>查询</button>
-                <button class="layui-btn" type="reset"><i class="layui-icon">&#xe00A;</i>重置</button>
+                <button class="layui-btn" type="reset" onclick="BlackList.reset()"><i class="layui-icon">&#xe00A;</i>重置</button>
             </div>
             <div class="fr">
                 <button type="button" class="layui-btn" id="add"
@@ -25,26 +25,28 @@
         </div>
     </form>
 
-    <form class="layui-form">
-        <div class="layui-inline">
+    <div style="width: 100%">
+    <form class="layui-form" style="width: 100% !important;">
+        <div class="layui-inline" style="width:92% !important;margin-left: 8% !important;display: flex !important;">
             <!--<label class="layui-form-label">搜索选择框</label>-->
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 25% !important;">
                 <select id="staffId" lay-verify="required" lay-search=""></select>
             </div>
 
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 25% !important;">
                 <select id="staffName" lay-verify="required" lay-search=""></select>
             </div>
 
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 25% !important;">
                 <select id="departmentName" lay-verify="required" lay-search=""></select>
             </div>
 
-            <div class="layui-input-inline">
+            <div class="layui-input-inline" style="width: 25% !important;">
                 <select id="permissionName" lay-verify="required" lay-search=""></select>
             </div>
         </div>
     </form>
+</div>
 
     <table id="BlackListTable" ></table>
 </div>

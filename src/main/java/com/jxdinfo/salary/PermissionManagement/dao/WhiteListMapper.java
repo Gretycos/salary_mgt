@@ -33,4 +33,7 @@ public interface WhiteListMapper extends BaseMapper<WhiteList> {
     // 获取权限名称
     List<String> selectPermissionName();
 
+    // 根据查询条件进行查询 条件是员工的工号或者姓名
+    List<WhiteList> searchByCondition(String condition);
+
 }

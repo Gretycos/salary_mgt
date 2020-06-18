@@ -1,5 +1,8 @@
 package com.jxdinfo.salary.PermissionManagement.service.impl;
 
+import com.baomidou.mybatisplus.mapper.SqlHelper;
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.PermissionManagement.dao.WhiteListMapper;
 import com.jxdinfo.salary.PermissionManagement.service.IWhiteListService;
@@ -42,5 +45,18 @@ public class WhiteListServiceImpl extends ServiceImpl<WhiteListMapper, WhiteList
     public List<String> selectPermissionName() {
         return whiteListMapper.selectPermissionName();
     }
+
+    @Override
+    public List<WhiteList> searchByCondition(String condition) {
+        return whiteListMapper.searchByCondition(condition);
+    }
+
+//    @Override
+//    public Page<WhiteList> selectPage(String condition, Page<WhiteList> page, Wrapper<WhiteList> wrapper) {
+//        wrapper = SqlHelper.fillWrapper(page, wrapper);
+//        page.setRecords(WhiteListMapper.selectPage(condition,page, wrapper));
+//        return page;
+//    }
+
 
 }

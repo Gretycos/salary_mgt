@@ -67,6 +67,36 @@ public class BlackListController extends BaseController {
     }
 
     /**
+     * 根据四个下拉选择框的值筛选、展示数据
+     */
+    @ResponseBody
+    @RequestMapping("/showBySelect")
+    public Object showBySelect(String staffId,String staffName,String departmentName, String permissionName,
+                                @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                                @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+
+        Page<BlackList> page = new Page<>(pageNumber, pageSize);
+        Wrapper<BlackList> ew = new EntityWrapper<>();
+        if(staffId.length()>0)
+            ew.where("a.STAFF_ID = {0}", Integer.valueOf(staffId));
+        if(staffName.length()>0)
+            ew.where("d.STAFF_NAME = {0}", staffName);
+        if(departmentName.length()>0)
+            ew.where("DEPARTMENT_NAME = {0}", departmentName);
+        if(permissionName.length()>0)
+            ew.where("PERMISSION_NAME = {0}", permissionName);
+
+        System.out.println(ew.getSqlSegment());
+        Map<String, Object> result = new HashMap<>(5);
+        List<BlackList> list = blackListService.selectPage(page, ew).getRecords();
+        result.put("total", page.getTotal());
+        result.put("rows", list);
+        return result;
+
+    }
+
+
+    /**
      * 跳转到添加薪资权限管理---黑名单维护
      */
     @RequestMapping("/blackList_add")
@@ -90,16 +120,22 @@ public class BlackListController extends BaseController {
 
     /**
      * 获取薪资权限管理---黑名单维护列表
+     *  新增根据条件进行查询 条件：员工姓名或者工号
      */
     @RequestMapping(value = "/list")
     @BussinessLog(key = "/blackList/list", type = BussinessLogType.QUERY, value = "获取薪资权限管理---黑名单维护列表")
     @RequiresPermissions("blackList:list")
     @ResponseBody
-    public Object list(String condition,
+    public Object list(@RequestParam(value = "search_condition",required = false,defaultValue = "") String search_condition,
                        @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        String condition = "%"+search_condition+"%";
+        System.out.println("in BlackListController condition: "+condition);
+
         Page<BlackList> page = new Page<>(pageNumber, pageSize);
         Wrapper<BlackList> ew = new EntityWrapper<>();
+        ew.where("a.STAFF_ID like {0} or d.STAFF_NAME like {1}", condition,condition);
+
         Map<String, Object> result = new HashMap<>(5);
         List<BlackList> list = blackListService.selectPage(page, ew).getRecords();
         result.put("total", page.getTotal());

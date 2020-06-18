@@ -1,5 +1,8 @@
 package com.jxdinfo.salary.PermissionManagement.service;
 
+import com.baomidou.mybatisplus.mapper.SqlHelper;
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.baomidou.mybatisplus.service.IService;
 
@@ -26,6 +29,11 @@ public interface IWhiteListService extends IService<WhiteList> {
 
     // 获取权限名称
     List<String> selectPermissionName();
+
+    // 根据条件进行查询
+    List<WhiteList> searchByCondition(String condition);
+
+//    Page<WhiteList> selectPage(String condition,Page<WhiteList> page, Wrapper<WhiteList> wrapper);
 }
 
 
