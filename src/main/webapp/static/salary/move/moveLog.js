@@ -24,8 +24,14 @@ MoveLog.initColumn = function () {
         {checkbox:true, halign:'center',align:"center",width: 50},
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (MoveLog.pageNumber-1)*MoveLog.pageSize +1 +index ;}},
             {title: '操作编码', field: 'operationId', align: 'center',halign:'center'},
-            {title: '操作员工号', field: 'operatorId', align: 'center',halign:'center'},
-            {title: '操作员姓名', field: 'operatorName', align: 'center',halign:'center'},
+            {title: '操作员工号', field: 'operator', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.staffId
+                }},
+            {title: '操作员姓名', field: 'operator', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.staffName
+                }},
             {title: '调动员工工号', field: 'moveId', align: 'center',halign:'center'},
             {title: '调动员工姓名', field: 'moveName', align: 'center',halign:'center'},
             {title: '原部门', field: 'oldDepartmentName', align: 'center',halign:'center'},

@@ -1,5 +1,7 @@
 package com.jxdinfo.salary.move.service;
 
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.move.model.MoveLog;
 import com.baomidou.mybatisplus.service.IService;
 
@@ -12,5 +14,5 @@ import com.baomidou.mybatisplus.service.IService;
  * @since 2020-06-17
  */
 public interface IMoveLogService extends IService<MoveLog> {
-
+    Page<MoveLog> selectByDidPage(Page<MoveLog> page, Wrapper<MoveLog> wrapper);
 }

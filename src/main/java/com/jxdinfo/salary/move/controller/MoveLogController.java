@@ -76,6 +76,25 @@ public class MoveLogController extends BaseController {
     }
 
     /**
+     * 获取特定部门调动日志列表
+     */
+    @RequestMapping(value = "/list/department")
+    @BussinessLog(key = "/move/list/department", type = BussinessLogType.QUERY, value = "获取调动日志列表")
+    @RequiresPermissions("move:list")
+    @ResponseBody
+    public Object listByODid(String condition,
+                       @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                       @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        Page<MoveLog> page = new Page<>(pageNumber, pageSize);
+        Wrapper<MoveLog> ew = new EntityWrapper<>();
+        Map<String, Object> result = new HashMap<>(5);
+        List<MoveLog> list = moveLogService.selectByDidPage(page, ew).getRecords();
+        result.put("total", page.getTotal());
+        result.put("rows", list);
+        return result;
+    }
+
+    /**
      * 新增调动日志
      */
     @RequestMapping(value = "/add")

@@ -18,8 +18,6 @@ import java.util.List;
  * @since 2020-06-17
  */
 public interface MoveLogMapper extends BaseMapper<MoveLog> {
-
     List<MoveLog> selectPage(RowBounds rowBounds, @Param("ew") Wrapper<MoveLog> wrapper);
-
-
+    List<MoveLog> selectByDidPage(RowBounds rowBounds, @Param("ew") Wrapper<MoveLog> wrapper);
 }
