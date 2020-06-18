@@ -4,7 +4,10 @@ import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.PermissionManagement.dao.WhiteListMapper;
 import com.jxdinfo.salary.PermissionManagement.service.IWhiteListService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,5 +19,28 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WhiteListServiceImpl extends ServiceImpl<WhiteListMapper, WhiteList> implements IWhiteListService {
+
+    @Autowired
+    private WhiteListMapper whiteListMapper;
+
+    @Override
+    public List<Integer> selectStaffId() {
+        return whiteListMapper.selectStaffId();
+    }
+
+    @Override
+    public List<String> selectStaffName() {
+        return whiteListMapper.selectStaffName();
+    }
+
+    @Override
+    public List<String> selectDepartmentName() {
+        return whiteListMapper.selectDepartmentName();
+    }
+
+    @Override
+    public List<String> selectPermissionName() {
+        return whiteListMapper.selectPermissionName();
+    }
 
 }

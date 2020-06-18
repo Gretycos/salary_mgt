@@ -35,7 +35,7 @@ public class MoveLog extends Model<MoveLog> {
     /**
      * 操作员
      */
-    @TableField("OPERATOR_NAME")
+    @TableField(exist = false)
     private Staff operator;
     /**
      * 调动员工

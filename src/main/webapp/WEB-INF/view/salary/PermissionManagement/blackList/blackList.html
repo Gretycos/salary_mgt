@@ -1,5 +1,6 @@
 @layout("/common/layout.html",{title:'管理'}){
-<div class="layui-fluid weadmin-body">
+<link type="text/css" href="/static/css/salary/permission.css"/>
+<div class="layui-fluid weadmin-body" xmlns:hussar="http://www.w3.org/1999/xhtml">
     <form class="layui-form" action="">
         <div class="layui-elem-quote">
             <label>黑名单维护</label>
@@ -23,6 +24,28 @@
             </div>
         </div>
     </form>
+
+    <form class="layui-form">
+        <div class="layui-inline">
+            <!--<label class="layui-form-label">搜索选择框</label>-->
+            <div class="layui-input-inline">
+                <select id="staffId" lay-verify="required" lay-search=""></select>
+            </div>
+
+            <div class="layui-input-inline">
+                <select id="staffName" lay-verify="required" lay-search=""></select>
+            </div>
+
+            <div class="layui-input-inline">
+                <select id="departmentName" lay-verify="required" lay-search=""></select>
+            </div>
+
+            <div class="layui-input-inline">
+                <select id="permissionName" lay-verify="required" lay-search=""></select>
+            </div>
+        </div>
+    </form>
+
     <table id="BlackListTable" ></table>
 </div>
 <script src="${ctxPath}/static/salary/PermissionManagement/blackList/blackList.js"></script>

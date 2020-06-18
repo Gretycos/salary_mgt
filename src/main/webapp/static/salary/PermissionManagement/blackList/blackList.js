@@ -9,12 +9,69 @@ var BlackList = {
     pageSize:20,
     pageNumber:1
 };
-layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax'], function(){
+layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
         ,Hussar = layui.Hussar
 	    ,$ = layui.jquery
-	    ,$ax = layui.HussarAjax;
+	    ,$ax = layui.HussarAjax
+        ,form = layui.form;
+
+BlackList.createSelect = function(){
+    var ajax = new $ax(Hussar.ctxPath + "/blackList/select", function (data) {
+        console.log(data);
+        //得到员工工号列表、姓名列表、权限部门名称列表、权限名称列表
+        var staffIdList = data.staffIdList,
+            staffNameList = data.staffNameList,
+            departmentNameList = data.departmentNameList,
+            permissionNameList = data.permissionNameList
+
+        var str1="",str2="",str3="",str4="";
+        str1 += "<option value=''>请搜索或选择员工工号</option>";
+        str2 += "<option value=''>请搜索或选择员工姓名</option>";
+        str3 += "<option value=''>请搜索或选择部门名称</option>";
+        str4 += "<option value=''>请搜索或选择权限名称</option>";
+        //工号select
+        for (var key in staffIdList)
+            //key是list的下标
+            str1 += "<option value=\""+staffIdList[key]+"\">"+staffIdList[key]+"</option>";
+
+        //姓名select
+        for (var key in staffNameList)
+            //key是list的下标
+            str2 += "<option value=\""+staffNameList[key]+"\">"+staffNameList[key]+"</option>";
+
+        // 部门select
+        for (var key in departmentNameList)
+            //key是list的下标
+            str3 += "<option value=\""+departmentNameList[key]+"\">"+departmentNameList[key]+"</option>";
+
+        // 权限select
+        for (var key in permissionNameList)
+            //key是list的下标
+            str4 += "<option value=\""+permissionNameList[key]+"\">"+permissionNameList[key]+"</option>";
+
+        $('#staffId').append(str1);
+        $('#staffName').append(str2);
+        $('#departmentName').append(str3);
+        $('#permissionName').append(str4);
+        form.render('select')
+
+    }, function (data) {
+        Hussar.error("获取下拉列表失败!");
+    });
+    ajax.start();
+};
+
+/**
+ * 获取table各列的宽度
+ */
+BlackList.getTableColWidth = function(){
+  var elements = $('th');
+  console.log(elements)
+
+};
+
 
 /**
  * 初始化表格的列
@@ -101,8 +158,8 @@ BlackList.search = function () {
 
 $(function () {
     var defaultColunms = BlackList.initColumn();
-    console.log("aaaaaaa");
-
+    BlackList.createSelect();
+    BlackList.getTableColWidth();
     $('#BlackListTable').bootstrapTable({
             dataType:"json",
             url:'/blackList/list',

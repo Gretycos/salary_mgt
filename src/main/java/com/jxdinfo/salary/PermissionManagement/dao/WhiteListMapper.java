@@ -21,4 +21,16 @@ public interface WhiteListMapper extends BaseMapper<WhiteList> {
 
     List<WhiteList> selectPage(RowBounds rowBounds, @Param("ew") Wrapper<WhiteList> wrapper);
 
+    //获取员工工号
+    List<Integer> selectStaffId();
+
+    // 获取员工姓名
+    List<String> selectStaffName();
+
+    // 获取部门名称
+    List<String> selectDepartmentName();
+
+    // 获取权限名称
+    List<String> selectPermissionName();
+
 }

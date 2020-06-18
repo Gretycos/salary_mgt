@@ -21,7 +21,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax'], function(){
  */
 MoveLog.initColumn = function () {
     return [
-        {checkbox:true, halign:'center',align:"center",width: 50},
+
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (MoveLog.pageNumber-1)*MoveLog.pageSize +1 +index ;}},
             {title: '操作编码', field: 'operationId', align: 'center',halign:'center'},
             {title: '操作员工号', field: 'operator', align: 'center',halign:'center',
@@ -32,12 +32,30 @@ MoveLog.initColumn = function () {
                 formatter: function(value, item, index){
                     return value.staffName
                 }},
-            {title: '调动员工工号', field: 'moveId', align: 'center',halign:'center'},
-            {title: '调动员工姓名', field: 'moveName', align: 'center',halign:'center'},
-            {title: '原部门', field: 'oldDepartmentName', align: 'center',halign:'center'},
-            {title: '原职位', field: 'oldPositionName', align: 'center',halign:'center'},
-            {title: '新部门', field: 'newDepartmentName', align: 'center',halign:'center'},
-            {title: '新职位', field: 'newPositionName', align: 'center',halign:'center'},
+            {title: '调动员工工号', field: 'move', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.staffId
+                }},
+            {title: '调动员工姓名', field: 'move', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.staffName
+                }},
+            {title: '原部门', field: 'oldDepartment', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.departmentName
+                }},
+            {title: '原职位', field: 'oldPosition', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.positionName
+                }},
+            {title: '新部门', field: 'newDepartment', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.departmentName
+                }},
+            {title: '新职位', field: 'newPosition', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.positionName
+                }},
             {title: '操作时间', field: 'operationTime', align: 'center',halign:'center'}
     ];
 };
@@ -79,6 +97,15 @@ MoveLog.search = function () {
     $('#MoveLogTable').bootstrapTable('refresh');
 };
 
+MoveLog.queryParams = function(){
+    var temp = {
+        pageSize: this.pageSize,
+        pageNumber: this.pageNumber,
+        name: $("#moveName").val()
+    };
+    return temp;
+};
+
 $(function () {
     var defaultColunms = MoveLog.initColumn();
 
@@ -90,6 +117,7 @@ $(function () {
             striped:true,
             pageSize:20,
             queryParamsType:'',
+            queryParams: MoveLog.queryParams(),
             columns: defaultColunms,
             height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
             sidePagination:"server",
