@@ -32,12 +32,30 @@ MoveLog.initColumn = function () {
                 formatter: function(value, item, index){
                     return value.staffName
                 }},
-            {title: '调动员工工号', field: 'moveId', align: 'center',halign:'center'},
-            {title: '调动员工姓名', field: 'moveName', align: 'center',halign:'center'},
-            {title: '原部门', field: 'oldDepartmentName', align: 'center',halign:'center'},
-            {title: '原职位', field: 'oldPositionName', align: 'center',halign:'center'},
-            {title: '新部门', field: 'newDepartmentName', align: 'center',halign:'center'},
-            {title: '新职位', field: 'newPositionName', align: 'center',halign:'center'},
+            {title: '调动员工工号', field: 'move', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.staffId
+                }},
+            {title: '调动员工姓名', field: 'move', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.staffName
+                }},
+            {title: '原部门', field: 'oldDepartment', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.departmentName
+                }},
+            {title: '原职位', field: 'oldPosition', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.positionName
+                }},
+            {title: '新部门', field: 'newDepartment', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.departmentName
+                }},
+            {title: '新职位', field: 'newPosition', align: 'center',halign:'center',
+                formatter: function(value, item, index){
+                    return value.positionName
+                }},
             {title: '操作时间', field: 'operationTime', align: 'center',halign:'center'}
     ];
 };
