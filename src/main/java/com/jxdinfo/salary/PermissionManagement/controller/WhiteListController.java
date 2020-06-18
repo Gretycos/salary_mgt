@@ -46,6 +46,28 @@ public class WhiteListController extends BaseController {
         return PREFIX + "whiteList.html";
     }
 
+
+    /**
+     *  分别 获取白名单列表里面的值 最终结果是distinct的形式 去掉重复的的项
+     */
+    @ResponseBody
+    @RequestMapping("select")
+    public Map<String,Object> getSelection(){
+        Map<String,Object> map = new HashMap<>();
+        List<Integer> staffIdList = whiteListService.selectStaffId();
+        List<String> staffNameList = whiteListService.selectStaffName();
+        List<String> departmentNameList = whiteListService.selectDepartmentName();
+        List<String> permissionNameList = whiteListService.selectPermissionName();
+        map.put("staffIdList", staffIdList);
+        map.put("staffNameList", staffNameList);
+        map.put("departmentNameList", departmentNameList);
+        map.put("permissionNameList", permissionNameList);
+        return map;
+
+    }
+
+
+
     /**
      * 跳转到添加薪资权限管理--白名单维护
      */

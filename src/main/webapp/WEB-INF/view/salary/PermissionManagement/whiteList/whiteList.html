@@ -1,4 +1,5 @@
 @layout("/common/layout.html",{title:'管理'}){
+<link type="text/css" href="/static/css/salary/permission.css"/>
 <div class="layui-fluid weadmin-body">
     <form class="layui-form" action="">
         <div class="layui-elem-quote">
@@ -23,6 +24,30 @@
             </div>
         </div>
     </form>
+
+    <div style="margin-left: 100px;width: 100%;">
+        <form class="layui-form">
+            <div class="layui-inline">
+                <!--<label class="layui-form-label">搜索选择框</label>-->
+                <div class="layui-input-inline" style="width: 320px !important;">
+                    <select id="staffId" lay-verify="required" lay-search=""></select>
+                </div>
+
+                <div class="layui-input-inline" style="width: 290px !important;">
+                    <select id="staffName" lay-verify="required" lay-search=""></select>
+                </div>
+
+                <div class="layui-input-inline" style="width: 288px !important;">
+                    <select id="departmentName" lay-verify="required" lay-search=""></select>
+                </div>
+
+                <div class="layui-input-inline" style="width: 262px !important;">
+                    <select id="permissionName" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <table id="WhiteListTable" ></table>
 </div>
 <script src="${ctxPath}/static/salary/PermissionManagement/whiteList/whiteList.js"></script>
