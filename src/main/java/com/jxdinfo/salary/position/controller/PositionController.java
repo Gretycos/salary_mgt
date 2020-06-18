@@ -69,6 +69,25 @@ public class PositionController extends BaseController {
     }
 
     /**
+     * 获取职位列表，包含职位人员信息
+     */
+    @RequestMapping(value = "/list/details")
+    @BussinessLog(key = "/position/list/details", type = BussinessLogType.QUERY, value = "获取职位列表")
+    @RequiresPermissions("position:list")
+    @ResponseBody
+    public Object listDetails(String condition,
+                       @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                       @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        Page<Position> page = new Page<>(pageNumber, pageSize);
+        Wrapper<Position> ew = new EntityWrapper<>();
+        Map<String, Object> result = new HashMap<>(5);
+        List<Position> list = positionService.selectDetailsPage(page, ew).getRecords();
+        result.put("total", page.getTotal());
+        result.put("rows", list);
+        return result;
+    }
+
+    /**
      * 获取职位列表
      */
     @RequestMapping(value = "/list")

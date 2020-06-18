@@ -25,8 +25,16 @@
         DEPARTMENT_ID AS departmentId, DEPARTMENT_NAME AS departmentName
     </sql>
 
+    <!-- 分页查询详情 -->
+    <select id="selectDetailsPage" resultMap="WithRefResultMap">
+        select * from t_department
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
     <!-- 分页查询 -->
-    <select id="selectPage" resultMap="WithRefResultMap">
+    <select id="selectPage" resultMap="BaseResultMap">
         select * from t_department
         <where>
             ${ew.sqlSegment}

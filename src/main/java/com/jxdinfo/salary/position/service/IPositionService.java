@@ -1,5 +1,7 @@
 package com.jxdinfo.salary.position.service;
 
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.position.model.Position;
 import com.baomidou.mybatisplus.service.IService;
 
@@ -12,5 +14,5 @@ import com.baomidou.mybatisplus.service.IService;
  * @since 2020-06-17
  */
 public interface IPositionService extends IService<Position> {
-
+    Page<Position> selectDetailsPage(Page<Position> page, Wrapper<Position> wrapper);
 }

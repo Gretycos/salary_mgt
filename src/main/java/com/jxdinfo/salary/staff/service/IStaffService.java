@@ -1,7 +1,5 @@
 package com.jxdinfo.salary.staff.service;
 
-import com.baomidou.mybatisplus.mapper.Wrapper;
-import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.staff.model.Staff;
 import com.baomidou.mybatisplus.service.IService;
 
@@ -15,6 +13,7 @@ import java.util.List;
  * @author hyc
  * @since 2020-06-16
  */
-public interface IStaffService extends IService<Staff> {
+
+public interface IStaffService extends IService<Staff>{
 
 }

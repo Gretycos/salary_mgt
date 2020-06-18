@@ -69,6 +69,25 @@ public class DepartmentController extends BaseController {
     }
 
     /**
+     * 获取部门列表，包含部门人员信息
+     */
+    @RequestMapping(value = "/list/details")
+    @BussinessLog(key = "/department/list/details", type = BussinessLogType.QUERY, value = "获取部门列表")
+    @RequiresPermissions("department:list")
+    @ResponseBody
+    public Object listDetails(String condition,
+                       @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                       @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        Page<Department> page = new Page<>(pageNumber, pageSize);
+        Wrapper<Department> ew = new EntityWrapper<>();
+        Map<String, Object> result = new HashMap<>(5);
+        List<Department> list = departmentService.selectDetailsPage(page, ew).getRecords();
+        result.put("total", page.getTotal());
+        result.put("rows", list);
+        return result;
+    }
+
+    /**
      * 获取部门列表
      */
     @RequestMapping(value = "/list")

@@ -6,6 +6,8 @@ import com.jxdinfo.salary.staff.service.IStaffService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 职工表 服务实现类
@@ -15,6 +17,6 @@ import org.springframework.stereotype.Service;
  * @since 2020-06-16
  */
 @Service
-public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements IStaffService {
+public class StaffServiceImpl extends ServiceImpl<StaffMapper,Staff> implements IStaffService {
 
 }
