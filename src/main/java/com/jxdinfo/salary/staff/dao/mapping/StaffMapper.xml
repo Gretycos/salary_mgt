@@ -57,5 +57,12 @@
         </where>
     </select>
 
+    <select id="selectMaxStaffIdByDid" resultMap="BaseResultMap">
+        select * from t_staff
+        where DEPARTMENT_ID = #{departmentId} and
+                STAFF_ID >= all(
+                    select STAFF_ID from t_staff
+                    where DEPARTMENT_ID = #{departmentId})
+    </select>
 
 </mapper>

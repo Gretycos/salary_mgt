@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
+import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.department.service.IDepartmentService;
+import com.jxdinfo.salary.position.model.Position;
+import com.jxdinfo.salary.position.service.IPositionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,6 +23,10 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.jxdinfo.hussar.core.log.type.BussinessLogType;
 import com.jxdinfo.salary.staff.model.Staff;
 import com.jxdinfo.salary.staff.service.IStaffService;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +45,10 @@ public class StaffController extends BaseController {
 
     @Autowired
     private IStaffService staffService;
+    @Autowired
+    private IDepartmentService departmentService;
+    @Autowired
+    private IPositionService positionService;
 
     /**
      * 跳转到人员管理首页
@@ -97,8 +109,35 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/add", type = BussinessLogType.INSERT, value = "新增人员管理")
     @RequiresPermissions("staff:add")
     @ResponseBody
-    public Object add(Staff staff) {
-        staffService.insert(staff);
+    public Object add(@RequestParam Map<String, String> staffInfo) {
+        System.out.println(staffInfo);
+
+        String staffName = staffInfo.get("staffName"); // 员工名称
+        String gender = staffInfo.get("gender"); // 性别
+        int departmentId = Integer.parseInt(staffInfo.get("departmentId")); // 部门ID
+        int positionId = Integer.parseInt(staffInfo.get("positionId")); // 职位ID
+        Long jstime = Long.parseLong(staffInfo.get("jstime")); // 入职时间戳
+
+        // 新ID
+        int staffId = staffService.selectMaxStaffIdByDid(departmentId)+1;
+        // 部门
+        Wrapper<Department> wrapper1 = new EntityWrapper<>();
+        wrapper1
+                .eq("DEPARTMENT_ID",departmentId);
+        Department department = departmentService.selectOne(wrapper1);
+        //职位
+        Wrapper<Position> wrapper2 = new EntityWrapper<>();
+        wrapper2
+                .eq("POSITION_ID",positionId);
+        Position position = positionService.selectOne(wrapper2);
+        //入职时间
+        Date date = new Date(jstime);
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp entryTime = Timestamp.valueOf(sf.format(date));
+
+        Staff staff = new Staff(staffId,staffName,gender,department,position,entryTime); // 新员工
+
+        staffService.insert(staff); //新增员工
         return SUCCESS_TIP;
     }
 

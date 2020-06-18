@@ -15,5 +15,5 @@ import java.util.List;
  */
 
 public interface IStaffService extends IService<Staff>{
-
+    int selectMaxStaffIdByDid(int departmentId);
 }

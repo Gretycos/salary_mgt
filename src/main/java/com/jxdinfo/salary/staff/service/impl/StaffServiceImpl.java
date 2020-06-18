@@ -4,6 +4,7 @@ import com.jxdinfo.salary.staff.model.Staff;
 import com.jxdinfo.salary.staff.dao.StaffMapper;
 import com.jxdinfo.salary.staff.service.IStaffService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,4 +20,11 @@ import java.util.List;
 @Service
 public class StaffServiceImpl extends ServiceImpl<StaffMapper,Staff> implements IStaffService {
 
+    @Autowired
+    private StaffMapper staffMapper;
+
+    @Override
+    public int selectMaxStaffIdByDid(int departmentId) {
+        return staffMapper.selectMaxStaffIdByDid(departmentId).getStaffId();
+    }
 }

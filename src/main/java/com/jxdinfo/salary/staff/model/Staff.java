@@ -62,6 +62,16 @@ public class Staff extends Model<Staff> {
     @TableField("DEPARTURE_TIME")
     private Timestamp departureTime;
 
+    public Staff(){}
+
+    public Staff(Integer staffId, String staffName, String gender, Department department, Position position, Timestamp entryTime) {
+        this.staffId = staffId;
+        this.staffName = staffName;
+        this.gender = gender;
+        this.department = department;
+        this.position = position;
+        this.entryTime = entryTime;
+    }
 
     public Integer getStaffId() {
         return staffId;

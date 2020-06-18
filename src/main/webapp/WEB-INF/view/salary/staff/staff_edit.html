@@ -1,13 +1,6 @@
 @layout("/common/layout.html",{title:'详情'}){
 <div class="weadmin-body-1 layui-form" style="padding-bottom:50px;">
             <div class="layui-form-item">
-                    <label class="layui-form-label">员工id：</label>
-                    <div class="layui-input-inline">
-                        <input id="staffId" name="staffId" class="layui-input"
-                               placeholder="请输入员工id" value="${item.staffId}" readonly>
-                    </div>
-             </div>
-            <div class="layui-form-item">
                     <label class="layui-form-label">姓名：</label>
                     <div class="layui-input-inline">
                         <input id="staffName" name="staffName" class="layui-input"
@@ -17,22 +10,22 @@
             <div class="layui-form-item">
                     <label class="layui-form-label">性别：</label>
                     <div class="layui-input-inline">
-                        <input id="gender" name="gender" class="layui-input"
-                               placeholder="请输入性别" value="${item.gender}">
+                        <select id="gender" name="gender">
+                            <option value="1" selected>男</option>
+                            <option value="0">女</option>
+                        </select>
                     </div>
              </div>
             <div class="layui-form-item">
-                    <label class="layui-form-label">部门ID：</label>
+                    <label class="layui-form-label">部门</label>
                     <div class="layui-input-inline">
-                        <input id="departmentId" name="departmentId" class="layui-input"
-                               placeholder="请输入部门ID" value="${item.departmentId}">
+                        <select id="departmentId" name="departmentId"></select>
                     </div>
              </div>
             <div class="layui-form-item">
-                    <label class="layui-form-label">职位ID：</label>
+                    <label class="layui-form-label">职位</label>
                     <div class="layui-input-inline">
-                        <input id="positionId" name="positionId" class="layui-input"
-                               placeholder="请输入职位ID" value="${item.positionId}">
+                        <select id="positionId" name="positionId"></select>
                     </div>
              </div>
 
