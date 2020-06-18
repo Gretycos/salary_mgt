@@ -24,7 +24,7 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper,Staff> implements 
     private StaffMapper staffMapper;
 
     @Override
-    public int selectMaxStaffIdByDid(int departmentId) {
-        return staffMapper.selectMaxStaffIdByDid(departmentId).getStaffId();
+    public int getNewStaffId(int departmentId) {
+        return staffMapper.selectMaxStaffIdByDid(departmentId).getStaffId()+1;
     }
 }

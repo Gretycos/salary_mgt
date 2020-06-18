@@ -63,7 +63,6 @@ public class WhiteListController extends BaseController {
         map.put("departmentNameList", departmentNameList);
         map.put("permissionNameList", permissionNameList);
         return map;
-
     }
 
     /**

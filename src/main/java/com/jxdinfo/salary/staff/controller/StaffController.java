@@ -119,21 +119,28 @@ public class StaffController extends BaseController {
         Long jstime = Long.parseLong(staffInfo.get("jstime")); // 入职时间戳
 
         // 新ID
-        int staffId = staffService.selectMaxStaffIdByDid(departmentId)+1;
+        int staffId = staffService.getNewStaffId(departmentId);
         // 部门
-        Wrapper<Department> wrapper1 = new EntityWrapper<>();
-        wrapper1
-                .eq("DEPARTMENT_ID",departmentId);
-        Department department = departmentService.selectOne(wrapper1);
+        Department department = departmentService.selectOne(new EntityWrapper<Department>()
+                .eq("DEPARTMENT_ID",departmentId));
         //职位
-        Wrapper<Position> wrapper2 = new EntityWrapper<>();
-        wrapper2
-                .eq("POSITION_ID",positionId);
-        Position position = positionService.selectOne(wrapper2);
+        Position position = positionService.selectOne(new EntityWrapper<Position>()
+                .eq("POSITION_ID",positionId));
         //入职时间
-        Date date = new Date(jstime);
-        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Timestamp entryTime = Timestamp.valueOf(sf.format(date));
+        Timestamp entryTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date(jstime)));
+
+        Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("POSITION_ID",1).eq("DEPARTMENT_ID",department.getDepartmentId()));
+
+        if (manager != null // 入职去的部门存在经理
+                && position.getPositionId() == 1 // 入职后的职位是经理
+        ){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","已存在部门经理");
+            return res;
+        }
 
         Staff staff = new Staff(staffId,staffName,gender,department,position,entryTime); // 新员工
 
@@ -160,10 +167,47 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/update", type = BussinessLogType.MODIFY, value = "修改人员管理")
     @RequiresPermissions("staff:update")
     @ResponseBody
-    public Object update(Staff staff) {
-        Staff staff1 = staffService.selectById(staff);
-        LogObjectHolder.me().set(staff1);
+    public Object update(@RequestParam Map<String, String> staffInfo) {
+        System.out.println(staffInfo);
+        int staffId = Integer.parseInt(staffInfo.get("staffId")); //员工ID
+        String staffName = staffInfo.get("staffName"); // 员工名称
+        String gender = staffInfo.get("gender"); // 性别
+        int departmentId = Integer.parseInt(staffInfo.get("departmentId")); // 部门ID
+        int positionId = Integer.parseInt(staffInfo.get("positionId")); // 职位ID
+        Long jstime = Long.parseLong(staffInfo.get("jstime")); // 变动时间
+
+        Staff staff = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("STAFF_ID",staffId));
+
+        Department newDepartment = departmentService.selectOne(new EntityWrapper<Department>()
+                .eq("DEPARTMENT_ID",departmentId));
+
+        Position newPosition = positionService.selectOne(new EntityWrapper<Position>()
+                .eq("POSITION_ID",positionId));
+
+        Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("POSITION_ID",1).eq("DEPARTMENT_ID",newDepartment.getDepartmentId()));
+
+        if (manager != null // 变动去的部门存在经理
+                && newPosition.getPositionId() == 1 // 变动后的职位是经理
+                && !(manager.getStaffId().equals(staff.getStaffId())) // 不是同一个人，则存在多经理，返回错误
+        ){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","已存在部门经理");
+            return res;
+        }
+
+        staff.setStaffName(staffName);
+        staff.setGender(gender);
+        staff.setDepartment(newDepartment);
+        staff.setPosition(newPosition);
         staffService.updateById(staff);
+
+        //变动时间
+        Timestamp operationTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date(jstime)));
+
         return SUCCESS_TIP;
     }
 

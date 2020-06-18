@@ -61,6 +61,15 @@ StaffInfoDlg.collectData = function() {
     .set('positionId')
 };
 
+StaffInfoDlg.collectData_ = function() {
+    this
+        .set('staffId')
+        .set('staffName')
+        .set('gender')
+        .set('departmentId')
+        .set('positionId')
+};
+
 /**
  * 提交添加
  */
@@ -71,9 +80,13 @@ StaffInfoDlg.addSubmit = function() {
 
     //提交信息
     var ajax = new $ax(Hussar.ctxPath + "/staff/add", function(data){
-        window.parent.layui.Hussar.success("添加成功!");
-        window.parent.$('#StaffTable').bootstrapTable('refresh');
-        StaffInfoDlg.close();
+        if(data.code === 200){
+            window.parent.layui.Hussar.success("添加成功!");
+            window.parent.$('#StaffTable').bootstrapTable('refresh');
+            StaffInfoDlg.close();
+        }else{
+            Hussar.error("修改失败!" + data.message + "!");
+        }
     },function(data){
         Hussar.error("添加失败!" + data.responseJSON.message + "!");
     });
@@ -87,13 +100,18 @@ StaffInfoDlg.addSubmit = function() {
 StaffInfoDlg.editSubmit = function() {
 
     this.clearData();
-    this.collectData();
+    this.collectData_();
 
     //提交信息
     var ajax = new $ax(Hussar.ctxPath + "/staff/update", function(data){
-        window.parent.layui.Hussar.success("修改成功!");
-        window.parent.$('#StaffTable').bootstrapTable('refresh');
-        StaffInfoDlg.close();
+        if(data.code === 200){
+            window.parent.layui.Hussar.success("修改成功!");
+            window.parent.$('#StaffTable').bootstrapTable('refresh');
+            StaffInfoDlg.close();
+        }else{
+            Hussar.error("修改失败!" + data.message + "!");
+        }
+
     },function(data){
         Hussar.error("修改失败!" + data.responseJSON.message + "!");
     });

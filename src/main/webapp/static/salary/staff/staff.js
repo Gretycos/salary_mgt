@@ -62,9 +62,12 @@ Staff.check = function () {
     if(selected.length == 0){
         Hussar.info("请先选中表格中的某一记录！");
         return false;
-    }else{
+    }else if(selected.length == 1){
         Staff.seItem = selected[0];
         return true;
+    }else{
+        Hussar.info("请选中表格中的仅一项记录！");
+        return false;
     }
 };
 

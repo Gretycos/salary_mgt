@@ -1,18 +1,31 @@
 @layout("/common/layout.html",{title:'详情'}){
 <div class="weadmin-body-1 layui-form" style="padding-bottom:50px;">
             <div class="layui-form-item">
+                <label class="layui-form-label">员工ID：</label>
+                <div class="layui-input-inline">
+                    <input id="staffId" name="staffId" class="layui-input"
+                        placeholder="请输入员工ID" value="${item.staffId}" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
                     <label class="layui-form-label">姓名：</label>
                     <div class="layui-input-inline">
                         <input id="staffName" name="staffName" class="layui-input"
                                placeholder="请输入姓名" value="${item.staffName}">
                     </div>
              </div>
+
             <div class="layui-form-item">
                     <label class="layui-form-label">性别：</label>
                     <div class="layui-input-inline">
                         <select id="gender" name="gender">
+                            @if(item.gender=='0'){
+                            <option value="1">男</option>
+                            <option value="0" selected>女</option>
+                            @}else{
                             <option value="1" selected>男</option>
                             <option value="0">女</option>
+                            @}
                         </select>
                     </div>
              </div>
