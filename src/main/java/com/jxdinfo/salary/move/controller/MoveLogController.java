@@ -68,6 +68,8 @@ public class MoveLogController extends BaseController {
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<MoveLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<MoveLog> ew = new EntityWrapper<>();
+        String moveName = super.getPara("moveName");
+        ew.like("MOVE_ID",moveName);
         Map<String, Object> result = new HashMap<>(5);
         List<MoveLog> list = moveLogService.selectPage(page, ew).getRecords();
         result.put("total", page.getTotal());
