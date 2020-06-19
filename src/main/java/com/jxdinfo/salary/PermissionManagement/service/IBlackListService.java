@@ -26,4 +26,7 @@ public interface IBlackListService extends IService<BlackList> {
 
     // 获取权限名称
     List<String> selectPermissionName();
+
+    // 根据三个主键批量删除
+    Boolean deleteBatchByIds(List<BlackList> list);
 }

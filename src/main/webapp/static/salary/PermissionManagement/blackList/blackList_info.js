@@ -2,15 +2,66 @@
  * 初始化薪资权限管理---黑名单维护详情对话框
  */
 var BlackListInfoDlg = {
-    blackListInfoData : {}
+    blackListInfoData : {},
+    selectDepartmentAndPermission:{
+        departmentName:"",
+        permissionName:"",
+        staffId:null,
+        departmentId:null,
+        permissionId:null
+    }
 };
 
-layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate'], function(){
+layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
 	var layer = layui.layer
         ,Hussar = layui.Hussar
 	    ,$ = layui.jquery
 	    ,laydate = layui.laydate
-	    ,$ax = layui.HussarAjax;
+	    ,$ax = layui.HussarAjax
+        ,form = layui.form;
+
+//监听select
+form.on('select', function(data){
+    var id = data.elem.id; //select标签的id
+    var val = data.value;
+    BlackListInfoDlg.selectDepartmentAndPermission[id] = val;
+    console.log("当前selectDepartmentAndPermission")
+    console.log(BlackListInfoDlg.selectDepartmentAndPermission);
+});
+
+/**
+ * 初始化部门下拉选择框和权限下拉选择框
+ */
+BlackListInfoDlg.createSelect= function(){
+    var ajax = new $ax(Hussar.ctxPath + "/blackList/getAllDepartmentAndPermission", function(data){
+        // 得到data中的权限数组和部门信息数组
+        var departmentList = data.departmentList,
+            permissionList = data.permissionList;
+
+        // 下面开始拼接option
+        var str1="",str2="";
+        str1 += "<option value=''>请搜索或选择部门</option>";
+        str2 += "<option value=''>请搜索或选择权限</option>";
+        for (var key in departmentList){
+            str1 +=  "<option value=\""+departmentList[key].departmentName+"\">"
+                +departmentList[key].departmentName+"</option>";
+        }
+
+        for (var key in permissionList){
+            str2 +=  "<option value=\""+permissionList[key].permissionName+"\">"
+                +permissionList[key].permissionName+"</option>";
+        }
+
+        // 通过JQuery给相应的select添加上option
+        $('#departmentName').empty().append(str1);
+        $('#permissionName').empty().append(str2);
+
+        form.render('select') //不要忘记render
+    },function(data){
+        Hussar.error("生成下拉选择框失败!" );
+    });
+    ajax.start();
+};
 
 /**
  * 清除数据
@@ -82,8 +133,14 @@ BlackListInfoDlg.addSubmit = function() {
  */
 BlackListInfoDlg.editSubmit = function() {
 
-    this.clearData();
-    this.collectData();
+    // 得到修改后的信息 部门和权限的名称保存在了selectDepartmentAndPermission中
+    // 需要再获取到员工的ID（旧信息）
+    var staffId = $('#staffId').val();
+    var departmentId = $('#departmentId').val();
+    var permissionId = $('#permissionId').val();
+    BlackListInfoDlg.selectDepartmentAndPermission['staffId'] = staffId;
+    BlackListInfoDlg.selectDepartmentAndPermission['departmentId'] = departmentId;
+    BlackListInfoDlg.selectDepartmentAndPermission['permissionId'] = permissionId;
 
     //提交信息
     var ajax = new $ax(Hussar.ctxPath + "/blackList/update", function(data){
@@ -93,9 +150,10 @@ BlackListInfoDlg.editSubmit = function() {
     },function(data){
         Hussar.error("修改失败!" + data.responseJSON.message + "!");
     });
-    ajax.set(this.blackListInfoData);
+    ajax.set(this.selectDepartmentAndPermission);
     ajax.start();
 };
+
 
 /**
  * 初始化时间控件
@@ -112,6 +170,7 @@ BlackListInfoDlg.initLaydate = function() {
 }
 
 $(function() {
+    BlackListInfoDlg.createSelect();
     BlackListInfoDlg.initLaydate();   //初始化时间控件
 });
 

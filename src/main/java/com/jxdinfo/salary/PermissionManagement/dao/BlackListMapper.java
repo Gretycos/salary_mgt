@@ -3,7 +3,6 @@ package com.jxdinfo.salary.PermissionManagement.dao;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.jxdinfo.salary.PermissionManagement.model.BlackList;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
-import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -32,5 +31,11 @@ public interface BlackListMapper extends BaseMapper<BlackList> {
 
     // 获取权限名称
     List<String> selectPermissionName();
+
+    // 根据三个主键批量删除
+    Boolean deleteBatchByIds(List<BlackList> list);
+
+    //重写update方法
+    Integer update(@Param("et") BlackList var1, @Param("ew") Wrapper<BlackList> var2);
 
 }

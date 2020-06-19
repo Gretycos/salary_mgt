@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
+import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.department.service.IDepartmentService;
+import com.jxdinfo.salary.permission.model.Permission;
+import com.jxdinfo.salary.permission.service.IPermissionService;
+import net.sf.json.JSONArray;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.jxdinfo.hussar.core.log.LogObjectHolder;
-import org.springframework.web.bind.annotation.RequestParam;
 import com.jxdinfo.hussar.common.annotion.BussinessLog;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.jxdinfo.hussar.core.log.type.BussinessLogType;
@@ -35,6 +37,10 @@ public class BlackListController extends BaseController {
 
     @Autowired
     private IBlackListService blackListService;
+    @Autowired
+    private IPermissionService permissionService;
+    @Autowired
+    private IDepartmentService departmentService;
 
     /**
      * 跳转到薪资权限管理---黑名单维护首页
@@ -65,6 +71,24 @@ public class BlackListController extends BaseController {
         return map;
 
     }
+
+    /**
+     *  得到所有的部门信息 和权限信息
+     *  getAllDepartmentAndPermission
+     */
+    @ResponseBody
+    @RequestMapping("getAllDepartmentAndPermission")
+    public Map<String,Object> getAllDepartmentAndPermission(){
+        Map<String,Object> map = new HashMap<>();
+        Wrapper<Department> wrapper1 = new EntityWrapper<>();
+        Wrapper<Permission> wrapper2 = new EntityWrapper<>();
+        List<Department> departmentList = departmentService.selectList(wrapper1);
+        List<Permission> permissionList = permissionService.selectList(wrapper2);
+        map.put("permissionList", permissionList);
+        map.put("departmentList", departmentList);
+        return map;
+    }
+
 
     /**
      * 根据四个下拉选择框的值筛选、展示数据
@@ -107,13 +131,13 @@ public class BlackListController extends BaseController {
     }
 
     /**
-     * 跳转到修改薪资权限管理---黑名单维护
+     * 用于生成黑名单权限修改页面的
+     * 接收传来的blackList对象(实际上传的是BlackList的六个属性)
      */
-    @RequestMapping("/blackList_update/{blackListId}")
+    @RequestMapping(value = "/blackList_update",method = RequestMethod.GET)
     @BussinessLog(key = "/blackList/blackList_update", type = BussinessLogType.MODIFY, value = "跳转到修改薪资权限管理---黑名单维护")
     @RequiresPermissions("blackList:blackList_update")
-    public String blackListUpdate(@PathVariable String blackListId, Model model) {
-        BlackList blackList = blackListService.selectById(blackListId);
+    public String blackListUpdate(BlackList blackList, Model model) {
         model.addAttribute("item",blackList);
         return PREFIX + "blackList_edit.html";
     }
@@ -156,14 +180,23 @@ public class BlackListController extends BaseController {
     }
 
     /**
-     * 删除薪资权限管理---黑名单维护
+     * 删除功能
+     * 传入的参数是一个JSON格式的字符串 将其转化成List 然后 利用Mybatis进行批量删除
      */
     @RequestMapping(value = "/delete")
     @BussinessLog(key = "/blackList/delete", type = BussinessLogType.DELETE, value = "删除薪资权限管理---黑名单维护")
     @RequiresPermissions("blackList:delete")
     @ResponseBody
-    public Object delete(@RequestParam String blackListId) {
-        blackListService.deleteById(blackListId);
+    public Object delete(String delete_list) {
+        // 输出delete_list
+        System.out.println("=========delete_list:  "+ delete_list);
+        //将delete_list转换成JSON数组对象
+        JSONArray delete_list_arr = JSONArray.fromObject(delete_list);
+        //将JSON数组对象转换为List
+        List<BlackList> list = (List<BlackList>) JSONArray.toCollection(delete_list_arr, BlackList.class);
+
+        System.out.println("==========打印list样例："+list.get(0));
+        blackListService.deleteBatchByIds(list);
         return SUCCESS_TIP;
     }
 
@@ -175,9 +208,26 @@ public class BlackListController extends BaseController {
     @RequiresPermissions("blackList:update")
     @ResponseBody
     public Object update(BlackList blackList) {
-        BlackList blackList1 = blackListService.selectById(blackList);
-        LogObjectHolder.me().set(blackList1);
-        blackListService.updateById(blackList);
+        Integer staffId = blackList.getStaffId();
+        Integer oldDepartmentId = blackList.getDepartmentId();
+        Integer oldPermissionId = blackList.getPermissionId();
+
+        // 首先根据部门名称查找到部门的ID 权限名称查找权限ID
+        Wrapper<Department> wrapper1 = new EntityWrapper<>();
+        wrapper1.where("DEPARTMENT_NAME = {0}", blackList.getDepartmentName());
+        Department department = departmentService.selectOne(wrapper1);
+        Wrapper<Permission> wrapper2 = new EntityWrapper<>();
+        wrapper2.where("PERMISSION_NAME = {0}", blackList.getPermissionName());
+        Permission permission = permissionService.selectOne(wrapper2);
+        blackList.setDepartmentId(department.getDepartmentId());
+        blackList.setPermissionId(permission.getPermissionId());
+
+        // 然后根据三个主键找到并修改
+        Wrapper<BlackList> wrapper = new EntityWrapper<>();
+        wrapper.where("STAFF_ID = {0}",staffId);
+        wrapper.where("DEPARTMENT_ID = {0}",oldDepartmentId);
+        wrapper.where("PERMISSION_ID = {0}",oldPermissionId);
+        blackListService.update(blackList,wrapper);
         return SUCCESS_TIP;
     }
 

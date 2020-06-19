@@ -1,22 +1,27 @@
 package com.jxdinfo.salary.PermissionManagement.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
+import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.department.service.IDepartmentService;
+import com.jxdinfo.salary.permission.model.Permission;
+import com.jxdinfo.salary.permission.service.IPermissionService;
+import net.sf.json.JSONArray;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.jxdinfo.hussar.core.log.LogObjectHolder;
-import org.springframework.web.bind.annotation.RequestParam;
 import com.jxdinfo.hussar.common.annotion.BussinessLog;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.jxdinfo.hussar.core.log.type.BussinessLogType;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.PermissionManagement.service.IWhiteListService;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +40,10 @@ public class WhiteListController extends BaseController {
 
     @Autowired
     private IWhiteListService whiteListService;
-
+    @Autowired
+    private IPermissionService permissionService;
+    @Autowired
+    private IDepartmentService departmentService;
     /**
      * 跳转到薪资权限管理--白名单维护首页
      */
@@ -66,6 +74,23 @@ public class WhiteListController extends BaseController {
     }
 
     /**
+     *  得到所有的部门信息 和权限信息
+     *  getAllDepartmentAndPermission
+     */
+    @ResponseBody
+    @RequestMapping("getAllDepartmentAndPermission")
+    public Map<String,Object> getAllDepartmentAndPermission(){
+        Map<String,Object> map = new HashMap<>();
+        List<Permission> permissionList = permissionService.getAllPermission();
+        Wrapper<Department> wrapper = new EntityWrapper<>();
+        List<Department> departmentList = departmentService.selectList(wrapper);
+        map.put("permissionList", permissionList);
+        map.put("departmentList", departmentList);
+        return map;
+    }
+
+
+    /**
      *  实现了根据前端传来的查询条件（可能是员工工号或者是员工的姓名）进行查询 并且返回结果
      */
     @ResponseBody
@@ -78,7 +103,7 @@ public class WhiteListController extends BaseController {
 
     /**
      *
-     * 根据下拉选择框的值筛选
+     * 根据下拉选择框的值筛选数据 返回结果
      */
     @ResponseBody
     @RequestMapping("/showBySelect")
@@ -118,17 +143,22 @@ public class WhiteListController extends BaseController {
         return PREFIX + "whiteList_add.html";
     }
 
+
+
     /**
-     * 跳转到修改薪资权限管理--白名单维护
+     *  返回修改白名单权限的页面（IFrame）
+     *  参数有六个 正好是WhiteList对象的属性 使用WhiteList接收
      */
-    @RequestMapping("/whiteList_update/{whiteListId}")
+    @RequestMapping(value = "/whiteList_update",method = RequestMethod.GET)
     @BussinessLog(key = "/whiteList/whiteList_update", type = BussinessLogType.MODIFY, value = "跳转到修改薪资权限管理--白名单维护")
     @RequiresPermissions("whiteList:whiteList_update")
-    public String whiteListUpdate(@PathVariable String whiteListId, Model model) {
-        WhiteList whiteList = whiteListService.selectById(whiteListId);
+    public String whiteListUpdate(WhiteList whiteList,Model model) {
+//        String staffId, String departmentId,String permissionId, String staffName,
+        System.out.println("=========="+whiteList);
         model.addAttribute("item",whiteList);
         return PREFIX + "whiteList_edit.html";
     }
+
 
     /**
      * 获取薪资权限管理--白名单维护列表
@@ -170,28 +200,57 @@ public class WhiteListController extends BaseController {
     }
 
     /**
-     * 删除薪资权限管理--白名单维护
+     * 删除功能
+     * 传入的要删除的list列表信息
+     * 实现根据主键 批量删除
      */
     @RequestMapping(value = "/delete")
     @BussinessLog(key = "/whiteList/delete", type = BussinessLogType.DELETE, value = "删除薪资权限管理--白名单维护")
     @RequiresPermissions("whiteList:delete")
     @ResponseBody
-    public Object delete(@RequestParam String whiteListId) {
-        whiteListService.deleteById(whiteListId);
+    public Object delete(String delete_list) {
+        // 参数delete_list是一个JSON字符串 下面将其转化为List
+        System.out.println("=========delete_list:  "+ delete_list);
+//        List<WhiteList> list = new ArrayList<WhiteList>();
+//        JSONObject.parseArray(delete_list, WhiteList.class);
+
+        // 先变成JSON数组对象 然后转化成list
+        JSONArray delete_list_arr = JSONArray.fromObject(delete_list);
+        List<WhiteList> list = (List<WhiteList>) JSONArray.toCollection(delete_list_arr, WhiteList.class);
+
+        System.out.println("==========打印delete_list样例："+list.get(0));
+        whiteListService.deleteBatchByIds(list);
         return SUCCESS_TIP;
     }
 
     /**
-     * 修改薪资权限管理--白名单维护
+     *  更新白名单的权限
      */
     @RequestMapping(value = "/update")
     @BussinessLog(key = "/whiteList/update", type = BussinessLogType.MODIFY, value = "修改薪资权限管理--白名单维护")
     @RequiresPermissions("whiteList:update")
     @ResponseBody
     public Object update(WhiteList whiteList) {
-        WhiteList whiteList1 = whiteListService.selectById(whiteList);
-        LogObjectHolder.me().set(whiteList1);
-        whiteListService.updateById(whiteList);
+        Integer staffId = whiteList.getStaffId();
+        Integer oldDepartmentId = whiteList.getDepartmentId();
+        Integer oldPermissionId = whiteList.getPermissionId();
+
+        // 首先根据部门名称查找到部门的ID 权限名称查找权限ID
+        Wrapper<Department> wrapper1 = new EntityWrapper<>();
+        wrapper1.where("DEPARTMENT_NAME = {0}", whiteList.getDepartmentName());
+        Department department = departmentService.selectOne(wrapper1);
+        Wrapper<Permission> wrapper2 = new EntityWrapper<>();
+        wrapper2.where("PERMISSION_NAME = {0}", whiteList.getPermissionName());
+        Permission permission = permissionService.selectOne(wrapper2);
+        whiteList.setDepartmentId(department.getDepartmentId());
+        whiteList.setPermissionId(permission.getPermissionId());
+
+        // 然后根据三个主键找到并修改
+        Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+        wrapper.where("STAFF_ID = {0}",staffId);
+        wrapper.where("DEPARTMENT_ID = {0}",oldDepartmentId);
+        wrapper.where("PERMISSION_ID = {0}",oldPermissionId);
+        whiteListService.update(whiteList,wrapper);
         return SUCCESS_TIP;
     }
 

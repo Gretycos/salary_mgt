@@ -61,4 +61,23 @@
         order by a.STAFF_ID ASC
     </select>
 
+    <!--批量删除-->
+    <delete id="deleteBatchByIds">
+        delete from t_white_list
+        where
+        <foreach collection="list" item="item" index="index" separator="or">
+            (STAFF_ID = #{item.staffId}
+            and DEPARTMENT_ID = #{item.departmentId}
+            and PERMISSION_ID = #{item.permissionId})
+        </foreach>
+    </delete>
+
+    <update id="update" parameterType="com.jxdinfo.salary.PermissionManagement.model.WhiteList">
+        update t_white_list SET DEPARTMENT_ID=${et.departmentId},  PERMISSION_ID=${et.permissionId}
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </update>
+
+
 </mapper>

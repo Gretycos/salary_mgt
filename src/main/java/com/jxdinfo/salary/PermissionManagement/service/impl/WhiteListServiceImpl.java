@@ -51,6 +51,11 @@ public class WhiteListServiceImpl extends ServiceImpl<WhiteListMapper, WhiteList
         return whiteListMapper.searchByCondition(condition);
     }
 
+    @Override
+    public Boolean deleteBatchByIds(List<WhiteList> list) {
+        return whiteListMapper.deleteBatchByIds(list);
+    }
+
 //    @Override
 //    public Page<WhiteList> selectPage(String condition, Page<WhiteList> page, Wrapper<WhiteList> wrapper) {
 //        wrapper = SqlHelper.fillWrapper(page, wrapper);

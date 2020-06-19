@@ -34,6 +34,9 @@ public interface IWhiteListService extends IService<WhiteList> {
     List<WhiteList> searchByCondition(String condition);
 
 //    Page<WhiteList> selectPage(String condition,Page<WhiteList> page, Wrapper<WhiteList> wrapper);
+
+    // 根据三个主键批量删除
+    Boolean deleteBatchByIds(List<WhiteList> list);
 }
 
 

@@ -129,7 +129,9 @@ WhiteList.check = function () {
         Hussar.info("请先选中表格中的某一记录！");
         return false;
     }else{
-        WhiteList.seItem = selected[0];
+        WhiteList.seItem = selected;
+        console.log("当前选择的数据有：");
+        console.log(WhiteList.seItem);
         return true;
     }
 };
@@ -143,26 +145,36 @@ WhiteList.openAddWhiteList = function () {
         title: '添加薪资权限管理--白名单维护',
         area: ['400px', '420px'], //宽高
         fix: false, //不固定
-        maxmin: false,
+        maxmin: false,//是否可最大最小化
         content: Hussar.ctxPath + '/whiteList/whiteList_add'
     });
     this.layerIndex = index;
 };
 
 /**
- * 点击修改薪资权限管理--白名单维护
+ * 点击修改
  */
 WhiteList.openWhiteListDetail = function () {
     if (this.check()) {
+        // 先将WhiteList.seItem[0] 转换请求参数字符串
+        var modify_item = "?staffId="+String(WhiteList.seItem[0].staffId)
+                        +"&departmentId="+String(WhiteList.seItem[0].departmentId)
+                        +"&permissionId="+String(WhiteList.seItem[0].permissionId)
+                        +"&staffName="+WhiteList.seItem[0].staffName
+                        +"&departmentName="+WhiteList.seItem[0].departmentName
+                        +"&permissionName="+WhiteList.seItem[0].permissionName;
+
         var index = layer.open({
-            type: 2,
-            title: '薪资权限管理--白名单维护详情',
+            type: 2, //打开的类型设置为iframe
+            title: '白名单--修改',
             area: ['400px', '420px'], //宽高
             fix: false, //不固定
-            maxmin: false,
-            content: Hussar.ctxPath + '/whiteList/whiteList_update/' +  WhiteList.seItem.staffId
+            maxmin: false, //是否可最大最小化
+            //content是用来设置要显示的iframe的页面的
+            content: Hussar.ctxPath + "/whiteList/whiteList_update" + modify_item
           });
         this.layerIndex = index;
+        console.log(WhiteList.layerIndex)
     }
 };
 
@@ -171,15 +183,44 @@ WhiteList.openWhiteListDetail = function () {
  */
 WhiteList.delete = function () {
     if (this.check()) {
-        var ajax = new $ax(Hussar.ctxPath + "/whiteList/delete", function (data) {
-            Hussar.success("删除成功!");
-            $('#WhiteListTable').bootstrapTable('refresh');
-        }, function (data) {
-            Hussar.error("删除失败!" + data.responseJSON.message + "!");
-        });
-        ajax.set("whiteListId", WhiteList.seItem.staffId  );
-        ajax.start();
+        // WhiteList.seItem是一个列表 进行批量删除
+            var ajax = new $ax(Hussar.ctxPath + "/whiteList/delete", function (data) {
+                Hussar.success("删除成功!");
+                $('#WhiteListTable').bootstrapTable('refresh');
+            }, function (data) {
+                Hussar.error("删除失败!");
+            });
+
+            //将WhiteList.seItem中的字段名转化为数据库中的
+            // var delete_array = [];
+            // for (var k in WhiteList.seItem) {
+            //     var tmp = {};
+            //     tmp = WhiteList.transName(WhiteList.seItem[k]);
+            //     delete_array.push(tmp);
+            // }
+            var delete_list = JSON.stringify(WhiteList.seItem);
+            console.log(delete_list);
+            ajax.set("delete_list",delete_list);
+            ajax.start();
+
+        // 将WhiteList.seItem重新设置为Null
+        WhiteList.seItem = null;
+
     }
+};
+
+/**
+ * 定义一个函数 将前端展示的数据的字段名转化成数据库中的字段名
+ * 方便后端接收
+ * 参数item是一个对象类型 包含属性 staffId、departmentId、permissionId
+ */
+WhiteList.transName= function(item){
+    var tmp = {
+        STAFF_ID:item.staffId,
+        DEPARTMENT_ID:item.departmentId,
+        PERMISSION_ID:item.permissionId
+    }
+    return tmp;
 };
 
 /**

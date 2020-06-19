@@ -139,7 +139,7 @@ BlackList.check = function () {
         Hussar.info("请先选中表格中的某一记录！");
         return false;
     }else{
-        BlackList.seItem = selected[0];
+        BlackList.seItem = selected; // 这里修改成了保存整个selected数组
         return true;
     }
 };
@@ -160,17 +160,25 @@ BlackList.openAddBlackList = function () {
 };
 
 /**
- * 点击修改薪资权限管理---黑名单维护
+ *  修改黑名单中某个员工的部门和权限
  */
 BlackList.openBlackListDetail = function () {
     if (this.check()) {
+        // BlackList.seItem[0] 转换请求参数字符串
+        var modify_item = "?staffId="+String(BlackList.seItem[0].staffId)
+            +"&departmentId="+String(BlackList.seItem[0].departmentId)
+            +"&permissionId="+String(BlackList.seItem[0].permissionId)
+            +"&staffName="+BlackList.seItem[0].staffName
+            +"&departmentName="+BlackList.seItem[0].departmentName
+            +"&permissionName="+BlackList.seItem[0].permissionName;
+
         var index = layer.open({
             type: 2,
-            title: '薪资权限管理---黑名单维护详情',
+            title: '黑名单--修改',
             area: ['400px', '420px'], //宽高
             fix: false, //不固定
             maxmin: false,
-            content: Hussar.ctxPath + '/blackList/blackList_update/' +  BlackList.seItem.staffId
+            content: Hussar.ctxPath + '/blackList/blackList_update/' +  modify_item
           });
         this.layerIndex = index;
     }
@@ -187,8 +195,13 @@ BlackList.delete = function () {
         }, function (data) {
             Hussar.error("删除失败!" + data.responseJSON.message + "!");
         });
-        ajax.set("blackListId", BlackList.seItem.staffId  );
+        // 将BlackList.seItem数据转化为JSON格式的字符串
+        var delete_list = JSON.stringify(BlackList.seItem);
+        console.log(delete_list);
+        ajax.set("delete_list",delete_list);
         ajax.start();
+        // 不管是否成功都将 BlackList.seItem重新设置为Null
+        BlackList.seItem = null;
     }
 };
 
@@ -211,7 +224,8 @@ BlackList.search = function () {
 
 /**
  * 重置功能 先将 $('#condition').val()设置为""
- * 然后调用WhiteList.search即可
+ * 然后调用WhiteList.search
+ * 最后需要重四个下拉选择框 并将之前保存的数据清空
  */
 BlackList.reset = function(){
     $('#condition').val("");

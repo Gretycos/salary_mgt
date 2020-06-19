@@ -43,4 +43,9 @@ public class BlackListServiceImpl extends ServiceImpl<BlackListMapper, BlackList
     public List<String> selectPermissionName() {
         return blackListMapper.selectPermissionName();
     }
+
+    @Override
+    public Boolean deleteBatchByIds(List<BlackList> list) {
+        return blackListMapper.deleteBatchByIds(list);
+    }
 }

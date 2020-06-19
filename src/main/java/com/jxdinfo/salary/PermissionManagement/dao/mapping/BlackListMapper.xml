@@ -48,4 +48,23 @@
         from t_black_list a, t_permission b
         where a.PERMISSION_ID = b.PERMISSION_ID
     </select>
+
+
+    <!--批量删除-->
+    <delete id="deleteBatchByIds">
+        delete from t_black_list
+        where
+        <foreach collection="list" item="item" index="index" separator="or">
+            (STAFF_ID = #{item.staffId}
+            and DEPARTMENT_ID = #{item.departmentId}
+            and PERMISSION_ID = #{item.permissionId})
+        </foreach>
+    </delete>
+
+    <update id="update" parameterType="com.jxdinfo.salary.PermissionManagement.model.BlackList">
+        update t_black_list  SET DEPARTMENT_ID=${et.departmentId},  PERMISSION_ID=${et.permissionId}
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </update>
 </mapper>
