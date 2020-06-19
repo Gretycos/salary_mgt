@@ -1,6 +1,7 @@
 package com.jxdinfo.salary.staff.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
@@ -135,10 +136,24 @@ public class StaffController extends BaseController {
 
         if (manager != null // 入职去的部门存在经理
                 && position.getPositionId() == 1 // 入职后的职位是经理
+                && manager.getDepartureTime() == null // 经理没有离职
         ){
             Map<String,Object> res= new HashMap<>();
             res.put("code",500);
             res.put("message","已存在部门经理");
+            return res;
+        }
+
+        Staff superAdmin = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("POSITION_ID",2));
+
+        if(superAdmin != null // 存在总经理
+                && superAdmin.getDepartureTime() == null //未离职
+                && position.getPositionId() == 2 // 入职后是总经理
+        ){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","已存在总经理");
             return res;
         }
 
@@ -155,8 +170,20 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/delete", type = BussinessLogType.DELETE, value = "删除人员管理")
     @RequiresPermissions("staff:delete")
     @ResponseBody
-    public Object delete(@RequestParam String staffId) {
-        staffService.deleteById(staffId);
+    public Object delete(@RequestParam Map<String, String> info) {
+        Long jstime = Long.parseLong(info.get("jstime"));
+        List<Map<String,Integer>> list = JSONArray.parseObject(info.get("staff"),List.class);
+        for (Map<String,Integer> m : list){
+            int staffId = m.get("staffId");
+            Staff staff = staffService.selectOne(new EntityWrapper<Staff>()
+                    .eq("STAFF_ID",staffId));
+            System.out.println(staff);
+            Timestamp departureTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    .format(new Date(jstime)));
+            staff.setDepartureTime(departureTime);
+            staffService.updateById(staff);
+        }
+
         return SUCCESS_TIP;
     }
 
@@ -190,11 +217,25 @@ public class StaffController extends BaseController {
 
         if (manager != null // 变动去的部门存在经理
                 && newPosition.getPositionId() == 1 // 变动后的职位是经理
+                && manager.getDepartureTime() == null // 经理没有离职
                 && !(manager.getStaffId().equals(staff.getStaffId())) // 不是同一个人，则存在多经理，返回错误
         ){
             Map<String,Object> res= new HashMap<>();
             res.put("code",500);
             res.put("message","已存在部门经理");
+            return res;
+        }
+
+        Staff superAdmin = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("POSITION_ID",2));
+
+        if(superAdmin != null // 存在总经理
+                && superAdmin.getDepartureTime() == null //未离职
+                && newPosition.getPositionId() == 2 // 变动后是总经理
+        ){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","已存在总经理");
             return res;
         }
 

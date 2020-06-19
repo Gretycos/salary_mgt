@@ -59,17 +59,42 @@ Staff.initColumn = function () {
  */
 Staff.check = function () {
     var selected = $('#StaffTable').bootstrapTable('getSelections');
-    if(selected.length == 0){
+    if(selected.length === 0){
         Hussar.info("请先选中表格中的某一记录！");
         return false;
-    }else if(selected.length == 1){
+    }else if(selected.length === 1){
         Staff.seItem = selected[0];
+        // console.log(Staff.seItem);
+        if(Staff.seItem.departureTime !== ""){
+            Hussar.info("选中存在离职人员！");
+            return false;
+        }
         return true;
     }else{
         Hussar.info("请选中表格中的仅一项记录！");
         return false;
     }
 };
+
+/**
+* 检查是否选中
+*/
+Staff.check_ = function () {
+        var selected = $('#StaffTable').bootstrapTable('getSelections');
+        if(selected.length === 0){
+            Hussar.info("请先选中表格中的某一记录！");
+            return false;
+        }else{
+            Staff.seItem = selected;
+            for(var i in Staff.seItem){
+                if(Staff.seItem[i].departureTime !== ""){
+                    Hussar.info("选中存在离职人员！");
+                    return false;
+                }
+            }
+            return true;
+        }
+    };
 
 /**
  * 点击添加人员管理
@@ -107,15 +132,43 @@ Staff.openStaffDetail = function () {
  * 删除人员管理
  */
 Staff.delete = function () {
-    if (this.check()) {
-        var ajax = new $ax(Hussar.ctxPath + "/staff/delete", function (data) {
-            Hussar.success("删除成功!");
-            $('#StaffTable').bootstrapTable('refresh');
-        }, function (data) {
-            Hussar.error("删除失败!" + data.responseJSON.message + "!");
+    if (this.check_()) {
+        layer.confirm('您确定要让选中的员工离职吗',{
+            title:'提示',
+            btn:['确定','取消']
+        },function () {
+            var listDeparture=[]
+            var departure=false;
+            for (var i in Staff.seItem) {
+                if(Staff.seItem[i].departureTime){
+                    departure=true;
+                    break;
+                }else{
+                    var single = {
+                        staffId:Staff.seItem[i].staffId
+                    }
+                    listDeparture.push(single);
+                }
+            }
+            if(departure){
+                Hussar.error("离职失败!选中的员工存在已离职!");
+                return false;
+            }else{
+                console.log(listDeparture)
+                var ajax = new $ax(Hussar.ctxPath + "/staff/delete", function (data) {
+                    Hussar.success("离职成功!");
+                    $('#StaffTable').bootstrapTable('refresh');
+                }, function (data) {
+                    Hussar.error("离职失败!" + data.responseJSON.message + "!");
+                });
+                ajax.set("staff", JSON.stringify(listDeparture));
+                ajax.set("jstime",new Date().getTime());
+                ajax.start();
+            }
+        },function (index) {
+            layer.close(index);
         });
-        ajax.set("staffId", Staff.seItem.staffId      );
-        ajax.start();
+
     }
 };
 

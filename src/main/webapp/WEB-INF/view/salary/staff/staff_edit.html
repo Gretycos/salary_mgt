@@ -11,7 +11,7 @@
                     <label class="layui-form-label">姓名：</label>
                     <div class="layui-input-inline">
                         <input id="staffName" name="staffName" class="layui-input"
-                               placeholder="请输入姓名" value="${item.staffName}">
+                               placeholder="请输入姓名" value="${item.staffName}" lay-verify="username">
                     </div>
              </div>
 
@@ -46,7 +46,7 @@
         <button type="button" name="取消" class="layui-btn btn-close" id="cancel"
         onclick="StaffInfoDlg.close()"><i class="iconfont">&#x1006;</i>取消</button>
         <button type="button" name="提交" class="layui-btn btn-save" id="ensure"
-        onclick="StaffInfoDlg.editSubmit()"><i class="iconfont">&#xe009;</i>保存</button>
+                lay-submit lay-filter="staffEditSubmit"><i class="iconfont">&#xe009;</i>保存</button>
     </div>
 </div>
 <script src="${ctxPath}/static/salary/staff/staff_info.js"></script>

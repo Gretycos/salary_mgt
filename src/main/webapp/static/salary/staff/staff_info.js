@@ -13,9 +13,25 @@ layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
 
+    form.on('submit(staffAddSubmit)',function (data) {
+        StaffInfoDlg.addSubmit();
+    });
+    form.on('submit(staffEditSubmit)',function (data) {
+        StaffInfoDlg.editSubmit();
+    })
+    form.verify({
+        username: function (value,item) {
+            if(value.length===0){
+                return '姓名不能为空';
+            }
+            if(!/^[\u4E00-\u9FA5]{2,4}$/.test(value)){
+                return '姓名只能是2-4位长度的中文'
+            }
+        }
+    });
+    form.render();
 
-
-/**
+    /**
  * 清除数据
  */
 StaffInfoDlg.clearData = function() {
@@ -135,9 +151,9 @@ StaffInfoDlg.initLaydate = function() {
 
 StaffInfoDlg.initSelector = function(){
     var ajax1 = new $ax(Hussar.ctxPath + "/department/list", function(data){
-        console.log(data);
+        // console.log(data);
         $.each(data.rows,function (index,item) {
-            console.log(item);
+            // console.log(item);
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#departmentId").append(new Option(item.departmentName,item.departmentId));
             $("#departmentId").val(10);
@@ -149,9 +165,9 @@ StaffInfoDlg.initSelector = function(){
     ajax1.start();
 
     var ajax2 = new $ax(Hussar.ctxPath + "/position/list", function(data){
-        console.log(data);
+        // console.log(data);
         $.each(data.rows,function (index,item) {
-            console.log(item);
+            // console.log(item);
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#positionId").append(new Option(item.positionName,item.positionId));
             $("#positionId").val(0);
@@ -168,7 +184,5 @@ $(function() { // document的ready状态
     StaffInfoDlg.initLaydate();   //初始化时间控件
     StaffInfoDlg.initSelector(); //初始化部门下拉框、职位下拉框
 });
-
-
 
 });

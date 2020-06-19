@@ -65,13 +65,21 @@
         </where>
     </select>
 
+    <!-- 查询单个人 -->
+    <select id="selectList" resultMap="WithRefResultMap">
+        select * from t_staff
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
     <!-- 查询部门标号下最大的员工ID -->
     <select id="selectMaxStaffIdByDid" resultMap="BaseResultMap">
         select * from t_staff
-        where STAFF_ID REGEXP '[0-9]{4}'+#{departmentId}+'[0-9]{4}' and
+        where STAFF_ID REGEXP CONCAT('^[0-9]{4}',#{departmentId},'[0-9]{4}$') and
                 STAFF_ID >= all(
                     select STAFF_ID from t_staff
-                    where STAFF_ID REGEXP '[0-9]{4}'+#{departmentId}+'[0-9]{4}')
+                    where STAFF_ID REGEXP CONCAT('^[0-9]{4}',#{departmentId},'[0-9]{4}$'))
     </select>
 
     <!-- 插入 -->
@@ -83,7 +91,11 @@
     <!-- 更新-->
     <update id="updateById">
         update t_staff
-        set STAFF_NAME = #{et.staffName},GENDER = #{et.gender},DEPARTMENT_ID = #{et.department.departmentId},POSITION_ID = #{et.position.positionId}
+        set STAFF_NAME = #{et.staffName},
+            GENDER = #{et.gender},
+            DEPARTMENT_ID = #{et.department.departmentId},
+            POSITION_ID = #{et.position.positionId},
+            DEPARTURE_TIME = #{et.departureTime}
         where STAFF_ID = #{et.staffId}
     </update>
 </mapper>
