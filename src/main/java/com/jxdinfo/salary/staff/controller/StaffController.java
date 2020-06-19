@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
+import com.jxdinfo.hussar.core.shiro.ShiroKit;
+import com.jxdinfo.hussar.core.shiro.ShiroUser;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.position.model.Position;
@@ -55,7 +57,12 @@ public class StaffController extends BaseController {
     @RequestMapping("/view")
     @BussinessLog(key = "/staff/view", type = BussinessLogType.QUERY, value = "人员管理页面")
     @RequiresPermissions("staff:view")
-    public String index() {
+    public String index(@PathVariable Model model) {
+        ShiroUser shiroUser = ShiroKit.getUser();
+        int account = Integer.parseInt(shiroUser.getAccount());// 对应STAFF_ID
+        System.out.println("account: "+account);
+        Staff staff = staffService.selectOne(new EntityWrapper<Staff>()
+        .eq("STAFF_ID",account));
         return PREFIX + "staff.html";
     }
 
@@ -93,8 +100,8 @@ public class StaffController extends BaseController {
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<Staff> page = new Page<>(pageNumber, pageSize);
         Wrapper<Staff> ew = new EntityWrapper<>();
-        System.out.println(condition);
-        System.out.println();
+//        System.out.println(condition);
+//        System.out.println();
         if(condition!=""){
             ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
@@ -215,7 +222,7 @@ public class StaffController extends BaseController {
     @RequiresPermissions("staff:add")
     @ResponseBody
     public Object add(@RequestParam Map<String, String> staffInfo) {
-        System.out.println(staffInfo);
+//        System.out.println(staffInfo);
 
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
@@ -299,7 +306,7 @@ public class StaffController extends BaseController {
     @RequiresPermissions("staff:update")
     @ResponseBody
     public Object update(@RequestParam Map<String, String> staffInfo) {
-        System.out.println(staffInfo);
+//        System.out.println(staffInfo);
         int staffId = Integer.parseInt(staffInfo.get("staffId")); //员工ID
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
