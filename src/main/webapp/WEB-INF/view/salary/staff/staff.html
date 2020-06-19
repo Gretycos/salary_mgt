@@ -1,13 +1,13 @@
 @layout("/common/layout.html",{title:'管理'}){
 <div class="layui-fluid weadmin-body">
-    <form class="layui-form" action="">
+    <form class="layui-form" action="" lay-filter="toolbar">
         <div class="layui-elem-quote">
             <label>人员管理</label>
         </div>
         <br />
         <div class="layui-form-item clearfix">
             <div class="layui-input-inline">
-                <input type="text" id="condition" placeholder="请输入名称" autocomplete="off" class="layui-input" >
+                <input type="text" id="condition" placeholder="请输入员工ID或员工姓名" autocomplete="off" class="layui-input" >
             </div>
             <div class="layui-input-inline">
                 <button class="layui-btn" data-type="reload" type="button" onclick="Staff.search()"><i class="layui-icon">&#xe615;</i>查询</button>
@@ -23,6 +23,45 @@
             </div>
         </div>
     </form>
+
+    <div style="width: 100%">
+        <div class="layui-form" lay-filter="searchBar">
+            <div class="layui-form-item clearfix">
+                <div class="layui-input-inline">
+                    <select id="staffName" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+            <div class="layui-form-item clearfix">
+                <div class="layui-input-inline">
+                    <select id="gender" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+            <div class="layui-form-item clearfix">
+            </div>
+            <div class="layui-form-item clearfix">
+                <div class="layui-input-inline">
+                    <select id="department" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+            <div class="layui-form-item clearfix">
+                <div class="layui-input-inline">
+                    <select id="position" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+            <div class="layui-form-item clearfix">
+                <div class="layui-input-inline">
+                    <select id="entryTime" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+            <div class="layui-form-item clearfix">
+                <div class="layui-input-inline">
+                    <select id="departureTime" lay-verify="required" lay-search=""></select>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <table id="StaffTable" ></table>
 </div>
 <script src="${ctxPath}/static/salary/staff/staff.js"></script>

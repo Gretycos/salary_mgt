@@ -13,6 +13,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -71,6 +72,20 @@ public class Department extends Model<Department> {
     @Override
     protected Serializable pkVal() {
         return this.departmentId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Department)) return false;
+        Department that = (Department) o;
+        return Objects.equals(getDepartmentId(), that.getDepartmentId()) &&
+                Objects.equals(getDepartmentName(), that.getDepartmentName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDepartmentId(), getDepartmentName());
     }
 
     @Override

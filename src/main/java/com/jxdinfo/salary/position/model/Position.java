@@ -10,6 +10,7 @@ import com.jxdinfo.salary.staff.model.Staff;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -67,6 +68,20 @@ public class Position extends Model<Position> {
     @Override
     protected Serializable pkVal() {
         return this.positionId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Position)) return false;
+        Position position = (Position) o;
+        return Objects.equals(getPositionId(), position.getPositionId()) &&
+                Objects.equals(getPositionName(), position.getPositionName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPositionId(), getPositionName());
     }
 
     @Override

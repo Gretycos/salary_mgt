@@ -9,12 +9,34 @@ var Staff = {
     pageSize:20,
     pageNumber:1
 };
-layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax'], function(){
+
+// 筛选列表
+var selectList={
+    staffName:'',
+    gender:'',
+    department:'',
+    position:'',
+    entryTime:'',
+    departureTime:''
+}
+
+layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
         ,Hussar = layui.Hussar
 	    ,$ = layui.jquery
-	    ,$ax = layui.HussarAjax;
+	    ,$ax = layui.HussarAjax
+        ,form = layui.form;
+
+	form.on('select',function (data) {
+        console.log(data);
+        selectList[data.elem.id] = data.value;
+        console.log(selectList);
+        // var ajax = new $ax()
+
+    });
+	form.render('select','selectBar');
+
 
 /**
  * 初始化表格的列
@@ -176,12 +198,70 @@ Staff.delete = function () {
  * 查询人员管理列表
  */
 Staff.search = function () {
-    $('#StaffTable').bootstrapTable('refresh');
+    var condition = $('#condition').val();
+    var opt = {
+        url: Hussar.ctxPath + "/staff/list",
+        silent: true,
+        query:{
+            condition:condition
+        }
+    }
+    $('#StaffTable').bootstrapTable('refresh',opt);
 };
+
+selectList.init = function(){
+    var condition = $('#condition').val();
+    var ajax = new $ax(Hussar.ctxPath + "/staff/list/select",function (data) {
+            // console.log(data);
+
+        //名字下拉框
+        $("#staffName").append(new Option('请选择员工名字',""));
+        $("#staffName").val("");
+        $.each(data.names,function (index,item) {
+            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+            $("#staffName").append(new Option(item,item));
+        });
+        $("#gender").append(new Option('请选择员工性别',""));
+        $("#gender").val("");
+        $.each(data.genders,function (index,item) {
+            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+            $("#gender").append(new Option(item==='0'?'女':'男',item));
+        });
+        $("#department").append(new Option('请选择员工部门',""));
+        $("#department").val("");
+        $.each(data.departments,function (index,item) {
+            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+            $("#department").append(new Option(item.departmentName,item.departmentId));
+        });
+        $("#position").append(new Option('请选择员工职位',""));
+        $("#position").val("");
+        $.each(data.positions,function (index,item) {
+            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+            $("#position").append(new Option(item.positionName,item.positionId));
+        });
+        $("#entryTime").append(new Option('请选择员工入职时间',""));
+        $("#entryTime").val("");
+        $.each(data.entryTimes,function (index,item) {
+            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+            $("#entryTime").append(new Option(item,item));
+        });
+        $("#departureTime").append(new Option('请选择员工离职时间',""));
+        $("#departureTime").val("");
+        $.each(data.departureTimes,function (index,item) {
+            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+            $("#departureTime").append(new Option(item,item));
+        });
+        form.render('select');
+    },function (data) {
+        Hussar.error("获取筛选列表失败!");
+    });
+    ajax.set("condition",condition);
+    ajax.start();
+}
 
 $(function () {
     var defaultColunms = Staff.initColumn();
-
+    selectList.init();
     $('#StaffTable').bootstrapTable({
             dataType:"json",
             url:'/staff/list',
@@ -195,6 +275,7 @@ $(function () {
             sidePagination:"server",
             onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size}
         });
+
 })
 
 });
