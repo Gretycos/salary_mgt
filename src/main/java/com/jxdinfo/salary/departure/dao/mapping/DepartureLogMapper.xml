@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.departure.dao.DepartureLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.departure.model.DepartureLog">
+        <id column="OPERATION_ID" property="operationId" />
+        <result column="OPERATION_TIME" property="operationTime" />
+    </resultMap>
+
+    <!-- 带关联查询映射结果 -->
+    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.departure.model.DepartureLog" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="operator" javaType="com.jxdinfo.salary.staff.model.Staff"
+                     column="OPERATOR_ID" select="getOperatorById"/>
+        <association property="departure" javaType="com.jxdinfo.salary.staff.model.Staff"
+                     column="DEPARTURE_ID" select="getDepartureById"/>
+    </resultMap>
+
+    <!-- 关联查询员工 -->
+    <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
+        select * from t_staff where STAFF_ID=#{operatorId}
+    </select>
+    <select id="getDepartureById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
+        select * from t_staff where STAFF_ID=#{departureId}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        OPERATION_ID AS operationId, OPERATOR_ID AS operatorId, DEPARTURE_ID AS departureId, OPERATION_TIME AS operationTime
+    </sql>
+
+    <!-- 分页查询 -->
+    <select id="selectPage" resultMap="WithRefResultMap">
+        select * from t_departure_log
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="selectByDidPage" resultMap="WithRefResultMap">
+        select * from t_departure_log
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+</mapper>
