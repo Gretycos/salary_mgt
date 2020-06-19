@@ -2,6 +2,7 @@ package com.jxdinfo.salary.staff.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
@@ -116,14 +117,15 @@ public class StaffController extends BaseController {
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<Staff> page = new Page<>(pageNumber, pageSize);
         Wrapper<Staff> ew = new EntityWrapper<>();
-        System.out.println(condition);
-        System.out.println();
+//        System.out.println(condition);
+//        System.out.println();
+
         if(condition!=""){
             ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
+
         List<Staff> list = staffService.selectPage(page, ew).getRecords();
 
-        List<String> nameList = new ArrayList<>();
         List<String> genderList = new ArrayList<>();
         List<Department> departmentList = new ArrayList<>();
         List<Position> positionList = new ArrayList<>();
@@ -131,7 +133,6 @@ public class StaffController extends BaseController {
         List<String> departureTimeList = new ArrayList<>();
 
         for(Staff s:list){
-            nameList.add(s.getStaffName());
             genderList.add(s.getGender());
             departmentList.add(s.getDepartment());
             positionList.add(s.getPosition());
@@ -139,7 +140,6 @@ public class StaffController extends BaseController {
             departureTimeList.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(s.getDepartureTime()));
         }
 
-        Set<String> names = new HashSet<>(nameList);
         Set<String> genders = new HashSet<>(genderList);
         Set<Department> departments = new HashSet<>(departmentList);
         Set<Position> positions = new HashSet<>(positionList);
@@ -148,7 +148,6 @@ public class StaffController extends BaseController {
 
         Map<String, Object> result = new HashMap<>();
         result.put("total", page.getTotal());
-        result.put("names", names);
         result.put("genders", genders);
         result.put("departments", departments);
         result.put("positions", positions);
@@ -160,23 +159,46 @@ public class StaffController extends BaseController {
     /**
      * 获取人员管理列表，筛选后
      */
-    @RequestMapping(value = "/list/limit")
-    @BussinessLog(key = "/staff/list/limit", type = BussinessLogType.QUERY, value = "获取人员管理列表，筛选后")
+    @RequestMapping(value = "/list/condition")
+    @BussinessLog(key = "/staff/list/condition", type = BussinessLogType.QUERY, value = "获取人员管理列表，筛选后")
     @RequiresPermissions("staff:list")
     @ResponseBody
-    public Object listLimit(@RequestParam (value="condition", defaultValue = "")String condition,
-                            @RequestParam (value="selectList")Map<String,String> info,
+    public Object conditionList(@RequestParam (value="condition", defaultValue = "")String condition,
+                            @RequestParam (value="selectList")String conditions,
                        @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        Map<String,String> info = JSONObject.parseObject(conditions,Map.class);
         Page<Staff> page = new Page<>(pageNumber, pageSize);
-        String staffName = info.get("staffName");
         String gender = info.get("gender");
         String department = info.get("department");
+        String position = info.get("position");
+        String entryTime = info.get("entryTime");
+        String departureTime = info.get("departureTime");
+
         Wrapper<Staff> ew = new EntityWrapper<>();
-        System.out.println(condition);
-        System.out.println();
-        if(condition!=""){
+        if (!condition.equals("")){
             ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
+        }
+        if (!gender.equals("")){
+            ew.eq("GENDER",gender);
+        }
+        if (!department.equals("")){
+            int departmentId = Integer.parseInt(department);
+            ew.eq("DEPARTMENT_ID",departmentId);
+        }
+        if (!position.equals("")){
+            int positionId = Integer.parseInt(position);
+            ew.eq("POSITION_ID",positionId);
+        }
+        if (!entryTime.equals("")){
+            ew.like("ENTRY_TIME",entryTime+"%");
+        }
+        if (!departureTime.equals("")){
+            if (departureTime.equals("所有")){
+                ew.isNotNull("DEPARTURE_TIME");
+            }else{
+                ew.like("DEPARTURE_TIME",departureTime+"%");
+            }
         }
         List<Staff> list = staffService.selectPage(page, ew).getRecords();
         Map<String, Object> result = new HashMap<>(5);

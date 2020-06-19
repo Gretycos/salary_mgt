@@ -12,7 +12,6 @@ var Staff = {
 
 // 筛选列表
 var selectList={
-    staffName:'',
     gender:'',
     department:'',
     position:'',
@@ -29,13 +28,22 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         ,form = layui.form;
 
 	form.on('select',function (data) {
-        console.log(data);
+        // console.log(data);
         selectList[data.elem.id] = data.value;
-        console.log(selectList);
-        // var ajax = new $ax()
-
+        // console.log(selectList);
+        // selectList.empty();
+        var condition = $('#condition').val();
+        var opt = {
+            url: Hussar.ctxPath + "/staff/list/condition",
+            silent: true,
+            method: 'POST',
+            query:{
+                condition:condition,
+                selectList:JSON.stringify(selectList)
+            }
+        }
+        $('#StaffTable').bootstrapTable('refresh',opt);
     });
-	form.render('select','selectBar');
 
 
 /**
@@ -209,18 +217,19 @@ Staff.search = function () {
     $('#StaffTable').bootstrapTable('refresh',opt);
 };
 
+selectList.empty = function(){
+    $("#gender").empty();
+    $("#department").empty();
+    $("#position").empty();
+    $("#entryTime").empty();
+    $("#departureTime").empty();
+}
+
 selectList.init = function(){
     var condition = $('#condition').val();
+    selectList.empty();
     var ajax = new $ax(Hussar.ctxPath + "/staff/list/select",function (data) {
             // console.log(data);
-
-        //名字下拉框
-        $("#staffName").append(new Option('请选择员工名字',""));
-        $("#staffName").val("");
-        $.each(data.names,function (index,item) {
-            //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
-            $("#staffName").append(new Option(item,item));
-        });
         $("#gender").append(new Option('请选择员工性别',""));
         $("#gender").val("");
         $.each(data.genders,function (index,item) {
@@ -246,12 +255,13 @@ selectList.init = function(){
             $("#entryTime").append(new Option(item,item));
         });
         $("#departureTime").append(new Option('请选择员工离职时间',""));
+        $("#departureTime").append(new Option('所有','所有'));
         $("#departureTime").val("");
         $.each(data.departureTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#departureTime").append(new Option(item,item));
         });
-        form.render('select');
+        form.render('select','searchBar');
     },function (data) {
         Hussar.error("获取筛选列表失败!");
     });
