@@ -27,10 +27,7 @@ import com.jxdinfo.salary.staff.service.IStaffService;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 人员管理控制器
@@ -90,16 +87,101 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/list", type = BussinessLogType.QUERY, value = "获取人员管理列表")
     @RequiresPermissions("staff:list")
     @ResponseBody
-    public Object list(String condition,
+    public Object list(@RequestParam (value="condition", defaultValue = "")String condition,
                        @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<Staff> page = new Page<>(pageNumber, pageSize);
         Wrapper<Staff> ew = new EntityWrapper<>();
-        Map<String, Object> result = new HashMap<>(5);
+        System.out.println(condition);
+        System.out.println();
+        if(condition!=""){
+            ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
+        }
         List<Staff> list = staffService.selectPage(page, ew).getRecords();
+        Map<String, Object> result = new HashMap<>(5);
         result.put("total", page.getTotal());
         result.put("rows", list);
-//        return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        return result;
+    }
+
+    /**
+     * 获取人员管理筛选列表
+     */
+    @RequestMapping(value = "/list/select")
+    @BussinessLog(key = "/staff/list/select", type = BussinessLogType.QUERY, value = "获取人员管理筛选列表")
+    @RequiresPermissions("staff:list")
+    @ResponseBody
+    public Object selectList(@RequestParam (value="condition", defaultValue = "")String condition,
+                       @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                       @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        Page<Staff> page = new Page<>(pageNumber, pageSize);
+        Wrapper<Staff> ew = new EntityWrapper<>();
+        System.out.println(condition);
+        System.out.println();
+        if(condition!=""){
+            ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
+        }
+        List<Staff> list = staffService.selectPage(page, ew).getRecords();
+
+        List<String> nameList = new ArrayList<>();
+        List<String> genderList = new ArrayList<>();
+        List<Department> departmentList = new ArrayList<>();
+        List<Position> positionList = new ArrayList<>();
+        List<String> entryTimeList = new ArrayList<>();
+        List<String> departureTimeList = new ArrayList<>();
+
+        for(Staff s:list){
+            nameList.add(s.getStaffName());
+            genderList.add(s.getGender());
+            departmentList.add(s.getDepartment());
+            positionList.add(s.getPosition());
+            entryTimeList.add(new SimpleDateFormat("yyyy-MM-dd").format(s.getEntryTime()));
+            departureTimeList.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(s.getDepartureTime()));
+        }
+
+        Set<String> names = new HashSet<>(nameList);
+        Set<String> genders = new HashSet<>(genderList);
+        Set<Department> departments = new HashSet<>(departmentList);
+        Set<Position> positions = new HashSet<>(positionList);
+        Set<String> entryTimes = new HashSet<>(entryTimeList);
+        Set<String> departureTimes = new HashSet<>(departureTimeList);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("total", page.getTotal());
+        result.put("names", names);
+        result.put("genders", genders);
+        result.put("departments", departments);
+        result.put("positions", positions);
+        result.put("entryTimes", entryTimes);
+        result.put("departureTimes", departureTimes);
+        return result;
+    }
+
+    /**
+     * 获取人员管理列表，筛选后
+     */
+    @RequestMapping(value = "/list/limit")
+    @BussinessLog(key = "/staff/list/limit", type = BussinessLogType.QUERY, value = "获取人员管理列表，筛选后")
+    @RequiresPermissions("staff:list")
+    @ResponseBody
+    public Object listLimit(@RequestParam (value="condition", defaultValue = "")String condition,
+                            @RequestParam (value="selectList")Map<String,String> info,
+                       @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                       @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+        Page<Staff> page = new Page<>(pageNumber, pageSize);
+        String staffName = info.get("staffName");
+        String gender = info.get("gender");
+        String department = info.get("department");
+        Wrapper<Staff> ew = new EntityWrapper<>();
+        System.out.println(condition);
+        System.out.println();
+        if(condition!=""){
+            ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
+        }
+        List<Staff> list = staffService.selectPage(page, ew).getRecords();
+        Map<String, Object> result = new HashMap<>(5);
+        result.put("total", page.getTotal());
+        result.put("rows", list);
         return result;
     }
 
