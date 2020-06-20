@@ -286,7 +286,7 @@ $(function () {
             pageSize:20,
             queryParamsType:'',
             columns: defaultColunms,
-            height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
+            height:$("body").height() - $(".layui-form").outerHeight(true) -$("#select-group").outerHeight(true)- 26,
             sidePagination:"server",
             onPageChange:function(number, size){WhiteList.pageNumber = number ; WhiteList.pageSize = size}
         });

@@ -6,6 +6,7 @@ var BlackListInfoDlg = {
     selectDepartmentAndPermission:{
         departmentName:"",
         permissionName:"",
+        // 下面的是原来的信息
         staffId:null,
         departmentId:null,
         permissionId:null
@@ -25,7 +26,7 @@ form.on('select', function(data){
     var id = data.elem.id; //select标签的id
     var val = data.value;
     BlackListInfoDlg.selectDepartmentAndPermission[id] = val;
-    console.log("当前selectDepartmentAndPermission")
+    console.log("当前selectDepartmentAndPermission");
     console.log(BlackListInfoDlg.selectDepartmentAndPermission);
 });
 
