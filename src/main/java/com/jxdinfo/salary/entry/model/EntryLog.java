@@ -12,6 +12,7 @@ import com.jxdinfo.salary.position.model.Position;
 import com.jxdinfo.salary.staff.model.Staff;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -48,6 +49,27 @@ public class EntryLog extends Model<EntryLog> {
     @TableField("OPERATION_TIME")
     private Timestamp operationTime;
 
+    public EntryLog() { }
+
+    //数据库有最大id
+    public EntryLog(String operationId, Staff operator, Staff entrant, Timestamp operationTime) {
+        this.operationId = operationId;
+        this.operator = operator;
+        this.entrant = entrant;
+        this.operationTime = operationTime;
+    }
+
+    //数据库无最大id
+    public EntryLog(Staff operator, Staff entrant, Timestamp operationTime) {
+        this.operationId = generateOperationId(operationTime);
+        this.operator = operator;
+        this.entrant = entrant;
+        this.operationTime = operationTime;
+    }
+
+    public String generateOperationId(Timestamp operationTime){
+        return new SimpleDateFormat("yyyyMMdd").format(operationTime)+"1000";
+    }
 
     public String getOperationId() {
         return operationId;

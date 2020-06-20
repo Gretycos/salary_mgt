@@ -46,5 +46,29 @@
         </where>
     </select>
 
+    <!-- 查询最大操作ID的记录 -->
+    <select id="selectMaxOperationId" resultMap="BaseResultMap">
+        select * from t_entry_log
+        where OPERATION_ID REGEXP CONCAT('^',#{time},'1[0-9]{3}$') and OPERATION_ID >= all(
+            select OPERATION_ID from t_entry_log
+            where OPERATION_ID REGEXP CONCAT('^',#{time},'1[0-9]{3}$')
+        )
+    </select>
+
+    <!-- 插入 -->
+    <insert id="insert">
+        insert into t_entry_log(OPERATION_ID,OPERATOR_ID,ENTRANT_ID,OPERATION_TIME)
+        values (#{operationId},#{operator.staffId},#{entrant.staffId},#{operationTime})
+    </insert>
+
+    <!-- 更新-->
+    <update id="updateById">
+        update t_entry_log
+        set OPERATOR_ID = #{et.operator.staffId},
+            ENTRANT_ID = #{et.entrant.staffId},
+            OPERATION_TIME = #{et.operationTime}
+        where OPERATION_ID = #{et.operationId}
+    </update>
+
 
 </mapper>

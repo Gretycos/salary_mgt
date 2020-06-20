@@ -1,5 +1,6 @@
 package com.jxdinfo.salary.entry.dao;
 
+import com.jxdinfo.salary.departure.model.DepartureLog;
 import com.jxdinfo.salary.entry.model.EntryLog;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
@@ -19,6 +20,8 @@ import java.util.List;
  * @since 2020-06-19
  */
 public interface EntryLogMapper extends BaseMapper<EntryLog> {
+
+    EntryLog selectMaxOperationId(String time);
 
     List<EntryLog> selectPage(RowBounds rowBounds, @Param("ew") Wrapper<EntryLog> wrapper);
     List<EntryLog> selectByDidPage(RowBounds rowBounds, @Param("ew") Wrapper<EntryLog> wrapper);
