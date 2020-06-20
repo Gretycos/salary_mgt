@@ -276,6 +276,7 @@ selectList.init = function(){
 
 $(function () {
     var defaultColunms = Staff.initColumn();
+
     selectList.init();
     $('#StaffTable').bootstrapTable({
             dataType:"json",

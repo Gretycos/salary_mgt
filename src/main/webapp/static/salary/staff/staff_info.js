@@ -13,12 +13,15 @@ layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
 
+	//监听添加按钮
     form.on('submit(staffAddSubmit)',function (data) {
         StaffInfoDlg.addSubmit();
     });
+    //监听编辑按钮
     form.on('submit(staffEditSubmit)',function (data) {
         StaffInfoDlg.editSubmit();
     })
+    //表单验证
     form.verify({
         username: function (value,item) {
             if(value.length===0){
@@ -31,7 +34,7 @@ layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
     });
     form.render();
 
-    /**
+/**
  * 清除数据
  */
 StaffInfoDlg.clearData = function() {
@@ -67,7 +70,7 @@ StaffInfoDlg.close = function() {
 };
 
 /**
- * 收集数据
+ * 收集数据---添加
  */
 StaffInfoDlg.collectData = function() {
     this
@@ -77,6 +80,9 @@ StaffInfoDlg.collectData = function() {
     .set('positionId')
 };
 
+/**
+* 收集数据---修改
+*/
 StaffInfoDlg.collectData_ = function() {
     this
         .set('staffId')
@@ -149,6 +155,9 @@ StaffInfoDlg.initLaydate = function() {
     });
 }
 
+/**
+* 初始化下拉框
+*/
 StaffInfoDlg.initSelector = function(){
     var ajax1 = new $ax(Hussar.ctxPath + "/department/list", function(data){
         // console.log(data);
