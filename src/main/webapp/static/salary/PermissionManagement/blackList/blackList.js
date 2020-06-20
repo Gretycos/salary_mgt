@@ -193,8 +193,6 @@ BlackList.openBlackListDetail = function () {
  * 删除薪资权限管理---黑名单维护
  */
 BlackList.delete = function () {
-    requestPermission("kkkkk","mmmmmm");
-
     if (this.check()) {
         Hussar.confirm("确定要删除所选项吗？",function () {
             var ajax = new $ax(Hussar.ctxPath + "/blackList/delete", function (data) {
