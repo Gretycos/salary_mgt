@@ -44,7 +44,7 @@ public class DepartureLogServiceImpl extends ServiceImpl<DepartureLogMapper, Dep
                 new SimpleDateFormat("yyyyMMdd").format(departureTime)); //传入日期匹配出最大Id的记录
         DepartureLog departureLog; // 新记录
         if(departureLogWithMaxId!=null){ // 如果有最大记录
-            int operationId = Integer.parseInt(departureLogWithMaxId.getOperationId());
+            long operationId = Long.parseLong(departureLogWithMaxId.getOperationId());
             String newOperationId = String.valueOf(operationId+1); //最大Id+1
             departureLog = new DepartureLog(newOperationId,operator,departure,departureTime);
         }else{ // 如果没有最大记录

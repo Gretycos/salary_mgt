@@ -75,7 +75,7 @@ public class MoveLogServiceImpl extends ServiceImpl<MoveLogMapper, MoveLog> impl
                 new SimpleDateFormat("yyyyMMdd").format(moveTime)); //传入日期匹配出最大Id的记录
         MoveLog moveLog; // 新记录
         if(moveLogWithMaxId!=null){ // 如果有最大记录
-            int operationId = Integer.parseInt(moveLogWithMaxId.getOperationId());
+            long operationId = Long.parseLong(moveLogWithMaxId.getOperationId());
             String newOperationId = String.valueOf(operationId+1); //最大Id+1
             moveLog = new MoveLog(newOperationId,operator,move,oldD,newD,oldP,newP,moveTime);
         }else{ // 如果没有最大记录

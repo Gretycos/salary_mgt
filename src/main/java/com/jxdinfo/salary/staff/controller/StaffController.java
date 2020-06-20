@@ -1,9 +1,7 @@
 package com.jxdinfo.salary.staff.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
@@ -13,6 +11,8 @@ import com.jxdinfo.hussar.core.shiro.ShiroUser;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.departure.service.IDepartureLogService;
+import com.jxdinfo.salary.entry.service.IEntryLogService;
+import com.jxdinfo.salary.move.service.IMoveLogService;
 import com.jxdinfo.salary.position.model.Position;
 import com.jxdinfo.salary.position.service.IPositionService;
 import org.springframework.stereotype.Controller;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.jxdinfo.hussar.core.log.LogObjectHolder;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.jxdinfo.hussar.common.annotion.BussinessLog;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -53,6 +52,10 @@ public class StaffController extends BaseController {
     private IPositionService positionService;
     @Autowired
     private IDepartureLogService departureLogService;
+    @Autowired
+    private IMoveLogService moveLogService;
+    @Autowired
+    private IEntryLogService entryLogService;
 
     /**
      * 跳转到人员管理首页
@@ -60,13 +63,7 @@ public class StaffController extends BaseController {
     @RequestMapping("/view")
     @BussinessLog(key = "/staff/view", type = BussinessLogType.QUERY, value = "人员管理页面")
     @RequiresPermissions("staff:view")
-    public String index(Model model) {
-        ShiroUser shiroUser = ShiroKit.getUser();
-        int account = Integer.parseInt(shiroUser.getAccount());// 对应STAFF_ID
-        System.out.println("account: "+account);
-        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
-        .eq("STAFF_ID",account));
-        model.addAttribute("operator",operator);
+    public String index() {
         return PREFIX + "staff.html";
     }
 
@@ -89,6 +86,7 @@ public class StaffController extends BaseController {
     public String staffUpdate(@PathVariable String staffId, Model model) {
         Staff staff = staffService.selectById(staffId);
         model.addAttribute("item",staff);
+//        System.out.println(staff);
         return PREFIX + "staff_edit.html";
     }
 
@@ -227,7 +225,7 @@ public class StaffController extends BaseController {
     @ResponseBody
     public Object add(@RequestParam Map<String, String> staffInfo) {
 //        System.out.println(staffInfo);
-
+        int operatorId = getCurrentAccountId();
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
         int departmentId = Integer.parseInt(staffInfo.get("departmentId")); // 部门ID
@@ -239,12 +237,22 @@ public class StaffController extends BaseController {
         // 部门
         Department department = departmentService.selectOne(new EntityWrapper<Department>()
                 .eq("DEPARTMENT_ID",departmentId));
-        //职位
+        // 职位
         Position position = positionService.selectOne(new EntityWrapper<Position>()
                 .eq("POSITION_ID",positionId));
-        //入职时间
+        // 入职时间
         Timestamp entryTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(new Date(jstime)));
+
+        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("STAFF_ID",operatorId));
+
+        if (operator==null){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","该用户不在表t_staff中");
+            return res;
+        }
 
         Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("POSITION_ID",1).eq("DEPARTMENT_ID",department.getDepartmentId()));
@@ -275,6 +283,7 @@ public class StaffController extends BaseController {
         Staff staff = new Staff(staffId,staffName,gender,department,position,entryTime); // 新员工
 
         staffService.insert(staff); //新增员工
+        entryLogService.addEntryLog(operator,staff,entryTime);
         return SUCCESS_TIP;
     }
 
@@ -288,9 +297,16 @@ public class StaffController extends BaseController {
     public Object delete(@RequestParam Map<String, String> info) {
         Long jstime = Long.parseLong(info.get("jstime"));
 
-        int operatorId = Integer.parseInt(info.get("operatorId")); //操作员Id
+        int operatorId = getCurrentAccountId();
         Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("STAFF_ID",operatorId));//查询出操作人
+
+        if(operator == null){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","该用户不在表t_staff中");
+            return res;
+        }
 
         List<Map<String,Integer>> list = JSONArray.parseObject(info.get("staff"),List.class);
         for (Map<String,Integer> m : list){
@@ -317,21 +333,39 @@ public class StaffController extends BaseController {
     @ResponseBody
     public Object update(@RequestParam Map<String, String> staffInfo) {
 //        System.out.println(staffInfo);
-        int staffId = Integer.parseInt(staffInfo.get("staffId")); //员工ID
+        int operatorId = getCurrentAccountId();
+        int moveId = Integer.parseInt(staffInfo.get("staffId")); //员工ID
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
         int departmentId = Integer.parseInt(staffInfo.get("departmentId")); // 部门ID
         int positionId = Integer.parseInt(staffInfo.get("positionId")); // 职位ID
         Long jstime = Long.parseLong(staffInfo.get("jstime")); // 变动时间
 
-        Staff staff = staffService.selectOne(new EntityWrapper<Staff>()
-                .eq("STAFF_ID",staffId));
+        Staff move = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("STAFF_ID",moveId));
+
+        Department oldDepartment = move.getDepartment();
 
         Department newDepartment = departmentService.selectOne(new EntityWrapper<Department>()
                 .eq("DEPARTMENT_ID",departmentId));
 
+        Position oldPosition = move.getPosition();
+
         Position newPosition = positionService.selectOne(new EntityWrapper<Position>()
                 .eq("POSITION_ID",positionId));
+
+        Timestamp operationTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date(jstime)));        //变动时间
+
+        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("STAFF_ID",operatorId));
+
+        if(operator == null){
+            Map<String,Object> res= new HashMap<>();
+            res.put("code",500);
+            res.put("message","该用户不在表t_staff中");
+            return res;
+        }
 
         Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("POSITION_ID",1).eq("DEPARTMENT_ID",newDepartment.getDepartmentId()));
@@ -339,7 +373,7 @@ public class StaffController extends BaseController {
         if (manager != null // 变动去的部门存在经理
                 && newPosition.getPositionId() == 1 // 变动后的职位是经理
                 && manager.getDepartureTime() == null // 经理没有离职
-                && !(manager.getStaffId().equals(staff.getStaffId())) // 不是同一个人，则存在多经理，返回错误
+                && !(manager.getStaffId().equals(move.getStaffId())) // 不是同一个人，则存在多经理，返回错误
         ){
             Map<String,Object> res= new HashMap<>();
             res.put("code",500);
@@ -360,15 +394,12 @@ public class StaffController extends BaseController {
             return res;
         }
 
-        staff.setStaffName(staffName);
-        staff.setGender(gender);
-        staff.setDepartment(newDepartment);
-        staff.setPosition(newPosition);
-        staffService.updateById(staff);
-
-        //变动时间
-        Timestamp operationTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(new Date(jstime)));
+        move.setStaffName(staffName);
+        move.setGender(gender);
+        move.setDepartment(newDepartment);
+        move.setPosition(newPosition);
+        staffService.updateById(move);
+        moveLogService.addMoveLog(operator,move,oldDepartment,newDepartment,oldPosition,newPosition,operationTime);
 
         return SUCCESS_TIP;
     }
@@ -382,5 +413,9 @@ public class StaffController extends BaseController {
     @ResponseBody
     public Object detail(@PathVariable("staffId") String staffId) {
         return staffService.selectById(staffId);
+    }
+
+    private int getCurrentAccountId(){
+        return Integer.parseInt(ShiroKit.getUser().getAccount());//当前登录的人的Id 对应STAFF_ID
     }
 }

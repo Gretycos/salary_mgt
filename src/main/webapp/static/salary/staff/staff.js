@@ -162,7 +162,7 @@ Staff.openStaffDetail = function () {
 /**
  * 删除人员管理
  */
-Staff.delete = function (operatorId) {
+Staff.delete = function () {
     if (this.check_()) {
         layer.confirm('您确定要让选中的员工离职吗',{
             title:'提示',
@@ -194,7 +194,6 @@ Staff.delete = function (operatorId) {
                 });
                 ajax.set("staff", JSON.stringify(listDeparture));
                 ajax.set("jstime",new Date().getTime());
-                ajax.set("operatorId",operatorId);
                 ajax.start();
             }
         },function (index) {

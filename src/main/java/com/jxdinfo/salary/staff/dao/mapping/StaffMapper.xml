@@ -66,6 +66,12 @@
     </select>
 
     <!-- 查询单个人 -->
+    <select id="selectById" resultMap="WithRefResultMap">
+        select * from t_staff
+        where STAFF_ID = #{var1}
+    </select>
+
+    <!-- 查询单个人 -->
     <select id="selectList" resultMap="WithRefResultMap">
         select * from t_staff
         <where>

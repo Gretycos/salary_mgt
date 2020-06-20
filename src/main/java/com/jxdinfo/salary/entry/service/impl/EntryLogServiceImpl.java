@@ -38,7 +38,7 @@ public class EntryLogServiceImpl extends ServiceImpl<EntryLogMapper, EntryLog> i
                 new SimpleDateFormat("yyyyMMdd").format(entryTime)); //传入日期匹配出最大Id的记录
         EntryLog entryLog; // 新记录
         if(entryLogWithMaxId!=null){ // 如果有最大记录
-            int operationId = Integer.parseInt(entryLogWithMaxId.getOperationId());
+            long operationId = Long.parseLong(entryLogWithMaxId.getOperationId());
             String newOperationId = String.valueOf(operationId+1); //最大Id+1
             entryLog = new EntryLog(newOperationId,operator,entrant,entryTime);
         }else{ // 如果没有最大记录

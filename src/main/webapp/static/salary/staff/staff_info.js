@@ -156,9 +156,9 @@ StaffInfoDlg.initSelector = function(){
             // console.log(item);
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#departmentId").append(new Option(item.departmentName,item.departmentId));
-            $("#departmentId").val(10);
             // form.render('select');
         });
+        $("#departmentId").val(typeof departmentId_value== "undefined"? 10: departmentId_value);
     },function(data){
         Hussar.error("查询失败!" + data.responseJSON.message + "!");
     });
@@ -170,9 +170,9 @@ StaffInfoDlg.initSelector = function(){
             // console.log(item);
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#positionId").append(new Option(item.positionName,item.positionId));
-            $("#positionId").val(0);
-            form.render('select');
         });
+        $("#positionId").val(typeof positionId_value== "undefined"? 0: positionId_value);
+        form.render('select');
     },function(data){
         Hussar.error("查询失败!" + data.responseJSON.message + "!");
     });
