@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.jxdinfo.hussar.core.shiro.ShiroKit;
 import com.jxdinfo.hussar.core.shiro.ShiroUser;
 import com.jxdinfo.salary.PermissionManagement.model.BlackList;
+import com.jxdinfo.salary.PermissionManagement.model.Util;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.PermissionManagement.service.IBlackListService;
 import com.jxdinfo.salary.PermissionManagement.service.IUtilService;
@@ -13,13 +14,17 @@ import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.permission.model.Permission;
 import com.jxdinfo.salary.permission.service.IPermissionService;
+import com.jxdinfo.salary.staff.model.Staff;
+import org.apache.commons.collections4.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.sound.midi.Soundbank;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Date: 2020/6/20 10:46
@@ -67,8 +72,23 @@ public class UtilController {
                 System.out.println("=================权限查询结束================");
                 return "输入的权限不存在";
             }
+
+
             Integer departmentId = department.getDepartmentId();
             Integer permissionId = permission.getPermissionId();
+
+            // 如果黑名单里有该部门的超级权限 则返回false
+            Wrapper<BlackList> admin1 = new EntityWrapper<>();
+            admin1.where("STAFF_ID = {0}",staffId);
+            admin1.where("DEPARTMENT_ID = {0}",departmentId);
+            admin1.where("PERMISSION_ID = {0}",99);
+            List<BlackList> admin1List = blackListService.selectList(admin1);
+            if (admin1List.isEmpty()==false){
+                //如果黑名单有该部门超级管理 则所有权限被限制
+                System.out.println("=================权限查询结束================");
+                return false;
+            }
+
             Wrapper<BlackList> wrapper1 = new EntityWrapper<>();
             wrapper1.where("STAFF_ID = {0}",staffId);
             wrapper1.where("DEPARTMENT_ID = {0}",departmentId);
@@ -78,10 +98,10 @@ public class UtilController {
                 // 如果黑名单没有的话 去查看白名单是否有
                 // 有一个特殊情况 如果黑名单没有白名单也没有 但是那个人有超级管理的权限 也是可以执行该操作的
                 // 所以在黑名单没有的情况下 首先判断这个人有没有超级管理
-                Wrapper<WhiteList> admin = new EntityWrapper<>();
-                admin.where("STAFF_ID = {0}",staffId);
-                admin.where("PERMISSION_ID = {0}",99);
-                List<WhiteList> adminList = whiteListService.selectList(admin);
+                Wrapper<WhiteList> admin2 = new EntityWrapper<>();
+                admin2.where("STAFF_ID = {0}",staffId);
+                admin2.where("PERMISSION_ID = {0}",99);
+                List<WhiteList> adminList = whiteListService.selectList(admin2);
                 if (adminList.isEmpty()==false){
                     //该用户有超级权限
                     System.out.println("=================权限查询结束================");
@@ -111,6 +131,36 @@ public class UtilController {
             System.out.println(e);
             System.out.println("=================权限查询结束================");
             return "未知错误";
+        }
+    }
+
+
+    /**
+     * 查询当前登录员工的的所有权限
+     */
+    @ResponseBody
+    @RequestMapping(value = "/getPermissionList")
+    public Object getPermissionList(){
+        System.out.println("===========================================");
+        System.out.println("=================权限查询开始================");
+        ShiroUser user = ShiroKit.getUser();
+        try {
+            Long staffId = Long.parseLong(user.getAccount());
+            // 根据staffId 得到真实权限
+            // 先将黑白名单的超级管理权限展开 然后取差集
+            List<Util> utilList = utilService.selectList(staffId);
+            System.out.println("=================权限列表查询结束================");
+            return utilList;
+        }catch (NumberFormatException e){
+            System.out.println(e);
+            e.printStackTrace();
+            System.out.println("=================权限列表查询结束================");
+            return "获取员工工号失败:类型转化错误。"+"当前登录用户:"+user.getAccount()+",无法获取工号";
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+            System.out.println("=================权限列表查询结束================");
+            return "未知异常";
         }
     }
 

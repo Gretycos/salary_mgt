@@ -13,4 +13,39 @@
     </resultMap>
 
 
+    <!--主要思路 ：
+        首先让白名单减去黑名单
+        但是因为涉及到超级管理的权限
+        如果黑名单有超级管理 要减去超级管理对应部门的所有权限
+        如果白名单里有超级权限 要变成相应的普通权限 再去减去白名单的权限 -->
+    <select id="selectList" parameterType="long" resultMap="BaseResultMap">
+      select *
+             from
+                    (select a.STAFF_ID, a.PERMISSION_ID,PERMISSION_NAME,a.DEPARTMENT_ID,DEPARTMENT_NAME
+                        from t_white_list a,t_department b,t_permission c
+                        where a.STAFF_ID = #{staffId} and a.DEPARTMENT_ID = b.DEPARTMENT_ID
+                              and a.PERMISSION_ID = c.PERMISSION_ID and a.PERMISSION_ID !=99
+
+                    UNION
+
+                    select a.STAFF_ID, c.PERMISSION_ID,PERMISSION_NAME,a.DEPARTMENT_ID,DEPARTMENT_NAME
+                      from t_white_list a,t_department b,t_permission c
+                      where a.PERMISSION_ID = 99 and a.STAFF_ID = #{staffId}
+                        and a.DEPARTMENT_ID = b.DEPARTMENT_ID and c.PERMISSION_Id != 99 ) white
+
+              where (STAFF_ID, PERMISSION_ID,PERMISSION_NAME,DEPARTMENT_ID,DEPARTMENT_NAME) not in
+
+                    (select a.STAFF_ID, a.PERMISSION_ID,PERMISSION_NAME,a.DEPARTMENT_ID,DEPARTMENT_NAME
+                      from t_black_list a,t_department b,t_permission c
+                      where a.STAFF_ID = #{staffId} and a.DEPARTMENT_ID = b.DEPARTMENT_ID
+                        and a.PERMISSION_ID = c.PERMISSION_ID
+
+                    UNION
+
+                    select a.STAFF_ID, c.PERMISSION_ID,PERMISSION_NAME,a.DEPARTMENT_ID,DEPARTMENT_NAME
+                      from t_black_list a,t_department b,t_permission c
+                      where a.PERMISSION_ID = 99 and a.STAFF_ID = #{staffId}
+                            and a.DEPARTMENT_ID = b.DEPARTMENT_ID and c.PERMISSION_Id != 99 )
+
+    </select>
 </mapper>
