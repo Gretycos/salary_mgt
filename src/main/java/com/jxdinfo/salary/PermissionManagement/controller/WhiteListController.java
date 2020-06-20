@@ -9,6 +9,8 @@ import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.permission.model.Permission;
 import com.jxdinfo.salary.permission.service.IPermissionService;
+import com.jxdinfo.salary.staff.model.Staff;
+import com.jxdinfo.salary.staff.service.IStaffService;
 import net.sf.json.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +46,12 @@ public class WhiteListController extends BaseController {
     private IPermissionService permissionService;
     @Autowired
     private IDepartmentService departmentService;
+    @Autowired
+    private IStaffService staffService;
+
+
+
+
     /**
      * 跳转到薪资权限管理--白名单维护首页
      */
@@ -53,7 +61,6 @@ public class WhiteListController extends BaseController {
     public String index() {
         return PREFIX + "whiteList.html";
     }
-
 
     /**
      *  分别 获取白名单列表里面的值 最终结果是distinct的形式 去掉重复的的项
@@ -89,6 +96,49 @@ public class WhiteListController extends BaseController {
         return map;
     }
 
+
+
+
+    /**
+     *  得到所有的部门信息 和权限信息
+     *  getAllDepartmentAndPermission
+     */
+    @ResponseBody
+    @RequestMapping("getAllStaff")
+    public Map<String,Object> getAllStaff(){
+        Map<String,Object> map = new HashMap<>();
+        Wrapper<Staff> wrapper = new EntityWrapper<>();
+        wrapper.where("DEPARTURE_TIME is null");
+        List<Staff> staffList = staffService.selectList(wrapper);
+        map.put("staffList", staffList);
+        return map;
+    }
+
+    /**
+     * 根据员工工号得到员工姓名
+     */
+    @ResponseBody
+    @RequestMapping("getStaffById")
+    public Staff getStaffById(Integer staffId){
+        Wrapper<Staff> wrapper = new EntityWrapper<>();
+        wrapper.where("STAFF_ID = {0}",staffId);
+        Staff staff = staffService.selectOne(wrapper);
+        return staff;
+    }
+
+
+    /**
+     * 根据员工姓名得到员工工号列表
+     * 因为可能会有同名的员工 List<Staff> 和上面的有一点区别
+     */
+    @ResponseBody
+    @RequestMapping("getStaffsByName")
+    public List<Staff> getStaffsByName(String staffName){
+        Wrapper<Staff> wrapper = new EntityWrapper<>();
+        wrapper.where("STAFF_NAME = {0}",staffName);
+        List<Staff> staffList = staffService.selectList(wrapper);
+        return staffList;
+    }
 
     /**
      *  实现了根据前端传来的查询条件（可能是员工工号或者是员工的姓名）进行查询 并且返回结果
@@ -188,15 +238,41 @@ public class WhiteListController extends BaseController {
     }
 
     /**
-     * 新增薪资权限管理--白名单维护
+     * 新增权限白名单
      */
     @RequestMapping(value = "/add")
     @BussinessLog(key = "/whiteList/add", type = BussinessLogType.INSERT, value = "新增薪资权限管理--白名单维护")
     @RequiresPermissions("whiteList:add")
     @ResponseBody
-    public Object add(WhiteList whiteList) {
-        whiteListService.insert(whiteList);
-        return SUCCESS_TIP;
+    public Object add(WhiteList param) {
+        //先根据部门和权限的名称得到部门和权限的ID
+        Wrapper<Department> w1 = new EntityWrapper<>();
+        w1.where("DEPARTMENT_NAME = {0}", param.getDepartmentName());
+        Wrapper<Permission> w2 = new EntityWrapper<>();
+        w2.where("PERMISSION_NAME = {0}", param.getPermissionName());
+        Department department = departmentService.selectOne(w1);
+        Permission permission = permissionService.selectOne(w2);
+        param.setDepartmentId(department.getDepartmentId());
+        param.setPermissionId(permission.getPermissionId());
+
+        // 然后查询表中是否已经有改数据了
+        Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+        wrapper.where("STAFF_ID = {0}",param.getStaffId());
+        wrapper.where("DEPARTMENT_ID = {0}",param.getDepartmentId());
+        wrapper.where("PERMISSION_ID = {0}",param.getPermissionId());
+        List<WhiteList> lists = whiteListService.selectList(wrapper);
+        System.out.println("=================要插入的数据是："+param);
+        System.out.println(lists);
+        if (lists.isEmpty()||lists==null){
+            //如果没有改数据可以插入 否则不可以
+            System.out.println("可以插入该条数据");
+            //将param（WhiteList对象添加到表中）
+            boolean res = whiteListService.insert(param);
+            return res;
+        }else {
+            return "exist";
+        }
+
     }
 
     /**
@@ -242,16 +318,31 @@ public class WhiteListController extends BaseController {
         Wrapper<Permission> wrapper2 = new EntityWrapper<>();
         wrapper2.where("PERMISSION_NAME = {0}", whiteList.getPermissionName());
         Permission permission = permissionService.selectOne(wrapper2);
+        //设置新的ID
         whiteList.setDepartmentId(department.getDepartmentId());
         whiteList.setPermissionId(permission.getPermissionId());
 
-        // 然后根据三个主键找到并修改
-        Wrapper<WhiteList> wrapper = new EntityWrapper<>();
-        wrapper.where("STAFF_ID = {0}",staffId);
-        wrapper.where("DEPARTMENT_ID = {0}",oldDepartmentId);
-        wrapper.where("PERMISSION_ID = {0}",oldPermissionId);
-        whiteListService.update(whiteList,wrapper);
-        return SUCCESS_TIP;
+        // 然后查询表中是否已经有修改后的数据了如果有则不能修改
+        Wrapper<WhiteList> wrapper0 = new EntityWrapper<>();
+        wrapper0.where("STAFF_ID = {0}",whiteList.getStaffId());
+        wrapper0.where("DEPARTMENT_ID = {0}",whiteList.getDepartmentId());
+        wrapper0.where("PERMISSION_ID = {0}",whiteList.getPermissionId());
+        System.out.println("=================修改后的数据是："+whiteList);
+
+        List<WhiteList> lists = whiteListService.selectList(wrapper0);
+        if (lists.isEmpty()||lists==null){
+            System.out.println("==============可以修改该条数据");
+            // 然后根据三个主键找到并修改
+            Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+            wrapper.where("STAFF_ID = {0}",staffId);
+            wrapper.where("DEPARTMENT_ID = {0}",oldDepartmentId);
+            wrapper.where("PERMISSION_ID = {0}",oldPermissionId);
+            boolean res = whiteListService.update(whiteList, wrapper);
+            return res;
+        }else {
+            return "exist";
+        }
+
     }
 
     /**

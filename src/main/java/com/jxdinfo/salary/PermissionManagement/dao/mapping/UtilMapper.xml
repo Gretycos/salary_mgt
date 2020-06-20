@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.PermissionManagement.dao.UtilMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.PermissionManagement.model.Util">
+        <id column="STAFF_ID" property="staffId" />
+        <result column="DEPARTMENT_ID" property="departmentId" />
+        <result column="PERMISSION_ID" property="permissionId" />
+        <result column="STAFF_NAME" property="staffName" />
+        <result column="DEPARTMENT_NAME" property="departmentName" />
+        <result column="PERMISSION_NAME" property="permissionName" />
+    </resultMap>
+
+
+</mapper>
