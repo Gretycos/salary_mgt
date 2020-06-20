@@ -9,12 +9,42 @@ var EntryLog = {
     pageSize:20,
     pageNumber:1
 };
-layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax'], function(){
+
+// 筛选列表
+var selectList={
+    operationTime:''
+}
+
+layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
         ,Hussar = layui.Hussar
 	    ,$ = layui.jquery
-	    ,$ax = layui.HussarAjax;
+	    ,$ax = layui.HussarAjax
+        ,form = layui.form;
+
+    form.on('select',function (data) {
+        // console.log(data);
+        selectList[data.elem.id] = data.value;
+        // console.log(selectList);
+        // selectList.empty();
+        var condition1 = $('#condition1').val();
+        var condition2 = $('#condition2').val();
+        var condition3 = $('#condition3').val();
+        var opt = {
+            url: Hussar.ctxPath + "/entry/list/condition",
+            silent: true,
+            method: 'POST',
+            query:{
+                condition1:condition1,
+                condition2:condition2,
+                condition3:condition3,
+                selectList:JSON.stringify(selectList)
+            }
+        }
+        $('#EntryLogTable').bootstrapTable('refresh',opt);
+    });
+
 
 /**
  * 初始化表格的列
@@ -48,12 +78,54 @@ EntryLog.initColumn = function () {
  * 查询入职日志列表
  */
 EntryLog.search = function () {
-    $('#EntryLogTable').bootstrapTable('refresh');
+    var condition1 = $('#condition1').val();
+    var condition2 = $('#condition2').val();
+    var condition3 = $('#condition3').val();
+    var opt = {
+        url: Hussar.ctxPath + "/entry/list",
+        silent: true,
+        query:{
+            condition1:condition1,
+            condition2:condition2,
+            condition3:condition3
+        }
+    }
+    $('#EntryLogTable').bootstrapTable('refresh',opt);
 };
+
+//清空筛选下拉框
+    selectList.empty = function(){
+        $("#operationTime").empty();
+    }
+
+// 筛选下拉框初始化
+    selectList.init = function(){
+        var condition1 = $('#condition1').val();
+        var condition2 = $('#condition2').val();
+        var condition3 = $('#condition3').val();
+        selectList.empty();
+        var ajax = new $ax(Hussar.ctxPath + "/entry/list/select",function (data) {
+            // console.log(data);
+            $("#operationTime").append(new Option('请选择员工入职时间',""));
+            $("#operationTime").append(new Option('所有','所有'));
+            $("#operationTime").val("");
+            $.each(data.operationTimes,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#operationTime").append(new Option(item,item));
+            });
+            form.render('select','searchBar');
+        },function (data) {
+            Hussar.error("获取筛选列表失败!");
+        });
+        ajax.set("condition1",condition1);
+        ajax.set("condition2",condition2);
+        ajax.set("condition3",condition3);
+        ajax.start();
+    }
 
 $(function () {
     var defaultColunms = EntryLog.initColumn();
-
+    selectList.init();
     $('#EntryLogTable').bootstrapTable({
             dataType:"json",
             url:'/entry/list',

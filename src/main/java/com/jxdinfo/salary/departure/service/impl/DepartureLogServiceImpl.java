@@ -37,6 +37,7 @@ public class DepartureLogServiceImpl extends ServiceImpl<DepartureLogMapper, Dep
         return departureLogMapper.likeSelect(condition1, condition2, condition3);
     }
 
+
     //添加离职记录
     @Override
     public boolean addDepartureLog(Staff operator, Staff departure, Timestamp departureTime){

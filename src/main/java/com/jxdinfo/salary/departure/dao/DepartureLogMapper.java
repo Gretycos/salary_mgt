@@ -1,6 +1,7 @@
 package com.jxdinfo.salary.departure.dao;
 
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.departure.model.DepartureLog;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.jxdinfo.salary.entry.model.EntryLog;
@@ -21,7 +22,10 @@ import java.util.List;
 public interface DepartureLogMapper extends BaseMapper<DepartureLog> {
 
     //模糊查询
-    List<DepartureLog> likeSelect(@Param("condition1")String condition1,@Param("condition2")String condition2,@Param("condition3")String condition3);
+    List<DepartureLog> likeSelect(@Param("condition1")String condition1,
+                                  @Param("condition2")String condition2,
+                                  @Param("condition3")String condition3);
+
 
     //内置方法，不需要显示地写出来
     //Integer insert(T var1);

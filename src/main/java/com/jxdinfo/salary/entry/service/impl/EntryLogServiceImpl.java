@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * <p>
@@ -30,6 +31,12 @@ public class EntryLogServiceImpl extends ServiceImpl<EntryLogMapper, EntryLog> i
 
     @Autowired
     EntryLogMapper entryLogMapper;
+
+    //模糊查询
+    @Override
+    public List<EntryLog> likeSelect(String condition1, String condition2, String condition3) {
+        return entryLogMapper.likeSelect(condition1, condition2, condition3);
+    }
 
     //添加入职记录
     @Override

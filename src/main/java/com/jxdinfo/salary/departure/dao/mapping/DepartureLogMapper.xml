@@ -46,21 +46,22 @@
         </where>
     </select>
 
-    <!--按离职员工ID或姓名进行模糊查询-->
+    <!--模糊查询-->
     <select id="likeSelect" resultMap="WithRefResultMap">
         select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.DEPARTURE_ID,c.STAFF_NAME,a.OPERATION_TIME
-        from t_staff b LEFT JOIN t_departure_log a on a.OPERATOR_ID = b.STAFF_ID LEFT JOIN t_staff c on a.DEPARTURE_ID = c.STAFF_ID
+        from t_staff b LEFT JOIN t_departure_log a on b.STAFF_ID = a.OPERATOR_ID
+                       LEFT JOIN t_staff c on a.DEPARTURE_ID = c.STAFF_ID
         <where>
             <if test="condition1 != null and condition1 != '' ">
-                a.OPERATION_ID like concat(concat('%',#{condition1}),'%')
+                a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
             </if>
             <if test="condition2 != null and condition2 != '' ">
-                b.STAFF_NAME like concat(concat('%',#{condition2}),'%')
-                or a.OPERATOR_ID like concat(concat('%',#{condition2}),'%')
+                or b.STAFF_NAME like concat(concat("%",#{condition2}),"%")
+                or a.OPERATOR_ID like concat(concat("%",#{condition2}),"%")
             </if>
             <if test="condition3 != null and condition3 != '' ">
-                c.STAFF_NAME like concat(concat('%',#{condition3}),'%')
-                or a.DEPARTURE_ID like concat(concat('%',#{condition3}),'%')
+                or c.STAFF_NAME like concat(concat("%",#{condition3}),"%")
+                or a.DEPARTURE_ID like concat(concat("%",#{condition3}),"%")
             </if>
         </where>
     </select>
@@ -81,7 +82,7 @@
     </insert>
 
     <!-- 更新-->
-    <update id="updateDepartureLogById">
+    <update id="updateById">
         update t_departure_log
         set OPERATOR_ID = #{et.operator.staffId},
             DEPARTURE_ID = #{et.departure.staffId},
