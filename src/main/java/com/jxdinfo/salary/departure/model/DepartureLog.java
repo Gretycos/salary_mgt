@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import com.jxdinfo.salary.staff.model.Staff;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 
 /**
  * <p>
@@ -45,6 +46,27 @@ public class DepartureLog extends Model<DepartureLog> {
     @TableField("OPERATION_TIME")
     private Timestamp operationTime;
 
+    public DepartureLog() { }
+
+    //数据库有最大id
+    public DepartureLog(String operationId, Staff operator, Staff departure, Timestamp operationTime) {
+        this.operationId = operationId;
+        this.operator = operator;
+        this.departure = departure;
+        this.operationTime = operationTime;
+    }
+
+    //数据库无最大id
+    public DepartureLog(Staff operator, Staff departure, Timestamp operationTime) {
+        this.operationId = generateOperationId(operationTime);
+        this.operator = operator;
+        this.departure = departure;
+        this.operationTime = operationTime;
+    }
+
+    public String generateOperationId(Timestamp operationTime){
+        return new SimpleDateFormat("yyyyMMdd").format(operationTime)+"2000";
+    }
 
     public String getOperationId() {
         return operationId;

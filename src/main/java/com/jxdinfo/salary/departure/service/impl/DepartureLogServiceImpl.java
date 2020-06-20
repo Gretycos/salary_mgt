@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -38,8 +39,24 @@ public class DepartureLogServiceImpl extends ServiceImpl<DepartureLogMapper, Dep
 
     //添加离职记录
     @Override
-    public void addDepartureLog(Staff operator, Staff departure, Timestamp departureTime){
-        departureLogMapper.addDepartureLogRecord(departureLog);
+    public boolean addDepartureLog(Staff operator, Staff departure, Timestamp departureTime){
+        DepartureLog departureLogWithMaxId = departureLogMapper.selectMaxOperationId(
+                new SimpleDateFormat("yyyyMMdd").format(departureTime)); //传入日期匹配出最大Id的记录
+        DepartureLog departureLog; // 新记录
+        if(departureLogWithMaxId!=null){ // 如果有最大记录
+            int operationId = Integer.parseInt(departureLogWithMaxId.getOperationId());
+            String newOperationId = String.valueOf(operationId+1); //最大Id+1
+            departureLog = new DepartureLog(newOperationId,operator,departure,departureTime);
+        }else{ // 如果没有最大记录
+            departureLog = new DepartureLog(operator,departure,departureTime); //生成当前时间的第一个Id
+        }
+        // 内置的插入
+        /*
+        * public boolean insert(T entity) {
+            return retBool(this.baseMapper.insert(entity));
+          }
+        * */
+        return insert(departureLog); //调用内置的插入
     }
 
     @Override

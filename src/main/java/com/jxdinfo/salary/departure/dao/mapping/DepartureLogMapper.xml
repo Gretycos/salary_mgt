@@ -65,8 +65,17 @@
         </where>
     </select>
 
+    <!-- 查询最大操作ID的记录 -->
+    <select id="selectMaxOperationId" resultMap="BaseResultMap">
+        select * from t_departure_log
+        where OPERATION_ID REGEXP CONCAT('^',#{time},'2[0-9]{3}$') and OPERATION_ID >= all(
+            select OPERATION_ID from t_departure_log
+            where OPERATION_ID REGEXP CONCAT('^',#{time},'2[0-9]{3}$')
+        )
+    </select>
+
     <!-- 插入 -->
-    <insert id="addDepartureLogRecord" parameterType="com.jxdinfo.salary.staff">
+    <insert id="insert">
         insert into t_departure_log(OPERATION_ID,OPERATOR_ID,DEPARTURE_ID,OPERATION_TIME)
         values (#{operationId},#{operator.staffId},#{departure.staffId},#{operationTime})
     </insert>

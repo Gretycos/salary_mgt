@@ -23,12 +23,10 @@ public interface DepartureLogMapper extends BaseMapper<DepartureLog> {
     //模糊查询
     List<DepartureLog> likeSelect(@Param("condition1")String condition1,@Param("condition2")String condition2,@Param("condition3")String condition3);
 
-    //添加离职记录
-    void addDepartureLogRecord(@Param("operationId")String operationId,
-                               @Param("operatorId")String operatorId,
-                               @Param("departureId")String departureId,
-                               @Param("departureTime")String departureTime);
+    //内置方法，不需要显示地写出来
+    //Integer insert(T var1);
 
+    DepartureLog selectMaxOperationId(String time);
     List<DepartureLog> selectPage(RowBounds rowBounds, @Param("ew") Wrapper<DepartureLog> wrapper);
     List<DepartureLog> selectByDidPage(RowBounds rowBounds, @Param("ew") Wrapper<DepartureLog> wrapper);
 

@@ -24,8 +24,8 @@ public interface IDepartureLogService extends IService<DepartureLog> {
     //模糊查询
     List<DepartureLog> likeSelect(String condition1,String condition2,String condition3);
 
-    //添加离职记录
-    void addDepartureLog(Staff operator, Staff departure, Timestamp departureTime);
+    //添加离职记录 对外接口
+    boolean addDepartureLog(Staff operator, Staff departure, Timestamp departureTime);
 
     Page<DepartureLog> selectByDidPage(Page<DepartureLog> page, Wrapper<DepartureLog> wrapper);
 

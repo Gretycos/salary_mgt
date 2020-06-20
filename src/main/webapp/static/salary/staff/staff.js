@@ -1,6 +1,7 @@
 /**
  * 人员管理管理控制器
  */
+
 var Staff = {
     id: "StaffTable",	//表格id
     seItem: null,		//选中的条目
@@ -161,7 +162,7 @@ Staff.openStaffDetail = function () {
 /**
  * 删除人员管理
  */
-Staff.delete = function () {
+Staff.delete = function (operatorId) {
     if (this.check_()) {
         layer.confirm('您确定要让选中的员工离职吗',{
             title:'提示',
@@ -193,6 +194,7 @@ Staff.delete = function () {
                 });
                 ajax.set("staff", JSON.stringify(listDeparture));
                 ajax.set("jstime",new Date().getTime());
+                ajax.set("operatorId",operatorId);
                 ajax.start();
             }
         },function (index) {
@@ -217,6 +219,9 @@ Staff.search = function () {
     $('#StaffTable').bootstrapTable('refresh',opt);
 };
 
+/**
+* 清空筛选下拉框
+*/
 selectList.empty = function(){
     $("#gender").empty();
     $("#department").empty();
@@ -225,6 +230,7 @@ selectList.empty = function(){
     $("#departureTime").empty();
 }
 
+// 筛选下拉框初始化
 selectList.init = function(){
     var condition = $('#condition').val();
     selectList.empty();

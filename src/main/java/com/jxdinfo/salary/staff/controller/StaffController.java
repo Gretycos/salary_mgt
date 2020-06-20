@@ -12,6 +12,7 @@ import com.jxdinfo.hussar.core.shiro.ShiroKit;
 import com.jxdinfo.hussar.core.shiro.ShiroUser;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
+import com.jxdinfo.salary.departure.service.IDepartureLogService;
 import com.jxdinfo.salary.position.model.Position;
 import com.jxdinfo.salary.position.service.IPositionService;
 import org.springframework.stereotype.Controller;
@@ -50,6 +51,8 @@ public class StaffController extends BaseController {
     private IDepartmentService departmentService;
     @Autowired
     private IPositionService positionService;
+    @Autowired
+    private IDepartureLogService departureLogService;
 
     /**
      * 跳转到人员管理首页
@@ -57,12 +60,13 @@ public class StaffController extends BaseController {
     @RequestMapping("/view")
     @BussinessLog(key = "/staff/view", type = BussinessLogType.QUERY, value = "人员管理页面")
     @RequiresPermissions("staff:view")
-    public String index(@PathVariable Model model) {
+    public String index(Model model) {
         ShiroUser shiroUser = ShiroKit.getUser();
         int account = Integer.parseInt(shiroUser.getAccount());// 对应STAFF_ID
         System.out.println("account: "+account);
-        Staff staff = staffService.selectOne(new EntityWrapper<Staff>()
+        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
         .eq("STAFF_ID",account));
+        model.addAttribute("operator",operator);
         return PREFIX + "staff.html";
     }
 
@@ -275,24 +279,30 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 删除人员管理
+     * 删除人员管理---离职
      */
     @RequestMapping(value = "/delete")
-    @BussinessLog(key = "/staff/delete", type = BussinessLogType.DELETE, value = "删除人员管理")
+    @BussinessLog(key = "/staff/delete", type = BussinessLogType.DELETE, value = "删除人员管理---离职")
     @RequiresPermissions("staff:delete")
     @ResponseBody
     public Object delete(@RequestParam Map<String, String> info) {
         Long jstime = Long.parseLong(info.get("jstime"));
+
+        int operatorId = Integer.parseInt(info.get("operatorId")); //操作员Id
+        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
+                .eq("STAFF_ID",operatorId));//查询出操作人
+
         List<Map<String,Integer>> list = JSONArray.parseObject(info.get("staff"),List.class);
         for (Map<String,Integer> m : list){
-            int staffId = m.get("staffId");
-            Staff staff = staffService.selectOne(new EntityWrapper<Staff>()
-                    .eq("STAFF_ID",staffId));
-            System.out.println(staff);
+            int departureId = m.get("staffId");//离职人的Id
+            Staff departure = staffService.selectOne(new EntityWrapper<Staff>()
+                    .eq("STAFF_ID",departureId)); //查询出离职人
+            System.out.println(departure);
             Timestamp departureTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     .format(new Date(jstime)));
-            staff.setDepartureTime(departureTime);
-            staffService.updateById(staff);
+            departure.setDepartureTime(departureTime);
+            staffService.updateById(departure); //离职
+            departureLogService.addDepartureLog(operator,departure,departureTime); //离职日志
         }
 
         return SUCCESS_TIP;
