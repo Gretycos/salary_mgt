@@ -51,7 +51,7 @@ public class UtilController {
         try {
             Integer staffId = Integer.parseInt(user.getAccount());
             // 得到staffId之后去判断是否有权限
-            //01 查询黑名单是否存在 先根据部门和权限的名称得到部门和权限的ID
+            //查询黑名单是否存在 先根据部门和权限的名称得到部门和权限的ID
             Wrapper<Department> w1 = new EntityWrapper<>();
             w1.where("DEPARTMENT_NAME = {0}", departmentName);
             Wrapper<Permission> w2 = new EntityWrapper<>();
@@ -76,6 +76,18 @@ public class UtilController {
             List<BlackList> blackLists = blackListService.selectList(wrapper1);
             if (blackLists.isEmpty()||blackLists==null){
                 // 如果黑名单没有的话 去查看白名单是否有
+                // 有一个特殊情况 如果黑名单没有白名单也没有 但是那个人有超级管理的权限 也是可以执行该操作的
+                // 所以在黑名单没有的情况下 首先判断这个人有没有超级管理
+                Wrapper<WhiteList> admin = new EntityWrapper<>();
+                admin.where("STAFF_ID = {0}",staffId);
+                admin.where("PERMISSION_ID = {0}",99);
+                List<WhiteList> adminList = whiteListService.selectList(admin);
+                if (adminList.isEmpty()==false){
+                    //该用户有超级权限
+                    System.out.println("=================权限查询结束================");
+                    return true;
+                }
+                // 如果没有超级管理再执行下面的 查询具体的权限 而不是超级权限
                 Wrapper<WhiteList> wrapper2 = new EntityWrapper<>();
                 wrapper2.where("STAFF_ID = {0}",staffId);
                 wrapper2.where("DEPARTMENT_ID = {0}",departmentId);
@@ -100,6 +112,12 @@ public class UtilController {
             System.out.println("=================权限查询结束================");
             return "未知错误";
         }
+    }
+
+    //TODO 完成修改权限和添加权限时判断该员工的身份是否允许 比如一个普通员工是不允许有超级管理的权限的
+    public Object modifyAndAdd(Integer staffId,Integer permissionId){
+        //根据员工Id和权限Id判断该员工是否可以有该权限
+        return null;
     }
 
 }
