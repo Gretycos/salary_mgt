@@ -48,7 +48,7 @@
     </select>
     <select id="getNewPositionByPositionId" resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap">
         select * from t_position where POSITION_ID=#{newPositionId}
-</select>
+    </select>
 
 
     <!-- 通用查询结果列 -->
@@ -74,6 +74,98 @@
             ${ew.sqlSegment}
         </where>
     </select>
+
+    <!--按操作编码查询-->
+    <select id="selectOperationId" resultType="int">
+        select distinct OPERATION_ID from t_move_log
+    </select>
+
+    <!--按操作员工号查询-->
+    <select id="selectOperatorId" resultType="int">
+        select distinct OPERATOR_ID from t_move_log
+    </select>
+
+    <!--按操作员姓名查询-->
+    <select id="selectOperatorName" resultType="string">
+        select DISTINCT STAFF_NAME
+        from t_move_log a,t_staff b
+        where a.OPERATOR_ID = b.STAFF_ID
+    </select>
+
+    <!--按调动员工工号查询-->
+    <select id="selectMoveId" resultType="int">
+        select distinct MOVE_ID from t_move_log
+    </select>
+
+    <!--按调动员工姓名查询-->
+    <select id="selectMoveName" resultType="string">
+        select DISTINCT STAFF_NAME
+        from t_move_log a,t_staff b
+        where a.MOVE_ID = b.STAFF_ID
+    </select>
+
+    <!--按原部门查询-->
+    <select id="selectOldDepartmentName" resultType="string">
+        select distinct DEPARTMENT_NAME
+        from t_move_log a, t_department b
+        where a.OLD_DEPARTMENT_ID = b.DEPARTMENT_ID
+    </select>
+
+    <!--按原职位查询-->
+    <select id="selectOldPositionName" resultType="string">
+        select distinct POSITION_NAME
+        from t_move_log a, t_position b
+        where a.OLD_POSITION_ID = b.POSITION_ID
+    </select>
+
+    <!--按新部门查询-->
+    <select id="selectNewDepartmentName" resultType="string">
+        select distinct DEPARTMENT_NAME
+        from t_move_log a, t_department b
+        where a.NEW_DEPARTMENT_ID = b.DEPARTMENT_ID
+    </select>
+
+    <!--按新职位查询-->
+    <select id="selectNewPositionName" resultType="string">
+        select distinct POSITION_NAME
+        from t_move_log a, t_position b
+        where a.NEW_POSITION_ID = b.POSITION_ID
+    </select>
+
+    <!--按操作时间查询-->
+    <select id="selectOperationTime" resultType="string">
+        select distinct OPERATION_TIME from t_move_log
+    </select>
+
+    <!-- 查询最大操作ID的记录 -->
+    <select id="selectMaxOperationId" resultMap="BaseResultMap">
+        select * from t_move_log
+        where OPERATION_ID REGEXP CONCAT('^',#{time},'0[0-9]{3}$') and OPERATION_ID >= all(
+            select OPERATION_ID from t_move_log
+            where OPERATION_ID REGEXP CONCAT('^',#{time},'0[0-9]{3}$')
+        )
+    </select>
+
+    <!-- 插入 -->
+    <insert id="insert">
+        insert into t_move_log(OPERATION_ID,OPERATOR_ID,MOVE_ID,OLD_DEPARTMENT_ID,
+                               NEW_DEPARTMENT_ID,OLD_POSITION_ID,NEW_POSITION_ID,OPERATION_TIME)
+        values (#{operationId},#{operator.staffId},#{move.staffId},#{oldDepartment.departmentId},
+                #{newDepartment.departmentId},#{oldPosition.positionId},#{newPosition.positionId},#{operationTime})
+    </insert>
+
+    <!-- 更新-->
+    <update id="updateById">
+        update t_move_log
+        set OPERATOR_ID = #{et.operator.staffId},
+            MOVE_ID = #{et.move.staffId},
+            OLD_DEPARTMENT_ID = #{et.oldDepartment.departmentId},
+            NEW_DEPARTMENT_ID = #{et.newDepartment.departmentId},
+            OLD_POSITION_ID = #{et.oldPosition.positionId},
+            NEW_POSITION_ID = #{et.newPosition.positionId},
+            OPERATION_TIME = #{et.operationTime}
+        where OPERATION_ID = #{et.operationId}
+    </update>
 
 
 </mapper>

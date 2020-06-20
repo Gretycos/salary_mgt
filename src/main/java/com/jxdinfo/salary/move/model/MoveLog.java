@@ -12,6 +12,7 @@ import com.jxdinfo.salary.position.model.Position;
 import com.jxdinfo.salary.staff.model.Staff;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -67,6 +68,40 @@ public class MoveLog extends Model<MoveLog> {
      */
     @TableField(exist = false)
     private Position newPosition;
+
+    public MoveLog() { }
+
+    //数据库有最大id
+    public MoveLog(String operationId,Staff operator,Staff move,Department oldDepartment,
+                   Department newDepartment,Position oldPosition,Position newPosition,
+                   Timestamp operationTime) {
+        this.operationId = operationId;
+        this.operator = operator;
+        this.move = move;
+        this.oldDepartment = oldDepartment;
+        this.newDepartment = newDepartment;
+        this.oldPosition = oldPosition;
+        this.newPosition = newPosition;
+        this.operationTime = operationTime;
+    }
+
+    //数据库无最大id
+    public MoveLog(Staff operator,Staff move,Department oldDepartment,
+                   Department newDepartment,Position oldPosition,Position newPosition,
+                   Timestamp operationTime) {
+        this.operationId = generateOperationId(operationTime);
+        this.operator = operator;
+        this.move = move;
+        this.oldDepartment = oldDepartment;
+        this.newDepartment = newDepartment;
+        this.oldPosition = oldPosition;
+        this.newPosition = newPosition;
+        this.operationTime = operationTime;
+    }
+
+    public String generateOperationId(Timestamp operationTime){
+        return new SimpleDateFormat("yyyyMMdd").format(operationTime)+"0000";
+    }
 
     public String getOperationId() {
         return operationId;

@@ -2,8 +2,16 @@ package com.jxdinfo.salary.move.service;
 
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
+import com.jxdinfo.hussar.bsp.permit.model.SysUsers;
+import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.move.model.MoveLog;
 import com.baomidou.mybatisplus.service.IService;
+import com.jxdinfo.salary.staff.model.Staff;
+import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.position.model.Position;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +22,44 @@ import com.baomidou.mybatisplus.service.IService;
  * @since 2020-06-17
  */
 public interface IMoveLogService extends IService<MoveLog> {
+
+    //获取操作编码
+    List<Integer> selectOperationId();
+
+    //获取操作员工号
+    List<Integer> selectOperatorId();
+
+    // 获取操作员姓名
+    List<String> selectOperatorName();
+
+    //获取调动员工工号
+    List<Integer> selectMoveId();
+
+    // 获取调动员工姓名
+    List<String> selectMoveName();
+
+    // 获取原部门名称
+    List<String> selectOldDepartmentName();
+
+    // 获取原职位名称
+    List<String> selectOldPositionName();
+
+    // 获取新部门名称
+    List<String> selectNewDepartmentName();
+
+    // 获取新职位名称
+    List<String> selectNewPositionName();
+
+    //获取操作时间
+    List<String> selectOperationTime();
+
+    // 根据条件进行查询
+    //List<MoveLog> searchByCondition(String condition);
+
+    Page<MoveLog> getUserList(Page<MoveLog> page, String var2, String var3);
+
+    //添加调动记录 对外接口
+    boolean addMoveLog(Staff operator, Staff move, Department oldD, Department newD, Position oldP, Position newP, Timestamp moveTime);
+
     Page<MoveLog> selectByDidPage(Page<MoveLog> page, Wrapper<MoveLog> wrapper);
 }

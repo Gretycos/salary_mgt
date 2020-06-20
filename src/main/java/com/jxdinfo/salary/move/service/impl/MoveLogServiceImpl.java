@@ -3,12 +3,20 @@ package com.jxdinfo.salary.move.service.impl;
 import com.baomidou.mybatisplus.mapper.SqlHelper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
+import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.departure.model.DepartureLog;
 import com.jxdinfo.salary.move.model.MoveLog;
 import com.jxdinfo.salary.move.dao.MoveLogMapper;
 import com.jxdinfo.salary.move.service.IMoveLogService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.jxdinfo.salary.position.model.Position;
+import com.jxdinfo.salary.staff.model.Staff;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * <p>
@@ -23,6 +31,59 @@ public class MoveLogServiceImpl extends ServiceImpl<MoveLogMapper, MoveLog> impl
 
     @Autowired
     MoveLogMapper moveLogMapper;
+
+    @Override
+    public List<Integer> selectOperationId(){return moveLogMapper.selectOperationId();}
+
+    @Override
+    public List<Integer> selectOperatorId(){return moveLogMapper.selectOperatorId();}
+
+    @Override
+    public List<String> selectOperatorName(){return moveLogMapper.selectOperatorName();}
+
+    @Override
+    public List<Integer> selectMoveId(){return moveLogMapper.selectMoveId();}
+
+    @Override
+    public List<String> selectMoveName(){return moveLogMapper.selectMoveName();}
+
+    @Override
+    public List<String> selectOldDepartmentName(){return moveLogMapper.selectOldDepartmentName();}
+
+    @Override
+    public List<String> selectOldPositionName(){return moveLogMapper.selectOldPositionName();}
+
+    @Override
+    public List<String> selectNewDepartmentName(){return moveLogMapper.selectNewDepartmentName();}
+
+    @Override
+    public List<String> selectNewPositionName(){return moveLogMapper.selectNewPositionName();}
+
+    @Override
+    public List<String> selectOperationTime(){return moveLogMapper.selectOperationTime();}
+
+    @Override
+    public Page<MoveLog> getUserList(Page<MoveLog> page, String var2, String var3) {
+       return page;
+    }
+
+    //添加调动记录
+    @Override
+    public boolean addMoveLog(Staff operator, Staff move, Department oldD, Department newD,
+                              Position oldP, Position newP, Timestamp moveTime){
+        MoveLog moveLogWithMaxId = moveLogMapper.selectMaxOperationId(
+                new SimpleDateFormat("yyyyMMdd").format(moveTime)); //传入日期匹配出最大Id的记录
+        MoveLog moveLog; // 新记录
+        if(moveLogWithMaxId!=null){ // 如果有最大记录
+            int operationId = Integer.parseInt(moveLogWithMaxId.getOperationId());
+            String newOperationId = String.valueOf(operationId+1); //最大Id+1
+            moveLog = new MoveLog(newOperationId,operator,move,oldD,newD,oldP,newP,moveTime);
+        }else{ // 如果没有最大记录
+            moveLog = new MoveLog(operator,move,oldD,newD,oldP,newP,moveTime); //生成当前时间的第一个Id
+        }
+
+        return insert(moveLog); //调用内置的插入
+    }
 
     @Override
     public Page<MoveLog> selectByDidPage(Page<MoveLog> page, Wrapper<MoveLog> wrapper) {
