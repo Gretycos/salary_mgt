@@ -6,6 +6,7 @@ var WhiteListInfoDlg = {
     selectDepartmentAndPermission:{
         departmentName:"",
         permissionName:"",
+        //后面三个是初始值
         staffId:null,
         departmentId:null,
         permissionId:null
@@ -28,7 +29,7 @@ form.on('select', function(data){
     var id = data.elem.id; //select标签的id
     var val = data.value;
     WhiteListInfoDlg.selectDepartmentAndPermission[id] = val;
-    console.log("当前selectDepartmentAndPermission")
+    console.log("当前selectDepartmentAndPermission");
     console.log(WhiteListInfoDlg.selectDepartmentAndPermission);
 
 });
@@ -111,25 +112,6 @@ WhiteListInfoDlg.collectData = function() {
     .set('permissionId');
 };
 
-/**
- * 提交添加
- */
-WhiteListInfoDlg.addSubmit = function() {
-
-    this.clearData();
-    this.collectData();
-
-    //提交信息
-    var ajax = new $ax(Hussar.ctxPath + "/whiteList/add", function(data){
-        window.parent.layui.Hussar.success("添加成功!");
-        window.parent.$('#WhiteListTable').bootstrapTable('refresh');
-        WhiteListInfoDlg.close();
-    },function(data){
-        Hussar.error("添加失败!" + data.responseJSON.message + "!");
-    });
-    ajax.set(this.whiteListInfoData);
-    ajax.start();
-};
 
 /**
  * 提交修改
@@ -145,16 +127,40 @@ WhiteListInfoDlg.editSubmit = function() {
     WhiteListInfoDlg.selectDepartmentAndPermission['departmentId'] = departmentId;
     WhiteListInfoDlg.selectDepartmentAndPermission['permissionId'] = permissionId;
 
-    //提交信息
-    var ajax = new $ax(Hussar.ctxPath + "/whiteList/update", function(data){
-        window.parent.layui.Hussar.success("修改成功!");
-        window.parent.$('#WhiteListTable').bootstrapTable('refresh');
-        WhiteListInfoDlg.close();
-    },function(data){
-        Hussar.error("修改失败!" + data.responseJSON.message + "!");
+    // 添加提示信息
+    var p = WhiteListInfoDlg.selectDepartmentAndPermission;
+    if (p.departmentName==""){
+        Hussar.error("请选择部门信息");
+        return
+    }
+    if (p.permissionName==""){
+        Hussar.error("请选择权限信息");
+        return
+    }
+
+    // 确实修改提示框
+    Hussar.confirm("确定要执行修改操作吗?", function () {
+        //提交信息
+        var ajax = new $ax(Hussar.ctxPath + "/whiteList/update", function(data){
+            if (data=="exist") {
+                Hussar.error("修改后的数据已存在,不可重复");
+                return
+            }
+            if (data==true){
+                window.parent.layui.Hussar.success("修改成功!");
+                window.parent.$('#WhiteListTable').bootstrapTable('refresh');
+                WhiteListInfoDlg.close();
+            } else {
+                Hussar.error("修改失败！");
+                return
+            }
+        },function(data){
+            Hussar.error("修改失败!" + data.responseJSON.message + "!");
+        });
+        ajax.set(WhiteListInfoDlg.selectDepartmentAndPermission);
+        ajax.start();
     });
-    ajax.set(this.selectDepartmentAndPermission);
-    ajax.start();
+
 };
 
 /**

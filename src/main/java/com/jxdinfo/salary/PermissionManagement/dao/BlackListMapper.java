@@ -38,4 +38,12 @@ public interface BlackListMapper extends BaseMapper<BlackList> {
     //重写update方法
     Integer update(@Param("et") BlackList var1, @Param("ew") Wrapper<BlackList> var2);
 
+
+    // 重写selectList方法
+    List<BlackList> selectList(@Param("ew") Wrapper<BlackList> var1);
+
+    // 重写insert方法
+    Integer insert(BlackList whiteList);
+
+
 }

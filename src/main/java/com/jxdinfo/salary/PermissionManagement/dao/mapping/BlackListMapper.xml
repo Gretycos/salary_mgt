@@ -67,4 +67,16 @@
             ${ew.sqlSegment}
         </where>
     </update>
+
+    <insert id="insert" parameterType="com.jxdinfo.salary.PermissionManagement.model.BlackList">
+        insert into t_black_list(STAFF_ID,DEPARTMENT_ID,PERMISSION_ID)
+        values (#{staffId}, #{departmentId}, #{permissionId})
+    </insert>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        select * from t_black_list
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
 </mapper>

@@ -148,9 +148,10 @@ BlackList.check = function () {
  * 点击添加薪资权限管理---黑名单维护
  */
 BlackList.openAddBlackList = function () {
+
     var index = layer.open({
         type: 2,
-        title: '添加薪资权限管理---黑名单维护',
+        title: '黑名单--添加',
         area: ['400px', '420px'], //宽高
         fix: false, //不固定
         maxmin: false,
@@ -164,6 +165,10 @@ BlackList.openAddBlackList = function () {
  */
 BlackList.openBlackListDetail = function () {
     if (this.check()) {
+        if (BlackList.seItem.length>1){
+            Hussar.error("不可选择多条数据");
+            return
+        }
         // BlackList.seItem[0] 转换请求参数字符串
         var modify_item = "?staffId="+String(BlackList.seItem[0].staffId)
             +"&departmentId="+String(BlackList.seItem[0].departmentId)
@@ -188,20 +193,24 @@ BlackList.openBlackListDetail = function () {
  * 删除薪资权限管理---黑名单维护
  */
 BlackList.delete = function () {
+    requestPermission("kkkkk","mmmmmm");
+
     if (this.check()) {
-        var ajax = new $ax(Hussar.ctxPath + "/blackList/delete", function (data) {
-            Hussar.success("删除成功!");
-            $('#BlackListTable').bootstrapTable('refresh');
-        }, function (data) {
-            Hussar.error("删除失败!" + data.responseJSON.message + "!");
+        Hussar.confirm("确定要删除所选项吗？",function () {
+            var ajax = new $ax(Hussar.ctxPath + "/blackList/delete", function (data) {
+                Hussar.success("删除成功!");
+                $('#BlackListTable').bootstrapTable('refresh');
+            }, function (data) {
+                Hussar.error("删除失败!" + data.responseJSON.message + "!");
+            });
+            // 将BlackList.seItem数据转化为JSON格式的字符串
+            var delete_list = JSON.stringify(BlackList.seItem);
+            console.log(delete_list);
+            ajax.set("delete_list",delete_list);
+            ajax.start();
+            // 不管是否成功都将 BlackList.seItem重新设置为Null
+            BlackList.seItem = null;
         });
-        // 将BlackList.seItem数据转化为JSON格式的字符串
-        var delete_list = JSON.stringify(BlackList.seItem);
-        console.log(delete_list);
-        ajax.set("delete_list",delete_list);
-        ajax.start();
-        // 不管是否成功都将 BlackList.seItem重新设置为Null
-        BlackList.seItem = null;
     }
 };
 
@@ -238,7 +247,6 @@ BlackList.reset = function(){
         permissionName:""
     };
 };
-
 $(function () {
     var defaultColunms = BlackList.initColumn();
     BlackList.createSelect();

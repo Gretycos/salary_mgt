@@ -44,5 +44,9 @@ public interface WhiteListMapper extends BaseMapper<WhiteList> {
     //重写update方法
     Integer update(@Param("et") WhiteList var1, @Param("ew") Wrapper<WhiteList> var2);
 
+    // 重写insert方法
+    Integer insert(WhiteList whiteList);
 
+    // 重写selectList方法
+    List<WhiteList> selectList(@Param("ew") Wrapper<WhiteList> var1);
 }

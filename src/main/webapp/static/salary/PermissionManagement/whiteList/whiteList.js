@@ -137,12 +137,12 @@ WhiteList.check = function () {
 };
 
 /**
- * 点击添加薪资权限管理--白名单维护
+ * 点击添加新的权限
  */
 WhiteList.openAddWhiteList = function () {
     var index = layer.open({
         type: 2,
-        title: '添加薪资权限管理--白名单维护',
+        title: '白名单--添加',
         area: ['400px', '420px'], //宽高
         fix: false, //不固定
         maxmin: false,//是否可最大最小化
@@ -156,6 +156,10 @@ WhiteList.openAddWhiteList = function () {
  */
 WhiteList.openWhiteListDetail = function () {
     if (this.check()) {
+        if (WhiteList.seItem.length>1){
+            Hussar.error("不可选择多条数据");
+            return
+        }
         // 先将WhiteList.seItem[0] 转换请求参数字符串
         var modify_item = "?staffId="+String(WhiteList.seItem[0].staffId)
                         +"&departmentId="+String(WhiteList.seItem[0].departmentId)
@@ -183,7 +187,9 @@ WhiteList.openWhiteListDetail = function () {
  */
 WhiteList.delete = function () {
     if (this.check()) {
-        // WhiteList.seItem是一个列表 进行批量删除
+        // 删除前确认
+        Hussar.confirm("确定要删除所选项吗？",function () {
+            // WhiteList.seItem是一个数组 进行批量删除
             var ajax = new $ax(Hussar.ctxPath + "/whiteList/delete", function (data) {
                 Hussar.success("删除成功!");
                 $('#WhiteListTable').bootstrapTable('refresh');
@@ -199,13 +205,12 @@ WhiteList.delete = function () {
             //     delete_array.push(tmp);
             // }
             var delete_list = JSON.stringify(WhiteList.seItem);
-            console.log(delete_list);
             ajax.set("delete_list",delete_list);
             ajax.start();
 
-        // 将WhiteList.seItem重新设置为Null
-        WhiteList.seItem = null;
-
+            // 将WhiteList.seItem重新设置为Null
+            WhiteList.seItem = null;
+        });
     }
 };
 

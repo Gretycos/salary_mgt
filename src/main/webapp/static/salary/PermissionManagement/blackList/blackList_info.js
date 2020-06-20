@@ -108,25 +108,6 @@ BlackListInfoDlg.collectData = function() {
     .set('permissionId');
 };
 
-/**
- * 提交添加
- */
-BlackListInfoDlg.addSubmit = function() {
-
-    this.clearData();
-    this.collectData();
-
-    //提交信息
-    var ajax = new $ax(Hussar.ctxPath + "/blackList/add", function(data){
-        window.parent.layui.Hussar.success("添加成功!");
-        window.parent.$('#BlackListTable').bootstrapTable('refresh');
-        BlackListInfoDlg.close();
-    },function(data){
-        Hussar.error("添加失败!" + data.responseJSON.message + "!");
-    });
-    ajax.set(this.blackListInfoData);
-    ajax.start();
-};
 
 /**
  * 提交修改
@@ -134,7 +115,7 @@ BlackListInfoDlg.addSubmit = function() {
 BlackListInfoDlg.editSubmit = function() {
 
     // 得到修改后的信息 部门和权限的名称保存在了selectDepartmentAndPermission中
-    // 需要再获取到员工的ID（旧信息）
+    // 需要再获取到员工的ID、原部门ID、原权限ID （这些原来的信息保存在不可见的input里面）
     var staffId = $('#staffId').val();
     var departmentId = $('#departmentId').val();
     var permissionId = $('#permissionId').val();
@@ -142,16 +123,41 @@ BlackListInfoDlg.editSubmit = function() {
     BlackListInfoDlg.selectDepartmentAndPermission['departmentId'] = departmentId;
     BlackListInfoDlg.selectDepartmentAndPermission['permissionId'] = permissionId;
 
-    //提交信息
-    var ajax = new $ax(Hussar.ctxPath + "/blackList/update", function(data){
-        window.parent.layui.Hussar.success("修改成功!");
-        window.parent.$('#BlackListTable').bootstrapTable('refresh');
-        BlackListInfoDlg.close();
-    },function(data){
-        Hussar.error("修改失败!" + data.responseJSON.message + "!");
-    });
-    ajax.set(this.selectDepartmentAndPermission);
-    ajax.start();
+    var p = BlackListInfoDlg.selectDepartmentAndPermission;
+
+    // 添加提示信息
+    if (p.departmentName==""){
+        Hussar.error("请选择部门信息");
+        return
+    }
+    if (p.permissionName==""){
+        Hussar.error("请选择权限信息");
+        return
+    }
+
+    // 确实修改提示框
+    Hussar.confirm("确定要执行修改操作吗?",function () {
+        //提交信息
+        var ajax = new $ax(Hussar.ctxPath + "/blackList/update", function(data){
+            if (data=="exist") {
+                Hussar.error("修改后的数据已存在,不可重复");
+                return
+            }
+            if (data==true){
+                window.parent.layui.Hussar.success("修改成功!");
+                window.parent.$('#BlackListTable').bootstrapTable('refresh');
+                BlackListInfoDlg.close();
+            }else {
+                Hussar.error("修改失败！");
+                return
+            }
+        },function(data){
+            Hussar.error("修改失败!" + data.responseJSON.message + "!");
+        });
+        ajax.set(BlackListInfoDlg.selectDepartmentAndPermission);
+        ajax.start();
+    })
+
 };
 
 
