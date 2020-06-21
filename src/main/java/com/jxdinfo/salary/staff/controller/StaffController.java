@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
 import com.jxdinfo.hussar.core.shiro.ShiroKit;
 import com.jxdinfo.hussar.core.shiro.ShiroUser;
+import com.jxdinfo.hussar.inisalary.service.ITInisalaryInfoService;
 import com.jxdinfo.salary.PermissionManagement.model.Util;
 import com.jxdinfo.salary.PermissionManagement.service.IUtilService;
 import com.jxdinfo.salary.department.model.Department;
@@ -60,6 +61,8 @@ public class StaffController extends BaseController {
     private IEntryLogService entryLogService;
     @Autowired
     private IUtilService utilService;
+    @Autowired
+    private ITInisalaryInfoService inisalaryInfoService;
 
     /**
      * 跳转到人员管理首页
@@ -356,6 +359,10 @@ public class StaffController extends BaseController {
 
         staffService.insert(staff); //新增员工
         entryLogService.addEntryLog(operator,staff,entryTime);
+        System.out.println("==========================");
+        System.out.println(staffId+"\n"+departmentId);
+        System.out.println("==========================");
+        inisalaryInfoService.addEmployee(staffId,staffName,departmentId); //录入初始工资
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
         res.put("message","成功");
@@ -560,6 +567,12 @@ public class StaffController extends BaseController {
     }
 
     private int getCurrentAccountId(){
-        return Integer.parseInt(ShiroKit.getUser().getAccount());//当前登录的人的Id 对应STAFF_ID
+        String account = ShiroKit.getUser().getAccount();
+        try{
+            return Integer.parseInt(account);//当前登录的人的Id 对应STAFF_ID
+        }catch (Exception e){
+            account = "2020999999";
+            return Integer.parseInt(account);//超级用户
+        }
     }
 }
