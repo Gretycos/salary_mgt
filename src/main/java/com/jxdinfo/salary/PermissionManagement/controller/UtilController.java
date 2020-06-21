@@ -139,7 +139,7 @@ public class UtilController {
      * 查询当前登录员工的的所有权限
      */
     @ResponseBody
-    @RequestMapping(value = "/getPermissionList")
+//    @RequestMapping(value = "/getPermissionList")
     public Object getPermissionList(){
         System.out.println("===========================================");
         System.out.println("=================权限查询开始================");
