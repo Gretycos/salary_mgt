@@ -66,8 +66,8 @@ public class MoveLogServiceImpl extends ServiceImpl<MoveLogMapper, MoveLog> impl
 
     //模糊查询
     @Override
-    public List<MoveLog> likeSelect(String condition1, String condition2, String condition3) {
-        return moveLogMapper.likeSelect(condition1, condition2, condition3);
+    public List<MoveLog> likeSelect(Page<MoveLog> page,String condition1, String condition2, String condition3) {
+        return moveLogMapper.likeSelect(page,condition1, condition2, condition3);
     }
 
     //添加调动记录

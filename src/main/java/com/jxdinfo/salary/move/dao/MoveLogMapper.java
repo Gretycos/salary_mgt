@@ -53,7 +53,8 @@ public interface MoveLogMapper extends BaseMapper<MoveLog> {
     List<String> selectOperationTime();
 
     //模糊查询
-    List<MoveLog> likeSelect(@Param("condition1")String condition1,
+    List<MoveLog> likeSelect(RowBounds var1,
+                             @Param("condition1")String condition1,
                               @Param("condition2")String condition2,
                               @Param("condition3")String condition3);
 
