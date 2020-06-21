@@ -226,12 +226,43 @@ public class BlackListController extends BaseController {
     public List<Staff> getStaffsByName(String staffName){
         Wrapper<Staff> wrapper = new EntityWrapper<>();
         wrapper.where("STAFF_NAME = {0}",staffName);
+
+        // 获取当前登录账号的ID
+        try {
+            ShiroUser user = ShiroKit.getUser();
+            Long staffId = Long.parseLong(user.getAccount());
+            //根据当前ID返回它能查询的内容
+            Wrapper<Staff> s_w = new EntityWrapper<>();
+            s_w.where("STAFF_ID = {0}",staffId);
+            Staff staff = staffService.selectOne(s_w);
+            if (staff.getDepartment().getDepartmentName().equals("财务部")){
+                //如果是财务部的部长 则只能查看财务人员
+                // 财务部的DEPARTMENT_ID是12
+                wrapper.where("DEPARTMENT_ID = {0}",12);
+            }else {
+                // 不是财务部长
+                if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
+                    //如果是人力资源部的部长 则只能查看人力资源部人员
+                    // 人力资源部的DEPARTMENT_ID是10
+                    wrapper.where("DEPARTMENT_ID = {0}",10);
+                }else {
+                    //都不是的话就是超级管理员了 可以查看全部的
+                }
+            }
+
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
+
+
         List<Staff> staffList = staffService.selectList(wrapper);
         return staffList;
     }
 
 
     /**
+     * 根据当前用户的身份选择 如果是财务部长 只能选择财务部员工的
      * 根据四个下拉选择框的值筛选、展示数据
      */
     @ResponseBody

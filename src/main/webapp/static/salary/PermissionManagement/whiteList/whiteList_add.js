@@ -85,7 +85,6 @@ form.on('select(staffName)', function(data){
     else {
         // 去请求数据库 得到staffName = val 的员工ID 重新生成staffID下拉框
         var ajax = new $ax(Hussar.ctxPath + "/whiteList/getStaffsByName", function(data){
-            // 得到data中的权限数组和部门信息数组
             var staffList = data;
 
             // 下面开始拼接option
@@ -99,8 +98,6 @@ form.on('select(staffName)', function(data){
                 for (var key in staffList)
                     str1 += "<option value=\""+staffList[key].staffId+"\">"+staffList[key].staffId+"</option>";
             }
-
-
 
             // 通过JQuery给相应的select添加上option
             $('#staffId').empty().append(str1);
