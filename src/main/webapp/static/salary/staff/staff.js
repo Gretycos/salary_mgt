@@ -187,8 +187,12 @@ Staff.delete = function () {
             }else{
                 console.log(listDeparture)
                 var ajax = new $ax(Hussar.ctxPath + "/staff/delete", function (data) {
-                    Hussar.success("离职成功!");
-                    $('#StaffTable').bootstrapTable('refresh');
+                    if (data.code===200){
+                        Hussar.success("离职成功!");
+                        $('#StaffTable').bootstrapTable('refresh');
+                    } else {
+                        Hussar.error("离职失败!" + data.message + "!");
+                    }
                 }, function (data) {
                     Hussar.error("离职失败!" + data.responseJSON.message + "!");
                 });

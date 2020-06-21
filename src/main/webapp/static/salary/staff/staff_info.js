@@ -103,14 +103,14 @@ StaffInfoDlg.addSubmit = function() {
     //提交信息
     var ajax = new $ax(Hussar.ctxPath + "/staff/add", function(data){
         if(data.code === 200){
-            window.parent.layui.Hussar.success("添加成功!");
+            window.parent.layui.Hussar.success("新员工入职成功!");
             window.parent.$('#StaffTable').bootstrapTable('refresh');
             StaffInfoDlg.close();
         }else{
-            Hussar.error("修改失败!" + data.message + "!");
+            Hussar.error("新员工入职成功!" + data.message + "!");
         }
     },function(data){
-        Hussar.error("添加失败!" + data.responseJSON.message + "!");
+        Hussar.error("操作失败!" + data.responseJSON.message + "!");
     });
     ajax.set(this.staffInfoData);
     ajax.start();
@@ -127,11 +127,11 @@ StaffInfoDlg.editSubmit = function() {
     //提交信息
     var ajax = new $ax(Hussar.ctxPath + "/staff/update", function(data){
         if(data.code === 200){
-            window.parent.layui.Hussar.success("修改成功!");
+            window.parent.layui.Hussar.success("员工信息修改成功!");
             window.parent.$('#StaffTable').bootstrapTable('refresh');
             StaffInfoDlg.close();
         }else{
-            Hussar.error("修改失败!" + data.message + "!");
+            Hussar.error("员工信息修改失败!" + data.message + "!");
         }
 
     },function(data){
@@ -169,7 +169,7 @@ StaffInfoDlg.initSelector = function(){
         });
         $("#departmentId").val(typeof departmentId_value== "undefined"? 10: departmentId_value);
     },function(data){
-        Hussar.error("查询失败!" + data.responseJSON.message + "!");
+        Hussar.error("加载失败!" + data.responseJSON.message + "!");
     });
     ajax1.start();
 
@@ -183,7 +183,7 @@ StaffInfoDlg.initSelector = function(){
         $("#positionId").val(typeof positionId_value== "undefined"? 0: positionId_value);
         form.render('select');
     },function(data){
-        Hussar.error("查询失败!" + data.responseJSON.message + "!");
+        Hussar.error("加载失败!" + data.responseJSON.message + "!");
     });
     ajax2.start();
 

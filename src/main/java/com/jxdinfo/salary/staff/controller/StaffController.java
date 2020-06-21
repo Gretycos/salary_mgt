@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
 import com.jxdinfo.hussar.core.shiro.ShiroKit;
 import com.jxdinfo.hussar.core.shiro.ShiroUser;
+import com.jxdinfo.salary.PermissionManagement.model.Util;
+import com.jxdinfo.salary.PermissionManagement.service.IUtilService;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.departure.service.IDepartureLogService;
@@ -56,6 +58,8 @@ public class StaffController extends BaseController {
     private IMoveLogService moveLogService;
     @Autowired
     private IEntryLogService entryLogService;
+    @Autowired
+    private IUtilService utilService;
 
     /**
      * 跳转到人员管理首页
@@ -104,7 +108,28 @@ public class StaffController extends BaseController {
         Wrapper<Staff> ew = new EntityWrapper<>();
 //        System.out.println(condition);
 //        System.out.println();
-        if(condition!=""){
+
+        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+        if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
+            //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
+            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            if (permissionList.size()==0){
+//                System.out.println("=======================该用户无权限==================");
+                ew.eq("DEPARTMENT_ID",-1);
+            } else {
+                boolean canQuery = false;
+                for (Util p: permissionList){
+                    if(p.getPermissionName().equals("查看信息")){
+                        canQuery = true;
+                        ew.eq("DEPARTMENT_ID",p.getDepartmentId());
+                    }
+                }
+                if (!canQuery){
+                    ew.eq("DEPARTMENT_ID",-1);
+                }
+            }
+        }
+        if(!condition.equals("")){
             ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
         List<Staff> list = staffService.selectPage(page, ew).getRecords();
@@ -128,12 +153,31 @@ public class StaffController extends BaseController {
         Wrapper<Staff> ew = new EntityWrapper<>();
 //        System.out.println(condition);
 //        System.out.println();
+        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
 
-        if(condition!=""){
+        if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
+            //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
+            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            if (permissionList.size()==0){
+                ew.eq("DEPARTMENT_ID",-1);
+            } else {
+                boolean canQuery = false;
+                for (Util p: permissionList){
+                    if(p.getPermissionName().equals("查看信息")){
+                        canQuery = true;
+                        ew.eq("DEPARTMENT_ID",p.getDepartmentId());
+                    }
+                }
+                if (!canQuery){
+                    ew.eq("DEPARTMENT_ID",-1);
+                }
+            }
+        }
+        if(!condition.equals("")){
             ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
 
-        List<Staff> list = staffService.selectPage(page, ew).getRecords();
+        List<Staff> staffList = staffService.selectPage(page, ew).getRecords();
 
         List<String> genderList = new ArrayList<>();
         List<Department> departmentList = new ArrayList<>();
@@ -141,7 +185,7 @@ public class StaffController extends BaseController {
         List<String> entryTimeList = new ArrayList<>();
         List<String> departureTimeList = new ArrayList<>();
 
-        for(Staff s:list){
+        for (Staff s:staffList){
             genderList.add(s.getGender());
             departmentList.add(s.getDepartment());
             positionList.add(s.getPosition());
@@ -254,6 +298,34 @@ public class StaffController extends BaseController {
             return res;
         }
 
+        if (operator.getPosition().getPositionId()==0){ //员工---负责部门
+            //先查询拥有哪些部门的操作权限
+            List<Util> permissionList = utilService.selectList((long)operator.getStaffId());
+            if (permissionList.size()==0){
+                Map<String,Object> res= new HashMap<>();
+                res.put("code",500);
+                res.put("message","该用户无权限");
+                return res;
+            } else {
+                boolean canAdd = true;
+                List<Integer> canAddDList = new ArrayList<>();
+                for (Util p: permissionList){
+                    if (p.getPermissionName().equals("员工入职")){
+                        canAddDList.add(p.getDepartmentId());
+                    }
+                }
+                if (!canAddDList.contains(departmentId)){
+                    canAdd = false;
+                }
+                if (!canAdd){
+                    Map<String,Object> res= new HashMap<>();
+                    res.put("code",500);
+                    res.put("message","该用户无权限");
+                    return res;
+                }
+            }
+        }
+
         Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("POSITION_ID",1).eq("DEPARTMENT_ID",department.getDepartmentId()));
 
@@ -284,7 +356,10 @@ public class StaffController extends BaseController {
 
         staffService.insert(staff); //新增员工
         entryLogService.addEntryLog(operator,staff,entryTime);
-        return SUCCESS_TIP;
+        Map<String,Object> res= new HashMap<>();
+        res.put("code",200);
+        res.put("message","成功");
+        return res;
     }
 
     /**
@@ -309,11 +384,46 @@ public class StaffController extends BaseController {
         }
 
         List<Map<String,Integer>> list = JSONArray.parseObject(info.get("staff"),List.class);
+        List<Integer> dList = new ArrayList<>(); //要离职人的部门ID列表
         for (Map<String,Integer> m : list){
             int departureId = m.get("staffId");//离职人的Id
             Staff departure = staffService.selectOne(new EntityWrapper<Staff>()
                     .eq("STAFF_ID",departureId)); //查询出离职人
-            System.out.println(departure);
+            dList.add(departure.getDepartment().getDepartmentId());
+        }
+        if (operator.getPosition().getPositionId()==0){ //员工---负责部门
+            //先查询拥有哪些部门的修改权限
+            List<Util> permissionList = utilService.selectList((long)operator.getStaffId());
+            if (permissionList.size()==0){
+                Map<String,Object> res= new HashMap<>();
+                res.put("code",500);
+                res.put("message","该用户无权限");
+                return res;
+            } else {
+                List<Integer> canModifyDList = new ArrayList<>();
+                for (Util p: permissionList){
+                    if (p.getPermissionName().equals("员工离职")){
+                        canModifyDList.add(p.getDepartmentId());
+                    }
+                }
+                boolean canModify = true;
+                for (int dId:dList){
+                    if (!canModifyDList.contains(dId)){
+                        canModify = false;
+                        Map<String,Object> res= new HashMap<>();
+                        res.put("code",500);
+                        res.put("message","选中包含无权限操作的员工");
+                        return res;
+                    }
+                }
+            }
+        }
+
+        for (Map<String,Integer> m : list){
+            int departureId = m.get("staffId");//离职人的Id
+            Staff departure = staffService.selectOne(new EntityWrapper<Staff>()
+                    .eq("STAFF_ID",departureId)); //查询出离职人
+//            System.out.println(departure);
             Timestamp departureTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     .format(new Date(jstime)));
             departure.setDepartureTime(departureTime);
@@ -321,7 +431,10 @@ public class StaffController extends BaseController {
             departureLogService.addDepartureLog(operator,departure,departureTime); //离职日志
         }
 
-        return SUCCESS_TIP;
+        Map<String,Object> res= new HashMap<>();
+        res.put("code",200);
+        res.put("message","成功");
+        return res;
     }
 
     /**
@@ -367,6 +480,34 @@ public class StaffController extends BaseController {
             return res;
         }
 
+        if (operator.getPosition().getPositionId()==0){ //员工---负责部门
+            //先查询拥有哪些部门的操作权限
+            List<Util> permissionList = utilService.selectList((long)operator.getStaffId());
+            if (permissionList.size()==0){
+                Map<String,Object> res= new HashMap<>();
+                res.put("code",500);
+                res.put("message","该用户无权限");
+                return res;
+            } else {
+                boolean canModify = true;
+                List<Integer> canModifyDList = new ArrayList<>();
+                for (Util p: permissionList){
+                    if (p.getPermissionName().equals("编辑信息")){
+                        canModifyDList.add(p.getDepartmentId());
+                    }
+                }
+                if (!canModifyDList.contains(departmentId)){
+                    canModify = false;
+                }
+                if (!canModify){
+                    Map<String,Object> res= new HashMap<>();
+                    res.put("code",500);
+                    res.put("message","该用户无权限");
+                    return res;
+                }
+            }
+        }
+
         Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("POSITION_ID",1).eq("DEPARTMENT_ID",newDepartment.getDepartmentId()));
 
@@ -401,7 +542,10 @@ public class StaffController extends BaseController {
         staffService.updateById(move);
         moveLogService.addMoveLog(operator,move,oldDepartment,newDepartment,oldPosition,newPosition,operationTime);
 
-        return SUCCESS_TIP;
+        Map<String,Object> res= new HashMap<>();
+        res.put("code",200);
+        res.put("message","成功");
+        return res;
     }
 
     /**
