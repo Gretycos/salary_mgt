@@ -5,8 +5,13 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
+import com.jxdinfo.hussar.core.shiro.ShiroKit;
+import com.jxdinfo.salary.PermissionManagement.model.Util;
+import com.jxdinfo.salary.PermissionManagement.service.IUtilService;
 import com.jxdinfo.salary.departure.model.DepartureLog;
 import com.jxdinfo.salary.move.model.MoveLog;
+import com.jxdinfo.salary.staff.model.Staff;
+import com.jxdinfo.salary.staff.service.IStaffService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,6 +44,25 @@ public class EntryLogController extends BaseController {
     @Autowired
     private IEntryLogService entryLogService;
 
+    @Autowired
+    private IStaffService staffService;
+
+    @Autowired
+    private IUtilService utilService;
+
+    /**
+     * 获取当前登陆人信息
+     */
+    private int getCurrentAccountId(){
+        String account = ShiroKit.getUser().getAccount();
+        try{
+            return Integer.parseInt(account);//当前登录的人的Id 对应STAFF_ID
+        }catch (Exception e){
+            account = "2020999999";
+            return Integer.parseInt(account);//超级管理员
+        }
+    }
+
     /**
      * 跳转到入职日志首页
      */
@@ -65,8 +89,42 @@ public class EntryLogController extends BaseController {
         Page<EntryLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<EntryLog> ew = new EntityWrapper<>();
 
-        Map<String, Object> result = new HashMap<>(5);
+        //权限部分
+        boolean able=false;
+        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
+            // 根据用户ID查询用户真实权限列表
+            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            if (permissionList.size()==0){
+                //当前用户无任何权限
+                System.out.println("您没有查看该日志的权限！");
+                return 0;
+            } else {
+                for (Util p: permissionList){
+                    if(p.getPermissionName().equals("日志查看")){
+                        //该员工用户可以查看新员工录入该部门的日志
+                        able = true;
+                        //筛选条件
+                    }
+                }
+                if (!able){//该用户没有日志查看权限
+                    System.out.println("您没有查看该日志的权限！");
+                    return 0;
+                }
+            }
+        }
+        else{//当前用户不为员工,可能是部门经理或总经理
+            //如果是总经理，则可以查看全部日志
+            //如果是人力资源部经理，则可以查看全部日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门录入新员工的日志
+            if(currentUser.getDepartment().getDepartmentId()!=10 &&
+                    currentUser.getDepartment().getDepartmentId()!=99){
+                able = true;
+                //筛选条件
+            }
+        }
 
+        Map<String, Object> result = new HashMap<>(5);
         List<EntryLog> list = entryLogService.likeSelect(page,condition1,condition2,condition3);
         result.put("total", page.getTotal());
         result.put("rows", list);
@@ -87,6 +145,42 @@ public class EntryLogController extends BaseController {
                              @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<EntryLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<EntryLog> ew = new EntityWrapper<>();
+
+        //权限部分
+        boolean able=false;
+        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
+            // 根据用户ID查询用户真实权限列表
+            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            if (permissionList.size()==0){
+                //当前用户无任何权限
+                System.out.println("您没有查看该日志的权限！");
+                return 0;
+            } else {
+                for (Util p: permissionList){
+                    if(p.getPermissionName().equals("日志查看")){
+                        //该员工用户可以查看新员工录入该部门的日志
+                        able = true;
+                        //筛选条件
+                    }
+                }
+                if (!able){//该用户没有日志查看权限
+                    System.out.println("您没有查看该日志的权限！");
+                    return 0;
+                }
+            }
+        }
+        else{//当前用户不为员工,可能是部门经理或总经理
+            //如果是总经理，则可以查看全部日志
+            //如果是人力资源部经理，则可以查看全部日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门录入新员工的日志
+            if(currentUser.getDepartment().getDepartmentId()!=10 &&
+                    currentUser.getDepartment().getDepartmentId()!=99){
+                able = true;
+                //筛选条件
+            }
+        }
+
         //模糊查询
         List<EntryLog> list = entryLogService.likeSelect(page,condition1,condition2,condition3);
         List<String> operationTimeList = new ArrayList<>();
@@ -118,8 +212,41 @@ public class EntryLogController extends BaseController {
         Page<EntryLog> page = new Page<>(pageNumber, pageSize);
         String operationTime = info.get("operationTime");
         Wrapper<EntryLog> ew = new EntityWrapper<>();
-        //模糊查询
-        //page.setRecords(entryLogService.likeSelect(condition1, condition2, condition3));
+
+        //权限部分
+        boolean able=false;
+        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
+            // 根据用户ID查询用户真实权限列表
+            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            if (permissionList.size()==0){
+                //当前用户无任何权限
+                System.out.println("您没有查看该日志的权限！");
+                return 0;
+            } else {
+                for (Util p: permissionList){
+                    if(p.getPermissionName().equals("日志查看")){
+                        //该员工用户可以查看新员工录入该部门的日志
+                        able = true;
+                        //筛选条件
+                    }
+                }
+                if (!able){//该用户没有日志查看权限
+                    System.out.println("您没有查看该日志的权限！");
+                    return 0;
+                }
+            }
+        }
+        else{//当前用户不为员工,可能是部门经理或总经理
+            //如果是总经理，则可以查看全部日志
+            //如果是人力资源部经理，则可以查看全部日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门录入新员工的日志
+            if(currentUser.getDepartment().getDepartmentId()!=10 &&
+                    currentUser.getDepartment().getDepartmentId()!=99){
+                able = true;
+                //筛选条件
+            }
+        }
 
         if (!operationTime.equals("")){
             if (operationTime.equals("所有")){
