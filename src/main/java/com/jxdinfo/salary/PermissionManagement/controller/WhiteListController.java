@@ -66,17 +66,52 @@ public class WhiteListController extends BaseController {
 
     /**
      *  分别 获取白名单列表里面的值 最终结果是distinct的形式 去掉重复的的项
+     *
+     *  修改 将staffID和name的list注释掉了 如果想要继续展示staffId和staffName的下拉框 取消注释即可
      */
     @ResponseBody
-    @RequestMapping("select")
+    @RequestMapping("/select")
     public Map<String,Object> getSelection(){
         Map<String,Object> map = new HashMap<>();
-        List<Integer> staffIdList = whiteListService.selectStaffId();
-        List<String> staffNameList = whiteListService.selectStaffName();
-        List<String> departmentNameList = whiteListService.selectDepartmentName();
-        List<String> permissionNameList = whiteListService.selectPermissionName();
-        map.put("staffIdList", staffIdList);
-        map.put("staffNameList", staffNameList);
+//        List<Integer> staffIdList = whiteListService.selectStaffId();
+//        List<String> staffNameList = whiteListService.selectStaffName();
+//        map.put("staffIdList", staffIdList);
+//        map.put("staffNameList", staffNameList);
+        Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+
+        // 获取当前登录账号的ID
+        try {
+            ShiroUser user = ShiroKit.getUser();
+            Long staffId = Long.parseLong(user.getAccount());
+            //根据当前ID返回它能查询的内容
+            Wrapper<Staff> s_w = new EntityWrapper<>();
+            s_w.where("STAFF_ID = {0}",staffId);
+            Staff staff = staffService.selectOne(s_w);
+            if (staff.getDepartment().getDepartmentName().equals("财务部")){
+                //如果是财务部的部长 则只能查看财务部权限情况 即白名单里拥有权限的员工是财务部的员工
+                // 财务部的departmentId = 12
+                wrapper.where("c.DEPARTMENT_ID = {0}", 12);
+                // 财务部的
+            }else {
+                // 不是财务部长
+                if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
+                    //如果是人力资源部的部长 则只能查看人力资源部权限情况
+                    // 人力资源部的departmentId = 10
+                    wrapper.where("c.DEPARTMENT_ID = {0}", 10);
+                }else {
+                    //都不是的话就是超级管理员了 可以查看全部的
+                }
+            }
+
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
+
+
+        List<String> departmentNameList = whiteListService.selectDepartmentName(wrapper);
+        List<String> permissionNameList = whiteListService.selectPermissionName(wrapper);
+
         map.put("departmentNameList", departmentNameList);
         map.put("permissionNameList", permissionNameList);
         return map;
@@ -225,6 +260,7 @@ public class WhiteListController extends BaseController {
 
         Page<WhiteList> page = new Page<>(pageNumber, pageSize);
         Wrapper<WhiteList> ew = new EntityWrapper<>();
+
         if(staffId.length()>0)
             ew.where("a.STAFF_ID = {0}", Integer.valueOf(staffId));
         if(staffName.length()>0)
@@ -233,6 +269,34 @@ public class WhiteListController extends BaseController {
             ew.where("DEPARTMENT_NAME = {0}", departmentName);
         if(permissionName.length()>0)
             ew.where("PERMISSION_NAME = {0}", permissionName);
+
+
+        // 获取当前登录账号的ID
+        try {
+            ShiroUser user = ShiroKit.getUser();
+            Long userStaffId = Long.parseLong(user.getAccount());
+            //根据当前ID返回它能查询的内容
+            Wrapper<Staff> s_w = new EntityWrapper<>();
+            s_w.where("STAFF_ID = {0}",userStaffId);
+            Staff staff = staffService.selectOne(s_w);
+            if (staff.getDepartment().getDepartmentName().equals("财务部")){
+                //如果是财务部的部长 则只能查看财务部权限情况 即黑名单中StaffId是财务人员
+                // 财务部的DEPARTMENT_ID是12
+                ew.where("d.DEPARTMENT_ID = {0}",12);
+            }else {
+                // 不是财务部长
+                if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
+                    //如果是人力资源部的部长 则只能查看人力资源部权限情况 即黑名单中StaffId是HR
+                    // 人力资源部的DEPARTMENT_ID是10
+                    ew.where("d.DEPARTMENT_ID = {0}",10);
+                }else {
+                    //都不是的话就是超级管理员了 可以查看全部的
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
 
         // 控制台输出ew
         System.out.println(ew.getSqlSegment());

@@ -36,19 +36,21 @@
     <select id="selectStaffName" resultType="string">
         select DISTINCT STAFF_NAME
         from t_white_list a,t_staff b
-        where a.STAFF_ID = b.STAFF_ID
+        where a.STAFF_ID = b.STAFF_ID and ${ew.sqlSegment}
     </select>
 
     <select id="selectDepartmentName" resultType="string">
         select distinct DEPARTMENT_NAME
-        from t_white_list a, t_department b
-        where a.DEPARTMENT_ID = b.DEPARTMENT_ID
+        from t_white_list a, t_department b, t_staff c
+        where a.DEPARTMENT_ID = b.DEPARTMENT_ID  and a.STAFF_ID = c.STAFF_ID
+               ${ew.sqlSegment}
     </select>
 
     <select id="selectPermissionName" resultType="string">
         select distinct PERMISSION_NAME
-        from t_white_list a, t_permission b
-        where a.PERMISSION_ID = b.PERMISSION_ID
+        from t_white_list a, t_permission b ,t_staff c
+        where a.PERMISSION_ID = b.PERMISSION_ID and a.STAFF_ID = c.STAFF_ID
+               ${ew.sqlSegment}
     </select>
 
     <select id="searchByCondition" resultMap="BaseResultMap" parameterType="string">

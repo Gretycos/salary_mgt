@@ -1,9 +1,11 @@
 package com.jxdinfo.salary.PermissionManagement.service.impl;
 
+import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.jxdinfo.salary.PermissionManagement.model.BlackList;
 import com.jxdinfo.salary.PermissionManagement.dao.BlackListMapper;
 import com.jxdinfo.salary.PermissionManagement.service.IBlackListService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,13 +37,13 @@ public class BlackListServiceImpl extends ServiceImpl<BlackListMapper, BlackList
     }
 
     @Override
-    public List<String> selectDepartmentName() {
-        return blackListMapper.selectDepartmentName();
+    public List<String> selectDepartmentName(@Param("ew") Wrapper<BlackList> var1) {
+        return blackListMapper.selectDepartmentName(var1);
     }
 
     @Override
-    public List<String> selectPermissionName() {
-        return blackListMapper.selectPermissionName();
+    public List<String> selectPermissionName(@Param("ew") Wrapper<BlackList> var1) {
+        return blackListMapper.selectPermissionName(var1);
     }
 
     @Override

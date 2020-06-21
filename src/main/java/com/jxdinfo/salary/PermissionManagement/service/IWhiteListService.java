@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.baomidou.mybatisplus.service.IService;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -25,10 +26,10 @@ public interface IWhiteListService extends IService<WhiteList> {
     List<String> selectStaffName();
 
     // 获取部门名称
-    List<String> selectDepartmentName();
+    List<String> selectDepartmentName(@Param("ew") Wrapper<WhiteList> var1);
 
     // 获取权限名称
-    List<String> selectPermissionName();
+    List<String> selectPermissionName(@Param("ew") Wrapper<WhiteList> var1);
 
     // 根据条件进行查询
     List<WhiteList> searchByCondition(String condition);
