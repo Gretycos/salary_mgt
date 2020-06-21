@@ -64,25 +64,25 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
     var ajax = new $ax(Hussar.ctxPath + "/blackList/select", function (data) {
         console.log(data);
         //得到员工工号列表、姓名列表、权限部门名称列表、权限名称列表
-        var staffIdList = data.staffIdList,
-            staffNameList = data.staffNameList,
-            departmentNameList = data.departmentNameList,
+        // var staffIdList = data.staffIdList,
+        //     staffNameList = data.staffNameList,
+        var departmentNameList = data.departmentNameList,
             permissionNameList = data.permissionNameList
 
         var str1="",str2="",str3="",str4="";
-        str1 += "<option value=''>请搜索或选择员工工号</option>";
-        str2 += "<option value=''>请搜索或选择员工姓名</option>";
+        // str1 += "<option value=''>请搜索或选择员工工号</option>";
+        // str2 += "<option value=''>请搜索或选择员工姓名</option>";
         str3 += "<option value=''>请搜索或选择部门名称</option>";
         str4 += "<option value=''>请搜索或选择权限名称</option>";
-        //工号select
-        for (var key in staffIdList)
-            //key是list的下标
-            str1 += "<option value=\""+staffIdList[key]+"\">"+staffIdList[key]+"</option>";
-
-        //姓名select
-        for (var key in staffNameList)
-            //key是list的下标
-            str2 += "<option value=\""+staffNameList[key]+"\">"+staffNameList[key]+"</option>";
+        // //工号select
+        // for (var key in staffIdList)
+        //     //key是list的下标
+        //     str1 += "<option value=\""+staffIdList[key]+"\">"+staffIdList[key]+"</option>";
+        //
+        // //姓名select
+        // for (var key in staffNameList)
+        //     //key是list的下标
+        //     str2 += "<option value=\""+staffNameList[key]+"\">"+staffNameList[key]+"</option>";
 
         // 部门select
         for (var key in departmentNameList)
@@ -94,8 +94,8 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             //key是list的下标
             str4 += "<option value=\""+permissionNameList[key]+"\">"+permissionNameList[key]+"</option>";
 
-        $('#staffId').empty().append(str1);
-        $('#staffName').empty().append(str2);
+        // $('#staffId').empty().append(str1);
+        // $('#staffName').empty().append(str2);
         $('#departmentName').empty().append(str3);
         $('#permissionName').empty().append(str4);
         form.render('select')

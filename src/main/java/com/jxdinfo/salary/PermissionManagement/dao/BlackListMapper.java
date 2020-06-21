@@ -27,10 +27,10 @@ public interface BlackListMapper extends BaseMapper<BlackList> {
     List<String> selectStaffName();
 
     // 获取部门名称
-    List<String> selectDepartmentName();
+    List<String> selectDepartmentName(@Param("ew") Wrapper<BlackList> var1);
 
     // 获取权限名称
-    List<String> selectPermissionName();
+    List<String> selectPermissionName(@Param("ew") Wrapper<BlackList> var1);
 
     // 根据三个主键批量删除
     Boolean deleteBatchByIds(List<BlackList> list);

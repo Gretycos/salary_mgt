@@ -7,6 +7,7 @@ import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.PermissionManagement.dao.WhiteListMapper;
 import com.jxdinfo.salary.PermissionManagement.service.IWhiteListService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,13 +38,13 @@ public class WhiteListServiceImpl extends ServiceImpl<WhiteListMapper, WhiteList
     }
 
     @Override
-    public List<String> selectDepartmentName() {
-        return whiteListMapper.selectDepartmentName();
+    public List<String> selectDepartmentName(@Param("ew") Wrapper<WhiteList> var1) {
+        return whiteListMapper.selectDepartmentName(var1);
     }
 
     @Override
-    public List<String> selectPermissionName() {
-        return whiteListMapper.selectPermissionName();
+    public List<String> selectPermissionName(@Param("ew") Wrapper<WhiteList> var1) {
+        return whiteListMapper.selectPermissionName(var1);
     }
 
     @Override

@@ -39,14 +39,16 @@
 
     <select id="selectDepartmentName" resultType="string">
         select distinct DEPARTMENT_NAME
-          from t_black_list a, t_department b
-          where a.DEPARTMENT_ID = b.DEPARTMENT_ID
+          from t_black_list a, t_department b ,t_staff c
+          where a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.STAFF_ID = c.STAFF_ID
+                ${ew.sqlSegment}
     </select>
 
     <select id="selectPermissionName" resultType="string">
         select distinct PERMISSION_NAME
-        from t_black_list a, t_permission b
-        where a.PERMISSION_ID = b.PERMISSION_ID
+        from t_black_list a, t_permission b ,t_staff c
+        where a.PERMISSION_ID = b.PERMISSION_ID and a.STAFF_ID = c.STAFF_ID
+              ${ew.sqlSegment}
     </select>
 
 
