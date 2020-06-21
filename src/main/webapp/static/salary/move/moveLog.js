@@ -9,18 +9,53 @@ var MoveLog = {
     pageSize:20,
     pageNumber:1
 };
-layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax'], function(){
+
+// 筛选列表
+var selectList={
+    oldD:'',
+    oldP:'',
+    newD:'',
+    newP:'',
+    operationTime:''
+}
+
+layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
         ,Hussar = layui.Hussar
 	    ,$ = layui.jquery
-	    ,$ax = layui.HussarAjax;
+	    ,$ax = layui.HussarAjax
+        ,form = layui.form;
+
+    form.on('select(searchBar)',function (data) {
+        // console.log(data);
+        selectList[data.elem.id] = data.value;
+        // console.log(selectList);
+        // selectList.empty();
+        var condition1 = $('#condition1').val();
+        var condition2 = $('#condition2').val();
+        var condition3 = $('#condition3').val();
+        var opt = {
+            url: Hussar.ctxPath + "/move/list/condition",
+            silent: true,
+            method: 'POST',
+            query:{
+                condition1:condition1,
+                condition2:condition2,
+                condition3:condition3,
+                selectList:JSON.stringify(selectList)
+            }
+        }
+        $('#MoveLogTable').bootstrapTable('refresh',opt);
+    });
+
 
 /**
  * 初始化表格的列
  */
 MoveLog.initColumn = function () {
-    return [
+    var columns;
+    columns =  [
 
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (MoveLog.pageNumber-1)*MoveLog.pageSize +1 +index ;}},
             {title: '操作编码', field: 'operationId', align: 'center',halign:'center'},
@@ -58,35 +93,7 @@ MoveLog.initColumn = function () {
                 }},
             {title: '操作时间', field: 'operationTime', align: 'center',halign:'center'}
     ];
-};
-
-/**
- * 检查是否选中
- */
-MoveLog.check = function () {
-    var selected = $('#MoveLogTable').bootstrapTable('getSelections');
-    if(selected.length == 0){
-        Hussar.info("请先选中表格中的某一记录！");
-        return false;
-    }else{
-        MoveLog.seItem = selected[0];
-        return true;
-    }
-};
-
-/**
- * 点击添加调动日志
- */
-MoveLog.openAddMoveLog = function () {
-    var index = layer.open({
-        type: 2,
-        title: '添加调动记录',
-        area: ['400px', '420px'], //宽高
-        fix: false, //不固定
-        maxmin: false,
-        content: Hussar.ctxPath + '/move/moveLog_add'
-    });
-    this.layerIndex = index;
+    return columns;
 };
 
 
@@ -94,21 +101,83 @@ MoveLog.openAddMoveLog = function () {
  * 查询调动日志列表
  */
 MoveLog.search = function () {
-    $('#MoveLogTable').bootstrapTable('refresh');
+    var condition1 = $('#condition1').val();
+    var condition2 = $('#condition2').val();
+    var condition3 = $('#condition3').val();
+    var opt = {
+        url: Hussar.ctxPath + "/move/list",
+        silent: true,
+        query:{
+            condition1:condition1,
+            condition2:condition2,
+            condition3:condition3
+        }
+    }
+    $('#MoveLogTable').bootstrapTable('refresh',opt);
 };
 
-MoveLog.queryParams = function(){
-    var temp = {
-        pageSize: this.pageSize,
-        pageNumber: this.pageNumber,
-        name: $("#moveName").val()
-    };
-    return temp;
-};
+//清空筛选下拉框
+    selectList.empty = function(){
+        $("#oldD").empty();
+        $("#oldP").empty();
+        $("#newD").empty();
+        $("#newP").empty();
+        $("#operationTime").empty();
+    }
+
+// 筛选下拉框初始化
+    selectList.init = function(){
+        var condition1 = $('#condition1').val();
+        var condition2 = $('#condition2').val();
+        var condition3 = $('#condition3').val();
+        selectList.empty();
+        var ajax = new $ax(Hussar.ctxPath + "/move/list/select",function (data) {
+            // console.log(data);
+            $("#oldD").append(new Option('请选择原部门',""));
+            $("#oldD").val("");
+            $.each(data.oldDs,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#oldD").append(new Option(item.departmentName,item.departmentId));
+            });
+            $("#oldP").append(new Option('请选择原职位',""));
+            $("#oldP").val("");
+            $.each(data.oldPs,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#oldP").append(new Option(item.positionName,item.positionId));
+            });
+            $("#newD").append(new Option('请选择新部门',""));
+            $("#newD").val("");
+            $.each(data.newDs,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#newD").append(new Option(item.departmentName,item.departmentId));
+            });
+            $("#newP").append(new Option('请选择新职位',""));
+            $("#newP").val("");
+            $.each(data.newPs,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#newP").append(new Option(item.positionName,item.positionId));
+            });
+            $("#operationTime").append(new Option('请选择调动时间',""));
+            $("#operationTime").append(new Option('所有','所有'));
+            $("#operationTime").val("");
+            $.each(data.operationTimes,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#operationTime").append(new Option(item,item));
+            });
+            form.render('select','search');
+        },function (data) {
+            Hussar.error("获取筛选列表失败!");
+        });
+        ajax.set("condition1",condition1);
+        ajax.set("condition2",condition2);
+        ajax.set("condition3",condition3);
+        ajax.start();
+    }
+
 
 $(function () {
     var defaultColunms = MoveLog.initColumn();
-
+    selectList.init();
     $('#MoveLogTable').bootstrapTable({
             dataType:"json",
             url:'/move/list',
@@ -117,12 +186,12 @@ $(function () {
             striped:true,
             pageSize:20,
             queryParamsType:'',
-            queryParams: MoveLog.queryParams(),
             columns: defaultColunms,
             height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
             sidePagination:"server",
             onPageChange:function(number, size){MoveLog.pageNumber = number ; MoveLog.pageSize = size}
         });
 })
+    form.render('select','searchBar');
 
 });
