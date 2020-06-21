@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.bsp.permit.model.SysUsers;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
+import com.jxdinfo.salary.entry.model.EntryLog;
 import com.jxdinfo.salary.move.model.MoveLog;
 import com.baomidou.mybatisplus.service.IService;
 import com.jxdinfo.salary.staff.model.Staff;
@@ -53,10 +54,9 @@ public interface IMoveLogService extends IService<MoveLog> {
     //获取操作时间
     List<String> selectOperationTime();
 
-    // 根据条件进行查询
-    //List<MoveLog> searchByCondition(String condition);
 
-    Page<MoveLog> getUserList(Page<MoveLog> page, String var2, String var3);
+    //模糊查询
+    List<MoveLog> likeSelect(String condition1, String condition2, String condition3);
 
     //添加调动记录 对外接口
     boolean addMoveLog(Staff operator, Staff move, Department oldD, Department newD, Position oldP, Position newP, Timestamp moveTime);

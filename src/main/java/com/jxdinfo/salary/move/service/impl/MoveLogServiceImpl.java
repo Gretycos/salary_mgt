@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.departure.model.DepartureLog;
+import com.jxdinfo.salary.entry.model.EntryLog;
 import com.jxdinfo.salary.move.model.MoveLog;
 import com.jxdinfo.salary.move.dao.MoveLogMapper;
 import com.jxdinfo.salary.move.service.IMoveLogService;
@@ -62,9 +63,11 @@ public class MoveLogServiceImpl extends ServiceImpl<MoveLogMapper, MoveLog> impl
     @Override
     public List<String> selectOperationTime(){return moveLogMapper.selectOperationTime();}
 
+
+    //模糊查询
     @Override
-    public Page<MoveLog> getUserList(Page<MoveLog> page, String var2, String var3) {
-       return page;
+    public List<MoveLog> likeSelect(String condition1, String condition2, String condition3) {
+        return moveLogMapper.likeSelect(condition1, condition2, condition3);
     }
 
     //添加调动记录

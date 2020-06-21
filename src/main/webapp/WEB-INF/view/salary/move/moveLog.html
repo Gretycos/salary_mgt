@@ -5,19 +5,46 @@
             <label>调动日志</label>
         </div>
         <br />
-        <div class="layui-form-item clearfix">
-            <div class="layui-input-inline">
-                <input type="text" id="moveName" placeholder="请输入调动员工姓名" autocomplete="off" class="layui-input" >
+        <div class="layui-form-item clearfix" style="width: 150%">
+            <div class="layui-input-inline" style="width: 120px">
+                <input type="text" id="condition1" placeholder="请输入操作ID" autocomplete="off" class="layui-input" >
+            </div>
+            <div class="layui-input-inline" style="width: 165px">
+                <input type="text" id="condition2" placeholder="请输入操作员ID或姓名" autocomplete="off" class="layui-input" >
+            </div>
+            <div class="layui-input-inline" style="width: 175px">
+                <input type="text" id="condition3" placeholder="请输入调动员工ID或姓名" autocomplete="off" class="layui-input" >
+            </div>
+            <div class="layui-form" lay-filter="search">
+                <div class="layui-input-inline" style="width: 150px">
+                    <select  id="oldD" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width: 150px">
+                    <select  id="oldP" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width: 150px">
+                    <select  id="newD" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width: 150px">
+                    <select  id="newP" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width: 150px">
+                    <select  id="operationTime" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
             </div>
             <div class="layui-input-inline">
                 <button class="layui-btn" data-type="reload" type="button" onclick="MoveLog.search()"><i class="layui-icon">&#xe615;</i>查询</button>
                 <button class="layui-btn" type="reset"><i class="layui-icon">&#xe00A;</i>重置</button>
             </div>
-            <div class="fr">
 
-            </div>
         </div>
     </form>
+
     <table id="MoveLogTable" ></table>
 </div>
 <script src="${ctxPath}/static/salary/move/moveLog.js"></script>

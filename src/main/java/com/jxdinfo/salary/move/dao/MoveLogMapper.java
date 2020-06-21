@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.jxdinfo.salary.PermissionManagement.model.BlackList;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.departure.model.DepartureLog;
+import com.jxdinfo.salary.entry.model.EntryLog;
 import com.jxdinfo.salary.move.model.MoveLog;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
@@ -50,6 +51,11 @@ public interface MoveLogMapper extends BaseMapper<MoveLog> {
 
     //获取操作时间
     List<String> selectOperationTime();
+
+    //模糊查询
+    List<MoveLog> likeSelect(@Param("condition1")String condition1,
+                              @Param("condition2")String condition2,
+                              @Param("condition3")String condition3);
 
     MoveLog selectMaxOperationId(String time);
 
