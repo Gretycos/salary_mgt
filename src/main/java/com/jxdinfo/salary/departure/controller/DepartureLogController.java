@@ -74,11 +74,9 @@ public class DepartureLogController extends BaseController {
 
         Page<DepartureLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
-        //模糊查询
-        page.setRecords(departureLogService.likeSelect(condition1, condition2, condition3));
 
         Map<String, Object> result = new HashMap<>(5);
-        List<DepartureLog> list = departureLogService.selectPage(page, ew).getRecords();
+        List<DepartureLog> list = departureLogService.likeSelect(page,condition1,condition2,condition3);
         result.put("total", page.getTotal());
         result.put("rows", list);
         return result;
@@ -100,9 +98,7 @@ public class DepartureLogController extends BaseController {
         Page<DepartureLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
         //模糊查询
-        page.setRecords(departureLogService.likeSelect(condition1, condition2, condition3));
-
-        List<DepartureLog> list = departureLogService.selectPage(page, ew).getRecords();
+        List<DepartureLog> list = departureLogService.likeSelect(page,condition1,condition2,condition3);
         List<String> operationTimeList = new ArrayList<>();
         for(DepartureLog d:list){
             operationTimeList.add(d.getOperationTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(d.getOperationTime()));
@@ -132,8 +128,6 @@ public class DepartureLogController extends BaseController {
         Page<DepartureLog> page = new Page<>(pageNumber, pageSize);
         String operationTime = info.get("operationTime");
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
-        //模糊查询
-        page.setRecords(departureLogService.likeSelect(condition1, condition2, condition3));
 
         if (!operationTime.equals("")){
             if (operationTime.equals("所有")){

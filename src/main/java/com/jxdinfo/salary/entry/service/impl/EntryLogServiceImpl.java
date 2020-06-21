@@ -34,8 +34,8 @@ public class EntryLogServiceImpl extends ServiceImpl<EntryLogMapper, EntryLog> i
 
     //模糊查询
     @Override
-    public List<EntryLog> likeSelect(String condition1, String condition2, String condition3) {
-        return entryLogMapper.likeSelect(condition1, condition2, condition3);
+    public List<EntryLog> likeSelect(Page<EntryLog> page,String condition1, String condition2, String condition3) {
+        return entryLogMapper.likeSelect(page,condition1, condition2, condition3);
     }
 
     //添加入职记录

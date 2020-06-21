@@ -21,7 +21,8 @@ import java.util.List;
  */
 public interface EntryLogMapper extends BaseMapper<EntryLog> {
     //模糊查询
-    List<EntryLog> likeSelect(@Param("condition1")String condition1,
+    List<EntryLog> likeSelect(RowBounds var1,
+                              @Param("condition1")String condition1,
                               @Param("condition2")String condition2,
                               @Param("condition3")String condition3);
 

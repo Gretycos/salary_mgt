@@ -64,10 +64,10 @@ public class EntryLogController extends BaseController {
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<EntryLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<EntryLog> ew = new EntityWrapper<>();
-        //模糊查询
-        page.setRecords(entryLogService.likeSelect(condition1, condition2, condition3));
+
         Map<String, Object> result = new HashMap<>(5);
-        List<EntryLog> list = entryLogService.selectPage(page, ew).getRecords();
+
+        List<EntryLog> list = entryLogService.likeSelect(page,condition1,condition2,condition3);
         result.put("total", page.getTotal());
         result.put("rows", list);
         return result;
@@ -88,8 +88,7 @@ public class EntryLogController extends BaseController {
         Page<EntryLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<EntryLog> ew = new EntityWrapper<>();
         //模糊查询
-        page.setRecords(entryLogService.likeSelect(condition1, condition2, condition3));
-        List<EntryLog> list = entryLogService.selectPage(page, ew).getRecords();
+        List<EntryLog> list = entryLogService.likeSelect(page,condition1,condition2,condition3);
         List<String> operationTimeList = new ArrayList<>();
         for(EntryLog e:list){
             operationTimeList.add(e.getOperationTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(e.getOperationTime()));
@@ -103,7 +102,7 @@ public class EntryLogController extends BaseController {
 
 
     /**
-     * 获取筛选后的离职日志列表
+     * 获取筛选后的入职日志列表
      */
     @RequestMapping(value = "/list/condition")
     @BussinessLog(key = "/entry/list/condition", type = BussinessLogType.QUERY, value = "获取入职日志列表，筛选后")
@@ -120,7 +119,7 @@ public class EntryLogController extends BaseController {
         String operationTime = info.get("operationTime");
         Wrapper<EntryLog> ew = new EntityWrapper<>();
         //模糊查询
-        page.setRecords(entryLogService.likeSelect(condition1, condition2, condition3));
+        //page.setRecords(entryLogService.likeSelect(condition1, condition2, condition3));
 
         if (!operationTime.equals("")){
             if (operationTime.equals("所有")){

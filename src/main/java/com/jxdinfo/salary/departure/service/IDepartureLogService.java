@@ -22,7 +22,7 @@ import java.util.List;
 public interface IDepartureLogService extends IService<DepartureLog> {
 
     //模糊查询
-    List<DepartureLog> likeSelect(String condition1,String condition2,String condition3);
+    List<DepartureLog> likeSelect(Page<DepartureLog> page,String condition1,String condition2,String condition3);
 
 
     //添加离职记录 对外接口

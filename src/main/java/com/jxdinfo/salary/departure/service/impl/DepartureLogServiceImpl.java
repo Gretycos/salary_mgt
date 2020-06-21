@@ -33,8 +33,8 @@ public class DepartureLogServiceImpl extends ServiceImpl<DepartureLogMapper, Dep
 
     //模糊查询
     @Override
-    public List<DepartureLog> likeSelect(String condition1,String condition2,String condition3) {
-        return departureLogMapper.likeSelect(condition1, condition2, condition3);
+    public List<DepartureLog> likeSelect(Page<DepartureLog> page,String condition1,String condition2,String condition3) {
+        return departureLogMapper.likeSelect(page,condition1, condition2, condition3);
     }
 
 
