@@ -168,7 +168,7 @@
     </update>
 
     <!--模糊查询-->
-    <select id="likeSelect" resultMap="WithRefResultMap">
+    <select id="likeSelect" resultMap="WithRefResultMap" parameterType="string">
         select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
         d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
         from t_move_log a,t_staff b,t_staff c,t_department d,

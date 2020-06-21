@@ -77,10 +77,10 @@ public class MoveLogController extends BaseController {
 
         Page<MoveLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<MoveLog> ew = new EntityWrapper<>();
-        //模糊查询
-        page.setRecords(moveLogService.likeSelect(condition1, condition2, condition3));
+
+        //page.setRecords(moveLogService.likeSelect(page,condition1, condition2, condition3));
         Map<String, Object> result = new HashMap<>(5);
-        List<MoveLog> list = moveLogService.selectPage(page, ew).getRecords();
+        List<MoveLog> list = moveLogService.likeSelect(page,condition1,condition2,condition3);
         result.put("total", page.getTotal());
         result.put("rows", list);
         return result;
@@ -101,7 +101,7 @@ public class MoveLogController extends BaseController {
         Page<MoveLog> page = new Page<>(pageNumber, pageSize);
         Wrapper<MoveLog> ew = new EntityWrapper<>();
         //模糊查询
-        page.setRecords(moveLogService.likeSelect(condition1, condition2, condition3));
+        //page.setRecords(moveLogService.likeSelect(condition1, condition2, condition3));
         List<MoveLog> list = moveLogService.selectPage(page, ew).getRecords();
 
         List<Department> oldDList = new ArrayList<>();
@@ -158,7 +158,7 @@ public class MoveLogController extends BaseController {
 
         Wrapper<MoveLog> ew = new EntityWrapper<>();
         //模糊查询
-        page.setRecords(moveLogService.likeSelect(condition1, condition2, condition3));
+        //page.setRecords(moveLogService.likeSelect(condition1, condition2, condition3));
 
         if (!oldD.equals("")){
             int oldDId = Integer.parseInt(oldD);
