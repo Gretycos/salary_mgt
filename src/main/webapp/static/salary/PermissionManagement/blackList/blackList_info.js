@@ -61,6 +61,7 @@ BlackListInfoDlg.createSelect= function(){
     },function(data){
         Hussar.error("生成下拉选择框失败!" );
     });
+    ajax.set("modify_id",$('#staffId').val());
     ajax.start();
 };
 

@@ -112,49 +112,56 @@ public class BlackListController extends BaseController {
     }
 
     /**
-     *  只有权限信息是 根据当前用户的身份 是人力资源部长还是财务部长或者超级管理员
+     *  根据当前用户的身份 是人力资源部长还是财务部长或者超级管理员
      *  得到所有的部门信息 和权限信息
      *  getAllDepartmentAndPermission
      */
     @ResponseBody
     @RequestMapping("/getAllDepartmentAndPermission")
-    public Map<String,Object> getAllDepartmentAndPermission(){
+    public Map<String,Object> getAllDepartmentAndPermission(
+            @RequestParam(value = "modify_id",required = false,defaultValue = "") String modify_id){
         Map<String,Object> map = new HashMap<>();
-        Wrapper<Department> wrapper1 = new EntityWrapper<>();
-        List<Department> departmentList = departmentService.selectList(wrapper1);
 
-        Wrapper<Permission> wrapper2 = new EntityWrapper<>();
-        // 获取当前登录账号的ID
-        try {
-            ShiroUser user = ShiroKit.getUser();
-            Long staffId = Long.parseLong(user.getAccount());
-            //根据当前ID返回它能查询的内容
-            Wrapper<Staff> s_w = new EntityWrapper<>();
-            s_w.where("STAFF_ID = {0}",staffId);
-            Staff staff = staffService.selectOne(s_w);
-            if (staff.getDepartment().getDepartmentName().equals("财务部")){
-                //如果是财务部的部长 则只能查看财务部权限情况
-                // 财务部的的权限ID是00-03 其中03管理权是部长才有的 只有超级管理员可以设置
-                wrapper2.where("PERMISSION_ID <",3);
-            }else {
-                // 不是财务部长
-                if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
-                    //如果是人力资源部的部长 则只能查看人力资源部权限情况
-                    // 人力资源部的权限ID是 10-16 其中16管理权是部长才有的 只有超级管理员可以设置
-                    wrapper2.where("PERMISSION_ID >={0} and PERMISSION_ID < {1}",10,16);
+        if (!modify_id.equals("")){
+            // 如果输入了要修改的员工的id
+            map = (Map<String,Object>)getStaffById(Integer.parseInt(modify_id));
+        }else {
+            Wrapper<Department> wrapper1 = new EntityWrapper<>();
+            List<Department> departmentList = departmentService.selectList(wrapper1);
+            Wrapper<Permission> wrapper2 = new EntityWrapper<>();
+            // 获取当前登录账号的ID
+            try {
+                ShiroUser user = ShiroKit.getUser();
+                Long staffId = Long.parseLong(user.getAccount());
+                //根据当前ID返回它能查询的内容
+                Wrapper<Staff> s_w = new EntityWrapper<>();
+                s_w.where("STAFF_ID = {0}",staffId);
+                Staff staff = staffService.selectOne(s_w);
+                if (staff.getDepartment().getDepartmentName().equals("财务部")){
+                    //如果是财务部的部长 则只能查看财务部权限情况
+                    // 财务部的的权限ID是00-03 其中03管理权是部长才有的 只有超级管理员可以设置
+                    wrapper2.where("PERMISSION_ID <",3);
                 }else {
-                    //都不是的话就是超级管理员了 可以查看全部的
+                    // 不是财务部长
+                    if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
+                        //如果是人力资源部的部长 则只能查看人力资源部权限情况
+                        // 人力资源部的权限ID是 10-16 其中16管理权是部长才有的 只有超级管理员可以设置
+                        wrapper2.where("PERMISSION_ID >={0} and PERMISSION_ID < {1}",10,16);
+                    }else {
+                        //都不是的话就是超级管理员了 可以查看全部的
+                    }
                 }
+
+            }catch (Exception e){
+                System.out.println(e);
+                e.printStackTrace();
             }
 
-        }catch (Exception e){
-            System.out.println(e);
-            e.printStackTrace();
+            List<Permission> permissionList = permissionService.selectList(wrapper2);
+            map.put("permissionList", permissionList);
+            map.put("departmentList", departmentList);
         }
 
-        List<Permission> permissionList = permissionService.selectList(wrapper2);
-        map.put("permissionList", permissionList);
-        map.put("departmentList", departmentList);
         return map;
     }
 
@@ -190,7 +197,8 @@ public class BlackListController extends BaseController {
                     // 人力资源部的DEPARTMENT_ID是10
                     wrapper.where("DEPARTMENT_ID = {0}",10);
                 }else {
-                    //都不是的话就是超级管理员了 可以查看全部的
+                    //都不是的话就是超级管理员了 可以查看财务部和人力资源部全部的人工 以及所有部门的部长
+                    wrapper.where("(DEPARTMENT_ID = {0} or DEPARTMENT_ID = {1} or POSITION_ID = {2} or POSITION_ID = {3})", 10,12,1,2);
                 }
             }
 
@@ -205,27 +213,71 @@ public class BlackListController extends BaseController {
     }
 
     /**
-     * 根据员工工号得到员工姓名
-     * 返回值是Staff对象
+     * 根据员工工号得到员工姓名 该员工身份可以拥有的权限列表 和管理的部门列表
+     * 返回值是map对象 包含 staff  permissionList 和 departmentList
      */
     @ResponseBody
-    @RequestMapping("/getStaffById")
-    public Staff getStaffById(Integer staffId){
+    @RequestMapping("getStaffById")
+    public Object getStaffById(Integer staffId){
+        Map<String,Object> map = new HashMap<>();
         Wrapper<Staff> wrapper = new EntityWrapper<>();
         wrapper.where("STAFF_ID = {0}",staffId);
         Staff staff = staffService.selectOne(wrapper);
-        return staff;
+        String s_dname = staff.getDepartment().getDepartmentName();
+        String s_pname = staff.getPosition().getPositionName();
+        Wrapper<Permission> pw = new EntityWrapper<>();
+        Wrapper<Department> dw = new EntityWrapper<>();
+        if (s_dname.equals("财务部")){
+            if (s_pname.equals("部门经理")){
+                // 如果该员工是财务部部长的话 权限ID 00-03
+                pw.where("PERMISSION_ID >={0} and PERMISSION_ID <={1}",0,3);
+            }else {
+                // 如果该员工是财务部员工的话 权限ID 00-02
+                pw.where("PERMISSION_ID >={0} and PERMISSION_ID <={1}",0,2);
+            }
+
+        }else {
+            if (s_dname.equals("人力资源部")){
+                if (s_pname.equals("部门经理")){
+                    // 如果该员工是人力资源部部长的话 权限ID 10-16
+                    pw.where("PERMISSION_ID >={0} and PERMISSION_ID <={1}",10,16);
+                }else {
+                    // 如果该员工是人力资源部员工的话 权限ID 10-15
+                    pw.where("PERMISSION_ID >={0} and PERMISSION_ID <={1}",10,15);
+                }
+
+            }else {
+                if (s_dname.equals("高管层")){
+                    // 如果是高管层 有所有部门的所有权限
+                }else {
+                    // 其他部的部长 只有本部门的 查看工资的权限id = 0
+                    dw.where("DEPARTMENT_NAME = {0}", s_dname);
+                    pw.where("PERMISSION_id = {0}", 0);
+                }
+            }
+        }
+
+        List<Permission> permissionList = permissionService.selectList(pw);
+        List<Department> departmentList = departmentService.selectList(dw);
+        map.put("permissionList", permissionList);
+        map.put("departmentList", departmentList);
+        map.put("staff", staff);
+        return map;
     }
 
+
     /**
-     * 根据员工姓名得到员工工号列表
-     * 因为可能会有同名的员工 所以返回的是List 和上面的有一点区别
+     * 根据员工姓名得到员工工号列表 如果列表中只有一个员工的话 则也得到该员工的  能够管理的部门 和 权限 列表
+     * 因为可能会有同名的员工
      */
     @ResponseBody
-    @RequestMapping("/getStaffsByName")
-    public List<Staff> getStaffsByName(String staffName){
+    @RequestMapping("getStaffsByName")
+    public Object getStaffsByName(String staffName){
+        Map<String,Object> map = new HashMap<>();
+
         Wrapper<Staff> wrapper = new EntityWrapper<>();
         wrapper.where("STAFF_NAME = {0}",staffName);
+        wrapper.where("DEPARTURE_TIME is null");
 
         // 获取当前登录账号的ID
         try {
@@ -246,18 +298,61 @@ public class BlackListController extends BaseController {
                     // 人力资源部的DEPARTMENT_ID是10
                     wrapper.where("DEPARTMENT_ID = {0}",10);
                 }else {
-                    //都不是的话就是超级管理员了 可以查看全部的
+                    //都不是的话就是超级管理员了 可以查看部长 和 财务部 人力资源部的
+                    wrapper.where("(DEPARTMENT_ID = {0} or DEPARTMENT_ID = {1} or POSITION_ID = {2} or POSITION_ID = {3})", 10,12,1,2);
                 }
             }
-
         }catch (Exception e){
             System.out.println(e);
             e.printStackTrace();
         }
 
-
         List<Staff> staffList = staffService.selectList(wrapper);
-        return staffList;
+        if (staffList.size()==1){
+            //  如果列表只有一个员工 则 去得到他的权限列表 和管理部门的列表
+            Staff staff = staffList.get(0);
+            String s_dname = staff.getDepartment().getDepartmentName();
+            String s_pname = staff.getPosition().getPositionName();
+            Wrapper<Permission> pw = new EntityWrapper<>();
+            Wrapper<Department> dw = new EntityWrapper<>();
+            if (s_dname.equals("财务部")){
+                if (s_pname.equals("部门经理")){
+                    // 如果该员工是财务部部长的话 权限ID 00-03
+                    pw.where("PERMISSION_ID >= {0} and PERMISSION_ID <= {1}",0,3);
+                }else {
+                    // 如果该员工是财务部员工的话 权限ID 00-02
+                    pw.where("PERMISSION_ID >= {0} and PERMISSION_ID <= {1}",0,2);
+                }
+
+            }else {
+                if (s_dname.equals("人力资源部")){
+                    if (s_pname.equals("部门经理")){
+                        // 如果该员工是人力资源部部长的话 权限ID 10-16
+                        pw.where("PERMISSION_ID >= {0} and PERMISSION_ID <= {1}",10,16);
+                    }else {
+                        // 如果该员工是人力资源部员工的话 权限ID 10-15
+                        pw.where("PERMISSION_ID >= {0} and PERMISSION_ID <= {1}",10,15);
+                    }
+
+                }else {
+                    if (s_dname.equals("高管层")){
+                        // 如果是高管层 有所有部门的所有权限
+                    }else {
+                        // 其他部的部长 只有本部门的 查看工资的权限id = 0
+                        dw.where("DEPARTMENT_NAME = {0}", s_dname);
+                        pw.where("PERMISSION_id = {0}", 0);
+                    }
+                }
+            }
+
+            List<Permission> permissionList = permissionService.selectList(pw);
+            List<Department> departmentList = departmentService.selectList(dw);
+            map.put("permissionList", permissionList);
+            map.put("departmentList", departmentList);
+            map.put("staffList", staffList);
+        }
+
+        return map;
     }
 
 
@@ -359,6 +454,7 @@ public class BlackListController extends BaseController {
         Page<BlackList> page = new Page<>(pageNumber, pageSize);
         Wrapper<BlackList> ew = new EntityWrapper<>();
         ew.where("(a.STAFF_ID like {0} or d.STAFF_NAME like {1})", condition,condition);
+        ew.where("d.DEPARTURE_TIME is null");
 
         // 获取当前登录账号的ID
         try {
@@ -379,7 +475,8 @@ public class BlackListController extends BaseController {
                     // 人力资源部的DEPARTMENT_ID是10
                     ew.where("d.DEPARTMENT_ID = {0}",10);
                 }else {
-                    //都不是的话就是超级管理员了 可以查看全部的
+                    //都不是的话就是超级管理员了 可以查看全部的权限授情况
+                    ew.where("(d.DEPARTMENT_ID = {0} or d.DEPARTMENT_ID = {1} )",10,12);
                 }
             }
 

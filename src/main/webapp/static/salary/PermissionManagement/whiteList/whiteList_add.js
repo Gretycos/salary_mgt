@@ -48,15 +48,37 @@ form.on('select(staffId)', function(data){
         // 去请求数据库 得到staffId = val 的员工姓名 重新生成staffName下拉框
         var ajax = new $ax(Hussar.ctxPath + "/whiteList/getStaffById", function(data){
             // 得到data中的权限数组和部门信息数组
-            var staffName = data.staffName;
+            var staffName = data.staff.staffName;
             // 下面开始拼接option
-            var str1="";
+            var str1="",str2="",str3="";
             str1 += "<option value=\""+staffName+"\">"+staffName+"</option>";
+            WhiteListInfoDlg.selectDepartmentAndPermission['staffName'] = staffName;
 
+            // 构造权限列表 和 部门列表
+            var permissionList = data.permissionList;
+            var departmentList = data.departmentList;
+            if (permissionList.length==1){
+                str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                str3 += "<option value=\""+departmentList[0].departmentName+"\">"+departmentList[0].departmentName+"</option>";
+                WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                WhiteListInfoDlg.selectDepartmentAndPermission['departmentName'] = departmentList[0].departmentName;
+            } else {
+                str2 += "<option value=''>请搜索或选择权限</option>";
+                str3 += "<option value=''>请搜索或选择部门</option>";
+                for (var key in permissionList) {
+                    str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                }
+                for (var key in departmentList) {
+                    str3 += "<option value=\""+departmentList[key].departmentName+"\">"+departmentList[key].departmentName+"</option>";
+                }
+            }
             // 通过JQuery给相应的select添加上option
             $('#staffName').empty().append(str1);
+            $('#permissionName').empty().append(str2);
+            $('#departmentName').empty().append(str3);
+
+            
             form.render('select');
-            WhiteListInfoDlg.selectDepartmentAndPermission['staffName'] = staffName;
 
         },function(data){
             Hussar.error("生成下拉选择框失败!" );
@@ -85,13 +107,32 @@ form.on('select(staffName)', function(data){
     else {
         // 去请求数据库 得到staffName = val 的员工ID 重新生成staffID下拉框
         var ajax = new $ax(Hussar.ctxPath + "/whiteList/getStaffsByName", function(data){
-            var staffList = data;
-
+            var staffList = data.staffList;
             // 下面开始拼接option
-            var str1="";
+            var str1="",str2="",str3="";
             if (staffList.length==1){
                 str1 += "<option value=\""+staffList[0].staffId+"\">"+staffList[0].staffId+"</option>";
                 WhiteListInfoDlg.selectDepartmentAndPermission['staffId'] = staffList[0].staffId;
+
+                // 构造权限列表 和 部门列表
+                var permissionList = data.permissionList;
+                var departmentList = data.departmentList;
+                if (permissionList.length==1){
+                    str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                    str3 += "<option value=\""+departmentList[0].departmentName+"\">"+departmentList[0].departmentName+"</option>";
+                    WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                    WhiteListInfoDlg.selectDepartmentAndPermission['departmentName'] = departmentList[0].departmentName;
+                } else {
+                    str2 += "<option value=''>请搜索或选择权限</option>";
+                    str3 += "<option value=''>请搜索或选择部门</option>";
+                    for (var key in permissionList) {
+                        str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                    }
+                    for (var key in departmentList) {
+                        str3 += "<option value=\""+departmentList[key].departmentName+"\">"+departmentList[key].departmentName+"</option>";
+                    }
+                }
+
             }
             else{
                 str1 += "<option value=''>请搜索或选择工号</option>";
@@ -101,6 +142,8 @@ form.on('select(staffName)', function(data){
 
             // 通过JQuery给相应的select添加上option
             $('#staffId').empty().append(str1);
+            $('#permissionName').empty().append(str2);
+            $('#departmentName').empty().append(str3);
             form.render('select');
 
         },function(data){
@@ -229,7 +272,7 @@ WhiteListInfoDlg.addSubmit = function() {
     // 都没有问题之后进行提交
     var ajax = new $ax(Hussar.ctxPath + "/whiteList/add", function(data){
         if (data=="exist") {
-            Hussar.error("数据已存在,添加失败!");
+            Hussar.error("该权限已授予");
             return;
         }
         if (data==true){
