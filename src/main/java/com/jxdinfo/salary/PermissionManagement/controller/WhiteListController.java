@@ -380,7 +380,10 @@ public class WhiteListController extends BaseController {
      */
     @ResponseBody
     @RequestMapping("/showBySelect")
-    public Object showBySelect(String staffId,String staffName,String departmentName, String permissionName,
+    public Object showBySelect(@RequestParam(value="staffId", defaultValue="") String staffId,
+                               @RequestParam(value="staffName", defaultValue="") String staffName,
+                               @RequestParam(value="departmentName", defaultValue="")String departmentName,
+                               @RequestParam(value="permissionName", defaultValue="") String permissionName,
                                @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                                @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
 

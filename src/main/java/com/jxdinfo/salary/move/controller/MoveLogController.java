@@ -97,7 +97,6 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        boolean able=false;
         Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
@@ -107,17 +106,12 @@ public class MoveLogController extends BaseController {
                 System.out.println("您没有查看该日志的权限！");
                 return 0;
             } else {
+                boolean able=false;
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("日志查看")){
                         //该员工用户可以查看从该部门调出的日志
                         able = true;
                         ew.eq("OLD_DEPARTMENT_ID",p.getDepartmentId());
-
-                        Map<String, Object> operatorResult = new HashMap<>(5);
-                        List<MoveLog> list = moveLogService.likeSelectD(page, condition1, condition2, condition3,ew);
-                        operatorResult.put("total", page.getTotal());
-                        operatorResult.put("rows", list);
-                        return operatorResult;
                     }
                 }
                 if (!able){//该用户没有日志查看权限
@@ -129,18 +123,15 @@ public class MoveLogController extends BaseController {
         else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出或调入的日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出的日志
             if(currentUser.getDepartment().getDepartmentId()!=10 &&
                     currentUser.getDepartment().getDepartmentId()!=99){
-                    able = true;
                     ew.eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
-                    List<MoveLog> listD = moveLogService.selectPage(page, ew).getRecords();
-                    page.setRecords(listD);
                 }
             }
 
         Map<String, Object> result = new HashMap<>(5);
-        List<MoveLog> list = moveLogService.likeSelect(page, condition1, condition2, condition3);
+        List<MoveLog> list = moveLogService.likeSelectByCondition(page, ew, condition1, condition2, condition3);
         result.put("total", page.getTotal());
         result.put("rows", list);
         return result;
@@ -162,7 +153,6 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        boolean able=false;
         Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
@@ -172,6 +162,7 @@ public class MoveLogController extends BaseController {
                 System.out.println("您没有查看该日志的权限！");
                 return 0;
             } else {
+                boolean able=false;
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("日志查看")){
                         //该员工用户可以查看从该部门调出的日志
@@ -188,15 +179,14 @@ public class MoveLogController extends BaseController {
         else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出或调入的日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出的日志
             if(currentUser.getDepartment().getDepartmentId()!=10 &&
                     currentUser.getDepartment().getDepartmentId()!=99){
-                able = true;
-                //让他自己在全表里筛选好了w
+                ew.eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
             }
         }
 
-        List<MoveLog> list = moveLogService.likeSelect(page,condition1,condition2,condition3);
+        List<MoveLog> list = moveLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);
 
         List<Department> oldDList = new ArrayList<>();
         List<Position> oldPList = new ArrayList<>();
@@ -252,7 +242,6 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        boolean able=false;
         Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
@@ -262,6 +251,7 @@ public class MoveLogController extends BaseController {
                 System.out.println("您没有查看该日志的权限！");
                 return 0;
             } else {
+                boolean able=false;
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("日志查看")){
                         //该员工用户可以查看从该部门调出的日志
@@ -278,11 +268,10 @@ public class MoveLogController extends BaseController {
         else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出或调入的日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出的日志
             if(currentUser.getDepartment().getDepartmentId()!=10 &&
                     currentUser.getDepartment().getDepartmentId()!=99){
-                able = true;
-                //让他自己在全表里筛选好了w
+                ew.eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
             }
         }
 

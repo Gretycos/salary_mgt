@@ -35,6 +35,7 @@
         select DISTINCT STAFF_NAME
         from t_black_list a,t_staff b
           where a.STAFF_ID = b.STAFF_ID
+            ${ew.sqlSegment}
     </select>
 
     <select id="selectDepartmentName" resultType="string">

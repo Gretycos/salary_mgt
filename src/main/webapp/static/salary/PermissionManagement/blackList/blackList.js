@@ -43,16 +43,20 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         SelectValDict[id] = val;
         console.log(SelectValDict);
         // 接下来根据当前的SelectValDict查询相应结果 更新bootstrapTable
+        // 因为之前的翻页有bug所以改成了get请求的方式
+        var query={
+            staffId:SelectValDict.staffId,
+            staffName:SelectValDict.staffName,
+            departmentName:SelectValDict.departmentName,
+            permissionName:SelectValDict.permissionName
+        };
+        var str = "?staffId="+query.staffId+"&staffName="+query.staffName
+            +"&departmentName="+query.departmentName
+            +"&permissionName="+query.permissionName;
         var opt={
-            url: Hussar.ctxPath + "/blackList/showBySelect",
-            silent: true,
-            query:{
-                staffId:SelectValDict.staffId,
-                staffName:SelectValDict.staffName,
-                departmentName:SelectValDict.departmentName,
-                permissionName:SelectValDict.permissionName
-            }
-        }
+            url: Hussar.ctxPath + "/blackList/showBySelect"+str,
+            silent: true
+        };
         $('#BlackListTable').bootstrapTable('refresh',opt);
 
     });
