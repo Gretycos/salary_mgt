@@ -37,6 +37,13 @@ public class DepartureLogServiceImpl extends ServiceImpl<DepartureLogMapper, Dep
         return departureLogMapper.likeSelect(page,condition1, condition2, condition3);
     }
 
+    //带筛选的模糊查询
+    @Override
+    public List<DepartureLog> likeSelectByCondition(Page<DepartureLog> page, Wrapper<DepartureLog> wrapper, String condition1, String condition2, String condition3){
+        return departureLogMapper.likeSelectByCondition(page,wrapper,condition1,condition2,condition3);
+    }
+
+
 
     //添加离职记录
     @Override

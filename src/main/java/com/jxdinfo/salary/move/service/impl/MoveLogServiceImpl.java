@@ -70,6 +70,20 @@ public class MoveLogServiceImpl extends ServiceImpl<MoveLogMapper, MoveLog> impl
         return moveLogMapper.likeSelect(page,condition1, condition2, condition3);
     }
 
+    //带筛选的模糊查询
+    @Override
+    public List<MoveLog> likeSelectByCondition(Page<MoveLog> page, Wrapper<MoveLog> wrapper, String condition1, String condition2, String condition3){
+        return moveLogMapper.likeSelectByCondition(page,wrapper,condition1,condition2,condition3);
+    }
+
+    //特定部门模糊查询
+    @Override
+    public List<MoveLog> likeSelectD(Page<MoveLog> page,String condition1, String condition2, String condition3, Wrapper<MoveLog> wrapper){
+        wrapper = (Wrapper<MoveLog>) SqlHelper.fillWrapper(page, wrapper);
+        return moveLogMapper.likeSelectD(page, condition1, condition2, condition3,wrapper);
+
+    }
+
     //添加调动记录
     @Override
     public boolean addMoveLog(Staff operator, Staff move, Department oldD, Department newD,

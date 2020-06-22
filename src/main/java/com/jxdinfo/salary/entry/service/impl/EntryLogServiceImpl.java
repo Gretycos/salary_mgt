@@ -38,6 +38,12 @@ public class EntryLogServiceImpl extends ServiceImpl<EntryLogMapper, EntryLog> i
         return entryLogMapper.likeSelect(page,condition1, condition2, condition3);
     }
 
+    //带筛选的模糊查询
+    @Override
+    public List<EntryLog> likeSelectByCondition(Page<EntryLog> page, Wrapper<EntryLog> wrapper, String condition1, String condition2, String condition3){
+        return entryLogMapper.likeSelectByCondition(page, wrapper, condition1, condition2, condition3);
+    }
+
     //添加入职记录
     @Override
     public boolean addEntryLog(Staff operator, Staff entrant, Timestamp entryTime){

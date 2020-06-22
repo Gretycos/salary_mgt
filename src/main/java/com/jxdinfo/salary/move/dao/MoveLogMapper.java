@@ -58,6 +58,20 @@ public interface MoveLogMapper extends BaseMapper<MoveLog> {
                               @Param("condition2")String condition2,
                               @Param("condition3")String condition3);
 
+    //带筛选的模糊查询
+    List<MoveLog> likeSelectByCondition(RowBounds var1,
+                             @Param("ew") Wrapper<MoveLog> wrapper,
+                             @Param("condition1")String condition1,
+                             @Param("condition2")String condition2,
+                             @Param("condition3")String condition3);
+
+    //特定部门模糊查询
+    List<MoveLog> likeSelectD(RowBounds var1,
+                             @Param("condition1")String condition1,
+                             @Param("condition2")String condition2,
+                             @Param("condition3")String condition3,
+                              @Param("ew") Wrapper<MoveLog> wrapper);
+
     MoveLog selectMaxOperationId(String time);
 
     List<MoveLog> selectPage(RowBounds rowBounds, @Param("ew") Wrapper<MoveLog> wrapper);

@@ -24,6 +24,9 @@ public interface IEntryLogService extends IService<EntryLog> {
     //模糊查询
     List<EntryLog> likeSelect(Page<EntryLog> page,String condition1, String condition2, String condition3);
 
+    //带筛选的模糊查询
+    List<EntryLog> likeSelectByCondition(Page<EntryLog> page, Wrapper<EntryLog> wrapper, String condition1, String condition2, String condition3);
+
     //添加入职记录 对外接口
     boolean addEntryLog(Staff operator, Staff entrant, Timestamp entryTime);
 

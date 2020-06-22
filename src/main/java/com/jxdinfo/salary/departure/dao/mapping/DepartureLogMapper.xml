@@ -66,6 +66,27 @@
         </where>
     </select>
 
+    <!--带筛选的模糊查询-->
+    <select id="likeSelectByCondition" resultMap="WithRefResultMap">
+        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.DEPARTURE_ID,c.STAFF_NAME,a.OPERATION_TIME
+        from t_departure_log a,t_staff b,t_staff c
+        <where>
+            a.OPERATOR_ID = b.STAFF_ID and a.DEPARTURE_ID = c.STAFF_ID
+            <if test="condition1 != null and condition1 != '' ">
+                and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
+            </if>
+            <if test="condition2 != null and condition2 != '' ">
+                and( b.STAFF_NAME like concat(concat("%",#{condition2}),"%")
+                or a.OPERATOR_ID like concat(concat("%",#{condition2}),"%"))
+            </if>
+            <if test="condition3 != null and condition3 != '' ">
+                and( c.STAFF_NAME like concat(concat("%",#{condition3}),"%")
+                or a.DEPARTURE_ID like concat(concat("%",#{condition3}),"%"))
+            </if>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
     <!-- 查询最大操作ID的记录 -->
     <select id="selectMaxOperationId" resultMap="BaseResultMap">
         select * from t_departure_log

@@ -112,6 +112,12 @@ public class MoveLogController extends BaseController {
                         //该员工用户可以查看从该部门调出的日志
                         able = true;
                         ew.eq("OLD_DEPARTMENT_ID",p.getDepartmentId());
+
+                        Map<String, Object> operatorResult = new HashMap<>(5);
+                        List<MoveLog> list = moveLogService.likeSelectD(page, condition1, condition2, condition3,ew);
+                        operatorResult.put("total", page.getTotal());
+                        operatorResult.put("rows", list);
+                        return operatorResult;
                     }
                 }
                 if (!able){//该用户没有日志查看权限
@@ -126,10 +132,12 @@ public class MoveLogController extends BaseController {
             //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出或调入的日志
             if(currentUser.getDepartment().getDepartmentId()!=10 &&
                     currentUser.getDepartment().getDepartmentId()!=99){
-                able = true;
-               //让他自己在全表里筛选好了w
+                    able = true;
+                    ew.eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
+                    List<MoveLog> listD = moveLogService.selectPage(page, ew).getRecords();
+                    page.setRecords(listD);
+                }
             }
-        }
 
         Map<String, Object> result = new HashMap<>(5);
         List<MoveLog> list = moveLogService.likeSelect(page, condition1, condition2, condition3);
@@ -301,7 +309,9 @@ public class MoveLogController extends BaseController {
                 ew.like("OPERATION_TIME",operationTime+"%");
             }
         }
-        List<MoveLog> list = moveLogService.selectPage(page, ew).getRecords();
+        //List<MoveLog> list
+        //List<MoveLog> list1 = moveLogService.selectList(ew);
+        List<MoveLog> list = moveLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);
         Map<String, Object> result = new HashMap<>(5);
         result.put("total", page.getTotal());
         result.put("rows", list);

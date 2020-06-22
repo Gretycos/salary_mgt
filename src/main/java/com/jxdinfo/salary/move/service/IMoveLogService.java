@@ -58,6 +58,12 @@ public interface IMoveLogService extends IService<MoveLog> {
     //模糊查询
     List<MoveLog> likeSelect(Page<MoveLog> page,String condition1, String condition2, String condition3);
 
+    //带筛选的模糊查询
+    List<MoveLog> likeSelectByCondition(Page<MoveLog> page, Wrapper<MoveLog> wrapper, String condition1, String condition2, String condition3);
+
+    //特定部门模糊查询
+    List<MoveLog> likeSelectD(Page<MoveLog> page,String condition1, String condition2, String condition3, Wrapper<MoveLog> wrapper);
+
     //添加调动记录 对外接口
     boolean addMoveLog(Staff operator, Staff move, Department oldD, Department newD, Position oldP, Position newP, Timestamp moveTime);
 

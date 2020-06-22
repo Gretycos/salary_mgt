@@ -264,7 +264,7 @@ public class DepartureLogController extends BaseController {
                 ew.like("OPERATION_TIME",operationTime+"%");
             }
         }
-        List<DepartureLog> list = departureLogService.selectByDidPage(page,ew).getRecords();
+        List<DepartureLog> list = departureLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);
         Map<String, Object> result = new HashMap<>(5);
         result.put("total", page.getTotal());
         result.put("rows", list);

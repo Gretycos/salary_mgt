@@ -193,5 +193,60 @@
         </where>
     </select>
 
+    <!--带筛选的模糊查询-->
+    <select id="likeSelectByCondition" resultMap="WithRefResultMap" parameterType="string">
+        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
+        d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
+        ,d.DEPARTMENT_ID as OLD_DEPARTMENT_ID, f.DEPARTMENT_ID as NEW_DEPARTMENT_ID,
+        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_NAME  as NEW_POSITION_ID
+        from t_move_log a,t_staff b,t_staff c,t_department d,
+        t_position e,t_department f,t_position g
+        <where>
+            a.OPERATOR_ID = b.STAFF_ID and a.MOVE_ID = c.STAFF_ID
+            and a.OLD_DEPARTMENT_ID = d.DEPARTMENT_ID and a.OLD_POSITION_ID = e.POSITION_ID
+            and a.NEW_DEPARTMENT_ID = f.DEPARTMENT_ID and a.NEW_POSITION_ID = g.POSITION_ID
+            <if test="condition1 != null and condition1 != '' ">
+                and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
+            </if>
+            <if test="condition2 != null and condition2 != '' ">
+                and ( b.STAFF_NAME like concat(concat("%",#{condition2}),"%")
+                or a.OPERATOR_ID like concat(concat("%",#{condition2}),"%"))
+            </if>
+            <if test="condition3 != null and condition3 != '' ">
+                and ( c.STAFF_NAME like concat(concat("%",#{condition3}),"%")
+                or a.MOVE_ID like concat(concat("%",#{condition3}),"%"))
+            </if>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!--特定部门模糊查询-->
+    <select id="likeSelectD" resultMap="WithRefResultMap" parameterType="string">
+        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
+        d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
+        ,d.DEPARTMENT_ID as OLD_DEPARTMENT_ID, f.DEPARTMENT_ID as NEW_DEPARTMENT_ID,
+        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_NAME  as NEW_POSITION_ID
+        from t_move_log a,t_staff b,t_staff c,t_department d,
+        t_position e,t_department f,t_position g
+        <where>
+            a.OPERATOR_ID = b.STAFF_ID and a.MOVE_ID = c.STAFF_ID
+            and a.OLD_DEPARTMENT_ID = d.DEPARTMENT_ID and a.OLD_POSITION_ID = e.POSITION_ID
+            and a.NEW_DEPARTMENT_ID = f.DEPARTMENT_ID and a.NEW_POSITION_ID = g.POSITION_ID
+            and ${ew.sqlSegment}
+            <if test="condition1 != null and condition1 != '' ">
+                and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
+            </if>
+            <if test="condition2 != null and condition2 != '' ">
+                and ( b.STAFF_NAME like concat(concat("%",#{condition2}),"%")
+                or a.OPERATOR_ID like concat(concat("%",#{condition2}),"%"))
+            </if>
+            <if test="condition3 != null and condition3 != '' ">
+                and ( c.STAFF_NAME like concat(concat("%",#{condition3}),"%")
+                or a.MOVE_ID like concat(concat("%",#{condition3}),"%"))
+            </if>
+        </where>
+    </select>
+
+
 
 </mapper>
