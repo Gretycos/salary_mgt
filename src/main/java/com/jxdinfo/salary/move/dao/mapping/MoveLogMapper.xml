@@ -172,7 +172,7 @@
         select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
         d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
         ,d.DEPARTMENT_ID as OLD_DEPARTMENT_ID, f.DEPARTMENT_ID as NEW_DEPARTMENT_ID,
-        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_NAME  as NEW_POSITION_ID
+        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_ID  as NEW_POSITION_ID
         from t_move_log a,t_staff b,t_staff c,t_department d,
              t_position e,t_department f,t_position g
         <where>
@@ -198,7 +198,7 @@
         select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
         d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
         ,d.DEPARTMENT_ID as OLD_DEPARTMENT_ID, f.DEPARTMENT_ID as NEW_DEPARTMENT_ID,
-        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_NAME  as NEW_POSITION_ID
+        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_ID  as NEW_POSITION_ID
         from t_move_log a,t_staff b,t_staff c,t_department d,
         t_position e,t_department f,t_position g
         <where>
@@ -225,7 +225,7 @@
         select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
         d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
         ,d.DEPARTMENT_ID as OLD_DEPARTMENT_ID, f.DEPARTMENT_ID as NEW_DEPARTMENT_ID,
-        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_NAME  as NEW_POSITION_ID
+        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_ID  as NEW_POSITION_ID
         from t_move_log a,t_staff b,t_staff c,t_department d,
         t_position e,t_department f,t_position g
         <where>

@@ -39,14 +39,23 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             url: Hussar.ctxPath + "/move/list/condition",
             silent: true,
             method: 'POST',
-            query:{
-                condition1:condition1,
-                condition2:condition2,
-                condition3:condition3,
-                selectList:JSON.stringify(selectList)
-            }
+            contentType:"application/x-www-form-urlencoded",
+            queryParams:function(params){
+                console.log(params)
+                return{
+                    condition1:condition1,
+                    condition2:condition2,
+                    condition3:condition3,
+                    selectList:JSON.stringify(selectList),
+                    pageNumber:params.pageNumber,
+                    pageSize:params.pageSize
+                }
+
+            },
+            queryParamsType:'',
         }
-        $('#MoveLogTable').bootstrapTable('refresh',opt);
+        $('#MoveLogTable').bootstrapTable('refreshOptions',{pageNumber:1});
+        $('#MoveLogTable').bootstrapTable('refreshOptions',opt);
     });
 
 
