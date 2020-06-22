@@ -63,7 +63,7 @@ public class StaffController extends BaseController {
     private IUtilService utilService;
     @Autowired
     private ITInisalaryInfoService inisalaryInfoService;
-
+    private Staff currentUser;
     /**
      * 跳转到人员管理首页
      */
@@ -71,6 +71,7 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/view", type = BussinessLogType.QUERY, value = "人员管理页面")
     @RequiresPermissions("staff:view")
     public String index() {
+        currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         return PREFIX + "staff.html";
     }
 
@@ -112,7 +113,7 @@ public class StaffController extends BaseController {
 //        System.out.println(condition);
 //        System.out.println();
 
-        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+
         if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
             List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
@@ -124,7 +125,7 @@ public class StaffController extends BaseController {
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("查看信息")){
                         canQuery = true;
-                        ew.eq("DEPARTMENT_ID",p.getDepartmentId());
+                        ew.or().eq("DEPARTMENT_ID",p.getDepartmentId());
                     }
                 }
                 if (!canQuery){
@@ -133,7 +134,7 @@ public class StaffController extends BaseController {
             }
         }
         if(!condition.equals("")){
-            ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
+            ew.andNew().like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
         List<Staff> list = staffService.selectPage(page, ew).getRecords();
         Map<String, Object> result = new HashMap<>(5);
@@ -156,7 +157,6 @@ public class StaffController extends BaseController {
         Wrapper<Staff> ew = new EntityWrapper<>();
 //        System.out.println(condition);
 //        System.out.println();
-        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
 
         if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
@@ -168,7 +168,7 @@ public class StaffController extends BaseController {
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("查看信息")){
                         canQuery = true;
-                        ew.eq("DEPARTMENT_ID",p.getDepartmentId());
+                        ew.or().eq("DEPARTMENT_ID",p.getDepartmentId());
                     }
                 }
                 if (!canQuery){
@@ -177,30 +177,24 @@ public class StaffController extends BaseController {
             }
         }
         if(!condition.equals("")){
-            ew.like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
+            ew.andNew().like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
 
         List<Staff> staffList = staffService.selectPage(page, ew).getRecords();
 
-        List<String> genderList = new ArrayList<>();
-        List<Department> departmentList = new ArrayList<>();
-        List<Position> positionList = new ArrayList<>();
-        List<String> entryTimeList = new ArrayList<>();
-        List<String> departureTimeList = new ArrayList<>();
+        Set<String> genders = new HashSet<>();
+        Set<Department> departments = new HashSet<>();
+        Set<Position> positions = new HashSet<>();
+        Set<String> entryTimes = new HashSet<>();
+        Set<String> departureTimes = new HashSet<>();
 
         for (Staff s:staffList){
-            genderList.add(s.getGender());
-            departmentList.add(s.getDepartment());
-            positionList.add(s.getPosition());
-            entryTimeList.add(new SimpleDateFormat("yyyy-MM-dd").format(s.getEntryTime()));
-            departureTimeList.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(s.getDepartureTime()));
+            genders.add(s.getGender());
+            departments.add(s.getDepartment());
+            positions.add(s.getPosition());
+            entryTimes.add(new SimpleDateFormat("yyyy-MM-dd").format(s.getEntryTime()));
+            departureTimes.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(s.getDepartureTime()));
         }
-
-        Set<String> genders = new HashSet<>(genderList);
-        Set<Department> departments = new HashSet<>(departmentList);
-        Set<Position> positions = new HashSet<>(positionList);
-        Set<String> entryTimes = new HashSet<>(entryTimeList);
-        Set<String> departureTimes = new HashSet<>(departureTimeList);
 
         Map<String, Object> result = new HashMap<>();
         result.put("total", page.getTotal());
@@ -250,9 +244,11 @@ public class StaffController extends BaseController {
             ew.like("ENTRY_TIME",entryTime+"%");
         }
         if (!departureTime.equals("")){
-            if (departureTime.equals("所有")){
+            if (departureTime.equals("已离职")){
                 ew.isNotNull("DEPARTURE_TIME");
-            }else{
+            }else if (departureTime.equals("在职")){
+                ew.isNull("DEPARTURE_TIME");
+            } else {
                 ew.like("DEPARTURE_TIME",departureTime+"%");
             }
         }
@@ -272,7 +268,7 @@ public class StaffController extends BaseController {
     @ResponseBody
     public Object add(@RequestParam Map<String, String> staffInfo) {
 //        System.out.println(staffInfo);
-        int operatorId = getCurrentAccountId();
+//        int operatorId = getCurrentAccountId();
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
         int departmentId = Integer.parseInt(staffInfo.get("departmentId")); // 部门ID
@@ -291,8 +287,7 @@ public class StaffController extends BaseController {
         Timestamp entryTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(new Date(jstime)));
         //操作员
-        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
-                .eq("STAFF_ID",operatorId));
+        Staff operator = currentUser;
 
         if (operator==null){
             Map<String,Object> res= new HashMap<>();
@@ -377,9 +372,8 @@ public class StaffController extends BaseController {
     public Object delete(@RequestParam Map<String, String> info) {
         Long jstime = Long.parseLong(info.get("jstime"));
 
-        int operatorId = getCurrentAccountId();
-        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
-                .eq("STAFF_ID",operatorId));//查询出操作人
+//        int operatorId = getCurrentAccountId();
+        Staff operator = currentUser;//查询出操作人
 
         if(operator == null){
             Map<String,Object> res= new HashMap<>();
@@ -448,7 +442,7 @@ public class StaffController extends BaseController {
     @ResponseBody
     public Object update(@RequestParam Map<String, String> staffInfo) {
 //        System.out.println(staffInfo);
-        int operatorId = getCurrentAccountId();
+//        int operatorId = getCurrentAccountId();
         int moveId = Integer.parseInt(staffInfo.get("staffId")); //员工ID
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
@@ -472,8 +466,7 @@ public class StaffController extends BaseController {
         Timestamp operationTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(new Date(jstime)));        //变动时间
 
-        Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
-                .eq("STAFF_ID",operatorId));
+        Staff operator = currentUser;
 
         if(operator == null){
             Map<String,Object> res= new HashMap<>();
