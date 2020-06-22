@@ -100,20 +100,24 @@ StaffInfoDlg.addSubmit = function() {
     this.clearData();
     this.collectData();
 
-    //提交信息
-    var ajax = new $ax(Hussar.ctxPath + "/staff/add", function(data){
-        if(data.code === 200){
-            window.parent.layui.Hussar.success("新员工入职成功!");
-            window.parent.$('#StaffTable').bootstrapTable('refresh');
-            StaffInfoDlg.close();
-        }else{
-            Hussar.error("新员工入职成功!" + data.message + "!");
-        }
-    },function(data){
-        Hussar.error("操作失败!" + data.responseJSON.message + "!");
-    });
-    ajax.set(this.staffInfoData);
-    ajax.start();
+    if (this.staffInfoData.positionId===2 && this.staffInfoData.departmentId !== 99){
+        Hussar.error("入职失败!总经理只能入职高管层");
+    }else{
+        //提交信息
+        var ajax = new $ax(Hussar.ctxPath + "/staff/add", function(data){
+            if(data.code === 200){
+                window.parent.layui.Hussar.success("新员工入职成功!");
+                window.parent.$('#StaffTable').bootstrapTable('refresh');
+                StaffInfoDlg.close();
+            }else{
+                Hussar.error("新员工入职成功!" + data.message + "!");
+            }
+        },function(data){
+            Hussar.error("操作失败!" + data.responseJSON.message + "!");
+        });
+        ajax.set(this.staffInfoData);
+        ajax.start();
+    }
 };
 
 /**
@@ -124,21 +128,25 @@ StaffInfoDlg.editSubmit = function() {
     this.clearData();
     this.collectData_();
 
-    //提交信息
-    var ajax = new $ax(Hussar.ctxPath + "/staff/update", function(data){
-        if(data.code === 200){
-            window.parent.layui.Hussar.success("员工信息修改成功!");
-            window.parent.$('#StaffTable').bootstrapTable('refresh');
-            StaffInfoDlg.close();
-        }else{
-            Hussar.error("员工信息修改失败!" + data.message + "!");
-        }
+    if (this.staffInfoData.positionId===2 && this.staffInfoData.departmentId !== 99){
+        Hussar.error("变动失败!总经理只能存在于高管层");
+    } else {
+        //提交信息
+        var ajax = new $ax(Hussar.ctxPath + "/staff/update", function(data){
+            if(data.code === 200){
+                window.parent.layui.Hussar.success("员工信息修改成功!");
+                window.parent.$('#StaffTable').bootstrapTable('refresh');
+                StaffInfoDlg.close();
+            }else{
+                Hussar.error("员工信息修改失败!" + data.message + "!");
+            }
 
-    },function(data){
-        Hussar.error("修改失败!" + data.responseJSON.message + "!");
-    });
-    ajax.set(this.staffInfoData);
-    ajax.start();
+        },function(data){
+            Hussar.error("修改失败!" + data.responseJSON.message + "!");
+        });
+        ajax.set(this.staffInfoData);
+        ajax.start();
+    }
 };
 
 /**
@@ -169,7 +177,7 @@ StaffInfoDlg.initSelector = function(){
         });
         $("#departmentId").val(typeof departmentId_value== "undefined"? 10: departmentId_value);
     },function(data){
-        Hussar.error("加载失败!" + data.responseJSON.message + "!");
+        Hussar.error("部门选项加载失败!" + data.responseJSON.message + "!");
     });
     ajax1.start();
 
@@ -183,7 +191,7 @@ StaffInfoDlg.initSelector = function(){
         $("#positionId").val(typeof positionId_value== "undefined"? 0: positionId_value);
         form.render('select');
     },function(data){
-        Hussar.error("加载失败!" + data.responseJSON.message + "!");
+        Hussar.error("职位选项加载失败!" + data.responseJSON.message + "!");
     });
     ajax2.start();
 

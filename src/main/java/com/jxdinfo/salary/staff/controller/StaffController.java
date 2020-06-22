@@ -264,10 +264,10 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 新增人员管理
+     * 新增人员管理---入职
      */
     @RequestMapping(value = "/add")
-    @BussinessLog(key = "/staff/add", type = BussinessLogType.INSERT, value = "新增人员管理")
+    @BussinessLog(key = "/staff/add", type = BussinessLogType.INSERT, value = "新增人员管理---入职")
     @RequiresPermissions("staff:add")
     @ResponseBody
     public Object add(@RequestParam Map<String, String> staffInfo) {
@@ -290,7 +290,7 @@ public class StaffController extends BaseController {
         // 入职时间
         Timestamp entryTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(new Date(jstime)));
-
+        //操作员
         Staff operator = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("STAFF_ID",operatorId));
 
@@ -310,17 +310,13 @@ public class StaffController extends BaseController {
                 res.put("message","该用户无权限");
                 return res;
             } else {
-                boolean canAdd = true;
                 List<Integer> canAddDList = new ArrayList<>();
                 for (Util p: permissionList){
                     if (p.getPermissionName().equals("员工入职")){
                         canAddDList.add(p.getDepartmentId());
                     }
                 }
-                if (!canAddDList.contains(departmentId)){
-                    canAdd = false;
-                }
-                if (!canAdd){
+                if (!canAddDList.contains(departmentId)){ // 能操作的部门不包含要操作的部门
                     Map<String,Object> res= new HashMap<>();
                     res.put("code",500);
                     res.put("message","该用户无权限");
@@ -329,6 +325,7 @@ public class StaffController extends BaseController {
             }
         }
 
+        // 该部门的部门经理
         Staff manager = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("POSITION_ID",1).eq("DEPARTMENT_ID",department.getDepartmentId()));
 
@@ -342,6 +339,7 @@ public class StaffController extends BaseController {
             return res;
         }
 
+        // 公司的总经理
         Staff superAdmin = staffService.selectOne(new EntityWrapper<Staff>()
                 .eq("POSITION_ID",2));
 
@@ -359,9 +357,9 @@ public class StaffController extends BaseController {
 
         staffService.insert(staff); //新增员工
         entryLogService.addEntryLog(operator,staff,entryTime);
-        System.out.println("==========================");
-        System.out.println(staffId+"\n"+departmentId);
-        System.out.println("==========================");
+//        System.out.println("==========================");
+//        System.out.println(staffId+"\n"+departmentId);
+//        System.out.println("==========================");
         inisalaryInfoService.addEmployee(staffId,staffName,departmentId); //录入初始工资
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
@@ -391,12 +389,12 @@ public class StaffController extends BaseController {
         }
 
         List<Map<String,Integer>> list = JSONArray.parseObject(info.get("staff"),List.class);
-        List<Integer> dList = new ArrayList<>(); //要离职人的部门ID列表
+        Set<Integer> dSet = new HashSet<>(); //要离职人的部门ID列表
         for (Map<String,Integer> m : list){
             int departureId = m.get("staffId");//离职人的Id
             Staff departure = staffService.selectOne(new EntityWrapper<Staff>()
                     .eq("STAFF_ID",departureId)); //查询出离职人
-            dList.add(departure.getDepartment().getDepartmentId());
+            dSet.add(departure.getDepartment().getDepartmentId());
         }
         if (operator.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的修改权限
@@ -407,21 +405,18 @@ public class StaffController extends BaseController {
                 res.put("message","该用户无权限");
                 return res;
             } else {
-                List<Integer> canModifyDList = new ArrayList<>();
+                Set<Integer> canModifyDSet = new HashSet<>();
                 for (Util p: permissionList){
                     if (p.getPermissionName().equals("员工离职")){
-                        canModifyDList.add(p.getDepartmentId());
+                        canModifyDSet.add(p.getDepartmentId());
                     }
                 }
-                boolean canModify = true;
-                for (int dId:dList){
-                    if (!canModifyDList.contains(dId)){
-                        canModify = false;
-                        Map<String,Object> res= new HashMap<>();
-                        res.put("code",500);
-                        res.put("message","选中包含无权限操作的员工");
-                        return res;
-                    }
+                dSet.removeAll(canModifyDSet); // 要离职的人的部门集合减去可以离职的部门的集合
+                if (dSet.size() != 0){ // 差集不为空，说明存在有无权限操作的员工
+                    Map<String,Object> res= new HashMap<>();
+                    res.put("code",500);
+                    res.put("message","选中包含无权限操作的员工");
+                    return res;
                 }
             }
         }
