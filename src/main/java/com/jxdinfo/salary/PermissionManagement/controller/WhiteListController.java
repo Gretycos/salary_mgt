@@ -78,6 +78,7 @@ public class WhiteListController extends BaseController {
 //        map.put("staffIdList", staffIdList);
 //        map.put("staffNameList", staffNameList);
         Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+        wrapper.where("DEPARTURE_TIME is null");
 
         // 获取当前登录账号的ID
         try {
@@ -385,6 +386,7 @@ public class WhiteListController extends BaseController {
 
         Page<WhiteList> page = new Page<>(pageNumber, pageSize);
         Wrapper<WhiteList> ew = new EntityWrapper<>();
+        ew.where("d.DEPARTURE_TIME is null");
 
         if(staffId.length()>0)
             ew.where("a.STAFF_ID = {0}", Integer.valueOf(staffId));
