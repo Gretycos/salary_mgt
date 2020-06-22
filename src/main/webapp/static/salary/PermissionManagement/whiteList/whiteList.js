@@ -42,16 +42,20 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         // console.log(data.othis); //得到美化后的DOM对象
 
         // 和黑名单一样 根据下拉选择框的SelectValDict去查询 更新bootstrapTable
+        // 使用get请求 解决翻页问题
+        var query={
+            staffId:SelectValDict.staffId,
+            staffName:SelectValDict.staffName,
+            departmentName:SelectValDict.departmentName,
+            permissionName:SelectValDict.permissionName
+        };
+        var str = "?staffId="+query.staffId+"&staffName="+query.staffName
+            +"&departmentName="+query.departmentName
+            +"&permissionName="+query.permissionName;
         var opt={
-            url: Hussar.ctxPath + "/whiteList/showBySelect",
-            silent: true,
-            query:{
-                staffId:SelectValDict.staffId,
-                staffName:SelectValDict.staffName,
-                departmentName:SelectValDict.departmentName,
-                permissionName:SelectValDict.permissionName
-            }
-        }
+            url: Hussar.ctxPath + "/whiteList/showBySelect"+str,
+            silent: true
+        };
         $('#WhiteListTable').bootstrapTable('refresh',opt);
     });
 
@@ -288,7 +292,10 @@ $(function () {
             columns: defaultColunms,
             height:$("body").height() - $(".layui-form").outerHeight(true) -$("#select-group").outerHeight(true)- 26,
             sidePagination:"server",
-            onPageChange:function(number, size){WhiteList.pageNumber = number ; WhiteList.pageSize = size}
+            onPageChange:function(number, size){
+                WhiteList.pageNumber = number ;
+                WhiteList.pageSize = size;
+            }
         });
 })
 

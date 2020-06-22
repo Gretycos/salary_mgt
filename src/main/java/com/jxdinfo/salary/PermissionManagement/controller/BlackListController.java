@@ -72,6 +72,7 @@ public class BlackListController extends BaseController {
 //        map.put("staffNameList", staffNameList);
 
         Wrapper<BlackList> wrapper = new EntityWrapper<>();
+        wrapper.where("DEPARTURE_TIME is null");
         // 获取当前登录账号的ID
         try {
             ShiroUser user = ShiroKit.getUser();
@@ -362,12 +363,16 @@ public class BlackListController extends BaseController {
      */
     @ResponseBody
     @RequestMapping("/showBySelect")
-    public Object showBySelect(String staffId,String staffName,String departmentName, String permissionName,
+    public Object showBySelect(@RequestParam(value="staffId", defaultValue="") String staffId,
+                               @RequestParam(value="staffName", defaultValue="") String staffName,
+                               @RequestParam(value="departmentName", defaultValue="")String departmentName,
+                               @RequestParam(value="permissionName", defaultValue="") String permissionName,
                                 @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                                 @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
 
         Page<BlackList> page = new Page<>(pageNumber, pageSize);
         Wrapper<BlackList> ew = new EntityWrapper<>();
+        ew.where("d.DEPARTURE_TIME is null");
         if(staffId.length()>0)
             ew.where("a.STAFF_ID = {0}", Integer.valueOf(staffId));
         if(staffName.length()>0)
@@ -476,7 +481,7 @@ public class BlackListController extends BaseController {
                     ew.where("d.DEPARTMENT_ID = {0}",10);
                 }else {
                     //都不是的话就是超级管理员了 可以查看全部的权限授情况
-                    ew.where("(d.DEPARTMENT_ID = {0} or d.DEPARTMENT_ID = {1} )",10,12);
+//                    ew.where("(d.DEPARTMENT_ID = {0} or d.DEPARTMENT_ID = {1} )",10,12);
                 }
             }
 
