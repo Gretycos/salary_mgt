@@ -38,12 +38,24 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             url: Hussar.ctxPath + "/staff/list/condition",
             silent: true,
             method: 'POST',
-            query:{
-                condition:condition,
-                selectList:JSON.stringify(selectList)
-            }
+            contentType:"application/x-www-form-urlencoded",
+            queryParams:function(params){
+                // console.log(params)
+                return {
+                    condition:condition,
+                    selectList:JSON.stringify(selectList),
+                    pageNumber:params.pageNumber,
+                    pageSize:params.pageSize
+                }
+            },
+            queryParamsType:'',
+            // query:{
+            //     condition:condition,
+            //     selectList:JSON.stringify(selectList)
+            // }
         }
-        $('#StaffTable').bootstrapTable('refresh',opt);
+        $('#StaffTable').bootstrapTable('selectPage', 1);
+        $('#StaffTable').bootstrapTable('refreshOptions',opt);
     });
 
 
@@ -264,7 +276,8 @@ selectList.init = function(){
             $("#entryTime").append(new Option(item,item));
         });
         $("#departureTime").append(new Option('请选择员工离职时间',""));
-        $("#departureTime").append(new Option('所有','所有'));
+        $("#departureTime").append(new Option('在职','在职'));
+        $("#departureTime").append(new Option('已离职','已离职'));
         $("#departureTime").val("");
         $.each(data.departureTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
