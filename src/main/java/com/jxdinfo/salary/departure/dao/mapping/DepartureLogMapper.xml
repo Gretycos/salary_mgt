@@ -18,10 +18,10 @@
     </resultMap>
 
     <!-- 关联查询员工 -->
-    <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
+    <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithRefResultMap2">
         select * from t_staff where STAFF_ID=#{operatorId}
     </select>
-    <select id="getDepartureById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
+    <select id="getDepartureById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithRefResultMap2">
         select * from t_staff where STAFF_ID=#{departureId}
     </select>
 
@@ -48,10 +48,10 @@
 
     <!--模糊查询-->
     <select id="likeSelect" resultMap="WithRefResultMap">
-        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.DEPARTURE_ID,c.STAFF_NAME,a.OPERATION_TIME
-        from t_departure_log a,t_staff b,t_staff c
+        select a.OPERATION_ID,a.OPERATOR_ID,a.DEPARTURE_ID,a.OPERATION_TIME
+        from t_departure_log a left join t_staff b on a.OPERATOR_ID=b.STAFF_ID left join t_staff c on a.DEPARTURE_ID = c.STAFF_ID
         <where>
-            a.OPERATOR_ID = b.STAFF_ID and a.DEPARTURE_ID = c.STAFF_ID
+            1 = 1
             <if test="condition1 != null and condition1 != '' ">
                 and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
             </if>
@@ -68,10 +68,10 @@
 
     <!--带筛选的模糊查询-->
     <select id="likeSelectByCondition" resultMap="WithRefResultMap">
-        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.DEPARTURE_ID,c.STAFF_NAME,a.OPERATION_TIME
-        from t_departure_log a,t_staff b,t_staff c
+        select a.OPERATION_ID,a.OPERATOR_ID,a.DEPARTURE_ID,a.OPERATION_TIME
+        from t_departure_log a left join t_staff b on a.OPERATOR_ID=b.STAFF_ID left join t_staff c on a.DEPARTURE_ID = c.STAFF_ID
         <where>
-            a.OPERATOR_ID = b.STAFF_ID and a.DEPARTURE_ID = c.STAFF_ID
+            1 = 1
             <if test="condition1 != null and condition1 != '' ">
                 and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
             </if>

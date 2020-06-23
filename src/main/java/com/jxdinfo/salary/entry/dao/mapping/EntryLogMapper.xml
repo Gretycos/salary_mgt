@@ -18,11 +18,11 @@
     </resultMap>
 
     <!-- 关联查询员工 -->
-    <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithRefResultMap">
+    <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithRefResultMap2">
         select * from t_staff
         where STAFF_ID=#{operatorId}
     </select>
-    <select id="getEntrantById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithRefResultMap">
+    <select id="getEntrantById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithRefResultMap2">
         select * from t_staff where STAFF_ID=#{entrantId}
     </select>
 

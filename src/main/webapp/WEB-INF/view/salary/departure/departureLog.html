@@ -20,8 +20,16 @@
                 <button class="layui-btn" data-type="reload" type="button" onclick="DepartureLog.search()"><i class="layui-icon">&#xe615;</i>查询</button>
                 <button class="layui-btn" type="reset"><i class="layui-icon">&#xe00A;</i>重置</button>
             </div>
-            <div class="layui-form" lay-filter="searchBar">
-                <div class="layui-input-inline" style="width: 250px" lay-filter="searchBar">
+            <div class="layui-form" lay-filter="search">
+                <div class="layui-input-inline" style="width: 10%">
+                    <select  id="department" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width: 10%">
+                    <select  id="position" lay-verify="required" lay-search="" lay-filter="searchBar">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width: 12%" lay-filter="searchBar">
                     <select  id="operationTime" lay-verify="required" lay-search="" >
                     </select>
                 </div>
