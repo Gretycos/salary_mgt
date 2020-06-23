@@ -350,8 +350,8 @@ public class BlackListController extends BaseController {
             List<Department> departmentList = departmentService.selectList(dw);
             map.put("permissionList", permissionList);
             map.put("departmentList", departmentList);
-            map.put("staffList", staffList);
         }
+        map.put("staffList", staffList);
 
         return map;
     }

@@ -26,11 +26,13 @@
               a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.PERMISSION_ID = c.PERMISSION_ID and a.STAFF_ID = d.STAFF_ID
             <if test="ew.sqlSegment!=null">${ew.sqlSegment}</if>
         </where>
-        order by a.STAFF_ID ASC
+        order by a.STAFF_ID ASC ,DEPARTMENT_NAME ASC
     </select>
 
     <select id="selectStaffId" resultType="int">
-        select distinct STAFF_ID FROM t_white_list
+        select distinct STAFF_ID
+          FROM t_white_list
+        order by STAFF_ID asc
     </select>
 
     <select id="selectStaffName" resultType="string">
