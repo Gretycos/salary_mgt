@@ -19,10 +19,23 @@
 
     <!-- 关联查询员工 -->
     <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
-        select * from t_staff where STAFF_ID=#{operatorId}
+        select * from t_staff a,t_department b,t_position c
+        where a.STAFF_ID=#{operatorId} and a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.POSITION_ID = c.POSITION_ID
     </select>
     <select id="getEntrantById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
         select * from t_staff where STAFF_ID=#{entrantId}
+    </select>
+
+    <!-- 关联查询部门 -->
+    <select id="getDepartmentByEntrantId" resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap">
+        select * from t_department where
+        DEPARTMENT_ID in (select DEPARTMENT_ID from t_staff where STAFF_ID=#{entrantId})
+    </select>
+
+    <!-- 关联查询职位 -->
+    <select id="getPositionByEntrantId" resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap">
+        select * from t_position where
+        POSITION_ID in (select POSITION_ID from t_staff where STAFF_ID=#{entrantId})
     </select>
 
     <!-- 通用查询结果列 -->
@@ -96,6 +109,29 @@
         from t_entry_log a,t_staff b,t_staff c
         <where>
             a.OPERATOR_ID = b.STAFF_ID and a.ENTRANT_ID = c.STAFF_ID
+            <if test="condition1 != null and condition1 != '' ">
+                and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
+            </if>
+            <if test="condition2 != null and condition2 != '' ">
+                and( b.STAFF_NAME like concat(concat("%",#{condition2}),"%")
+                or a.OPERATOR_ID like concat(concat("%",#{condition2}),"%"))
+            </if>
+            <if test="condition3 != null and condition3 != '' ">
+                and( c.STAFF_NAME like concat(concat("%",#{condition3}),"%")
+                or a.ENTRANT_ID like concat(concat("%",#{condition3}),"%"))
+            </if>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!--带筛选的特定部门的模糊查询-->
+    <select id="likeSelectByConditionD" resultMap="WithRefResultMap" parameterType="string">
+        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.ENTRANT_ID,c.STAFF_NAME,
+        d.DEPARTMENT_NAME,e.POSITION_NAME, a.OPERATION_TIME
+        from t_entry_log a,t_staff b,t_staff c,t_department d,t_position e
+        <where>
+            a.OPERATOR_ID = b.STAFF_ID and a.ENTRANT_ID = c.STAFF_ID
+            and c.DEPARTMENT_ID = d.DEPARTMENT_ID and c.POSITION_ID = e.POSITION_ID
             <if test="condition1 != null and condition1 != '' ">
                 and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")
             </if>
