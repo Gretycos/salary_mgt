@@ -54,6 +54,8 @@ public class EntryLogController extends BaseController {
 
     private Staff currentUser;
 
+    private List<Util> permissionList;
+
     /**
      * 获取当前登陆人信息
      */
@@ -75,6 +77,8 @@ public class EntryLogController extends BaseController {
     @RequiresPermissions("entry:view")
     public String index() {
         currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+        permissionList = utilService.selectList((long)currentUser.getStaffId()); //获取该用户权限
+
         return PREFIX + "entryLog.html";
     }
 
@@ -223,7 +227,7 @@ public class EntryLogController extends BaseController {
                                 @RequestParam (value="selectList")String conditions,
                                 @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                                 @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
-        Map<String,String> info = JSONObject.parseObject(conditions,Map.class);
+        Map<String, String> info = JSONObject.parseObject(conditions, Map.class);
         Page<EntryLog> page = new Page<>(pageNumber, pageSize);
         String department = info.get("department");
         String position = info.get("position");
@@ -231,53 +235,33 @@ public class EntryLogController extends BaseController {
         Wrapper<EntryLog> ew = new EntityWrapper<>();
 
         //权限部分
-        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
-            // 根据用户ID查询用户真实权限列表
-            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
-            if (permissionList.size()==0){
-                //当前用户无任何权限
+        if (!department.equals("")) {
+            int departmentId = Integer.parseInt(department);
+            ew.andNew().eq("c.DEPARTMENT_ID", departmentId);
+        } else {
+            boolean able = false;
+            ew.andNew();
+            for (Util p : permissionList) {
+                if (p.getPermissionName().equals("日志查看")) {
+                    //该员工用户可以查看新员工录入该部门的日志
+                    able = true;
+                    ew.or().eq("c.DEPARTMENT_ID", p.getDepartmentId());
+                }
+            }
+            if (!able) {//该用户没有日志查看权限
                 System.out.println("您没有查看该日志的权限！");
                 return 0;
             }
-            if (!department.equals("")){
-                int departmentId = Integer.parseInt(department);
-                ew.eq("c.DEPARTMENT_ID",departmentId);
-            }
-            else {
-                boolean able=false;
-                for (Util p: permissionList){
-                    if(p.getPermissionName().equals("日志查看")){
-                        //该员工用户可以查看新员工录入该部门的日志
-                        able = true;
-                        ew.or().eq("c.DEPARTMENT_ID",p.getDepartmentId());
-                    }
-                }
-                if (!able){//该用户没有日志查看权限
-                    System.out.println("您没有查看该日志的权限！");
-                    return 0;
-                }
-            }
         }
-        else{//当前用户不为员工,可能是部门经理或总经理
-            //如果是总经理，则可以查看全部日志
-            //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门录入新员工的日志
-            if(currentUser.getDepartment().getDepartmentId()!=10 &&
-                    currentUser.getDepartment().getDepartmentId()!=99){
-                ew.or().eq("c.DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
-            }
-        }
-
-
         if (!position.equals("")){
             int positionId = Integer.parseInt(position);
-            ew.eq("c.POSITION_ID",positionId);
+            ew.andNew().eq("c.POSITION_ID",positionId);
         }
         if (!operationTime.equals("")){
             if (operationTime.equals("所有")){
                 ew.isNotNull("OPERATION_TIME");
             }else{
-                ew.like("OPERATION_TIME",operationTime+"%");
+                ew.andNew().like("OPERATION_TIME",operationTime+"%");
             }
         }
         List<EntryLog> list = entryLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);

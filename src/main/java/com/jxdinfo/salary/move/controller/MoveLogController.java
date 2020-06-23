@@ -59,6 +59,8 @@ public class MoveLogController extends BaseController {
 
     private Staff currentUser;
 
+    private List<Util> permissionList;
+
     /**
      * 获取当前登陆人信息
      */
@@ -80,6 +82,7 @@ public class MoveLogController extends BaseController {
     @RequiresPermissions("move:view")
     public String index() {
         currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
+        permissionList = utilService.selectList((long)currentUser.getStaffId());
         return PREFIX + "moveLog.html";
     }
 
@@ -243,20 +246,13 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
-            // 根据用户ID查询用户真实权限列表
-            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
-            if (permissionList.size()==0){
-                //当前用户无任何权限
-                System.out.println("您没有查看该日志的权限！");
-                return 0;
-            }
-            if (!oldD.equals("")){
-                int oldDId = Integer.parseInt(oldD);
-                ew.eq("OLD_DEPARTMENT_ID",oldDId);
-            }
-            else {
+        if (!oldD.equals("")){
+            int oldDId = Integer.parseInt(oldD);
+            ew.andNew().eq("OLD_DEPARTMENT_ID",oldDId);
+        }
+        else{
                 boolean able=false;
+                ew.andNew();
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("日志查看")){
                         //该员工用户可以查看从该部门调出的日志
@@ -269,35 +265,25 @@ public class MoveLogController extends BaseController {
                     return 0;
                 }
             }
-        }
-        else{//当前用户不为员工,可能是部门经理或总经理
-            //如果是总经理，则可以查看全部日志
-            //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出的日志
-            if(currentUser.getDepartment().getDepartmentId()!=10 &&
-                    currentUser.getDepartment().getDepartmentId()!=99){
-                ew.or().eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
-            }
-        }
 
 
         if (!oldP.equals("")){
             int oldPId = Integer.parseInt(oldP);
-            ew.eq("OLD_POSITION_ID",oldPId);
+            ew.andNew().eq("OLD_POSITION_ID",oldPId);
         }
         if (!newD.equals("")){
             int newDId = Integer.parseInt(newD);
-            ew.eq("NEW_DEPARTMENT_ID",newDId);
+            ew.andNew().eq("NEW_DEPARTMENT_ID",newDId);
         }
         if (!newP.equals("")){
             int newPId = Integer.parseInt(newP);
-            ew.eq("NEW_POSITION_ID",newPId);
+            ew.andNew().eq("NEW_POSITION_ID",newPId);
         }
         if (!operationTime.equals("")){
             if (operationTime.equals("所有")){
                 ew.isNotNull("OPERATION_TIME");
             }else{
-                ew.like("OPERATION_TIME",operationTime+"%");
+                ew.andNew().like("OPERATION_TIME",operationTime+"%");
             }
         }
         //List<MoveLog> list
