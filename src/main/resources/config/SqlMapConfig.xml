@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 和spring整合后 environments配置将废除-->
+    <environments default="development">
+        <environment id="development">
+            <!-- 使用jdbc事务管理-->
+            <transactionManager type="JDBC" />
+            <!-- 数据库连接池-->
+            <!-- mybatis内置的连接池效率不高所以实际公司开发中我们不用 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver" />
+                <property name="url" value="jdbc:mysql://rm-bp1667p54qs54l1lq9o.mysql.rds.aliyuncs.com/xcgl_db?serverTimezone=UTC&amp;characterEncoding=utf-8" />
+
+                <property name="username" value="salary" />
+                <property name="password" value="test@1234" />
+            </dataSource>
+        </environment>
+    </environments>
+
+
+    <mappers>
+        <mapper resource="com/jxdinfo/salary/salaryList/dao/mapping/TMonthlySalaryMapper.xml"/>
+    </mappers>
+
+</configuration>

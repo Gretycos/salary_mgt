@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.HistoricalWage.dao.HistoricalWageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.HistoricalWage.model.HistoricalWage">
+        <result column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+      <!--  <result column="DEPARTMENT_ID" property="departmentId" />
+        <result column="POSITION_ID" property="positionId" />-->
+        <result column="MONTHLY_PAYROLL" property="monthlyPayroll" />
+        <result column="PAY_TIME" property="payTime" />
+        <result column="SALARY_AMOUNT" property="salaryAmount" />
+        <result column="SALARY_OF_AGE" property="salaryOfAge" />
+        <result column="IAHF" property="iahf" />
+        <result column="AWARD_AMOUNT" property="awardAmount" />
+    </resultMap>
+
+    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.HistoricalWage.model.HistoricalWage" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department"  javaType="com.jxdinfo.salary.SDepartment.model.SDepartment"
+                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
+        <association property="position"  javaType="com.jxdinfo.salary.TPosition.model.TPosition"
+                     column="POSITION_ID" select="getPositionByPositionId"/>
+    </resultMap>
+
+    <!-- 带部门查询映射结果 -->
+    <resultMap id="WithDepResultMap" type="com.jxdinfo.salary.HistoricalWage.model.HistoricalWage" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department" javaType="com.jxdinfo.salary.SDepartment.model.SDepartment"
+                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
+    </resultMap>
+
+    <!-- 带职位查询映射结果 -->
+    <resultMap id="WithPosResultMap" type="com.jxdinfo.salary.HistoricalWage.model.HistoricalWage" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="position" javaType="com.jxdinfo.salary.TPosition.model.TPosition"
+                     column="POSITION_ID" select="getPositionByPositionId"/>
+    </resultMap>
+
+    <!-- 关联查询部门 -->
+    <select id="getDepartmentByDepartmentId" resultMap="com.jxdinfo.salary.SDepartment.dao.SDepartmentMapper.BaseResultMap">
+        select * from t_department where DEPARTMENT_ID=#{departmentId}
+    </select>
+
+    <!-- 关联查询职位 -->
+    <select id="getPositionByPositionId" resultMap="com.jxdinfo.salary.TPosition.dao.TPositionMapper.BaseResultMap">
+        select * from t_position where POSITION_ID=#{positionId}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        STAFF_ID AS staffId, STAFF_NAME AS staffName, DEPARTMENT_ID AS departmentId, POSITION_ID AS positionId, MONTHLY_PAYROLL AS monthlyPayroll, PAY_TIME AS payTime, SALARY_AMOUNT AS salaryAmount, SALARY_OF_AGE AS salaryOfAge, IAHF AS iahf, AWARD_AMOUNT AS awardAmount
+    </sql>
+    <select id="selectPage" resultMap="WithRefResultMap">
+        select * from t_historical_wage
+        <where>
+            ${ew.sqlSegment}
+        </where>
+        ORDER BY PAY_TIME DESC
+    </select>
+
+</mapper>

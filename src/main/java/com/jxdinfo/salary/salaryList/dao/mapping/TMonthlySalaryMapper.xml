@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.salaryList.model.TMonthlySalary">
+        <result column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+        <result column="DEPARTMENT_ID" property="departmentId" />
+        <result column="POSITION_ID" property="positionId" />
+        <result column="SALARY_AMOUNT" property="salaryAmount" />
+        <result column="SALARY_OF_AGE" property="salaryOfAge" />
+        <result column="IAHF" property="iahf" />
+        <result column="AWARD_AMOUNT" property="awardAmount" />
+        <result column="TOTAL" property="total" />
+    </resultMap>
+
+    <!--新增-->
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseTBonusMap" type="com.jxdinfo.salary.salaryList.model.TBonus">
+        <result column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+        <result column="MONTHLY_PAYROLL" property="monthlyPayroll" />
+        <result column="PAY_TIME" property="payTime" />
+        <result column="PERFORMANCE_APPRAISAL_BONUS" property="performanceAppraisalBonus" />
+        <result column="NO_ABSENT_BONUS" property="noAbsentBonus" />
+        <result column="SPECIAL_CONTRIBUTIONS_BONUS" property="specialContributionsBonus" />
+        <result column="DECEMBER_BONUS" property="decemberBonus" />
+    </resultMap>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        STAFF_ID AS staffId, STAFF_NAME AS staffName, DEPARTMENT_ID AS departmentId, POSITION_ID AS positionId, SALARY_AMOUNT AS salaryAmount, SALARY_OF_AGE AS salaryOfAge, IAHF AS iahf, AWARD_AMOUNT AS awardAmount, TOTAL AS total
+    </sql>
+
+    <!--根据员工号查询员工所在部门-->
+    <select id="staff_departmentId" resultType="Integer">
+        select DEPARTMENT_ID from t_staff where STAFF_ID = #{id}
+    </select>
+
+    <!--根据员工号查询员工级别-->
+    <select id="staff_positionId" resultType="Integer">
+        select POSITION_ID from t_staff where STAFF_ID = #{id}
+    </select>
+
+    <!--查找所负责员工的id-->
+    <select id="staff_id_list"  resultType="Integer">
+        select STAFF_ID from t_staff where DEPARTMENT_ID = #{departmentId} and POSITION_ID &lt;= #{positionId}
+    </select>
+
+    <!--查询所有不属于某个部门的所有员工的id-->
+    <select id="all_staff_list" resultType="Integer">
+        select STAFF_ID from t_staff where DEPARTMENT_ID != #{departmentId}
+    </select>
+
+    <!--给定部门id 查找所有员工的id-->
+    <select id="all_staff_list_with_departmentId" resultType="Integer">
+        select STAFF_ID from t_staff where DEPARTMENT_ID = #{departmentId}
+    </select>
+
+
+
+    <!--根据员工id获取员工当前工资-->
+    <!--通过测试-->
+    <select id="staff_monthly_salary" parameterType="Integer" resultMap="BaseResultMap">
+        select * from t_monthly_salary where staff_id=#{id}
+    </select>
+
+
+
+    <!--根据员工id获取员工奖金情况-->
+    <select id="getBonus" parameterType="Integer" resultMap="BaseTBonusMap">
+        select * from t_bonus where STAFF_ID= #{id} and MONTHLY_PAYROLL=#{payMonth}
+    </select>
+
+    <!--获取当月工资表中的用户工资总额-->
+    <select id="getTotal" parameterType="Integer" resultType="Integer">
+        select TOTAL from t_monthly_salary where STAFF_ID = #{staffId};
+    </select>
+
+
+
+    <!--根据员工id更新员工奖金金额-->
+    <!--测试通过-->
+    <update id="updateBonus" >
+        update t_monthly_salary set AWARD_AMOUNT = #{awardAmount} where STAFF_ID = #{id}
+
+    </update>
+
+    <!--根据员工id更新员工工资总金额-->
+    <update id="updateTotal" >
+        update t_monthly_salary set TOTAL = #{total} where STAFF_ID = #{id}
+
+    </update>
+
+    <!--查询当月工资表中的所有员工id-->
+    <select id="getIdsInMonthly" resultType="Integer" >
+        select STAFF_ID from t_monthly_salary
+    </select>
+
+    <!--给定用户id 查询当月工资表中该用户的基础工资-->
+    <select id="getBaseSalaryInMonthly" resultType="Integer">
+        select SALARY_AMOUNT from t_monthly_salary where STAFF_ID = #{id}
+    </select>
+
+    <!--给定用户id 查询基础工资表中该用户的基础工资-->
+    <select id="getBaseSalaryInInitial" resultType="Integer">
+        select INITIAL_SALARY from t_inisalary_info where STAFF_ID = #{id}
+    </select>
+
+    <!--根据员工id和初始工资表 更新员工当月工资表的初始工资-->
+    <update id="updateBaseSalary" >
+        update t_monthly_salary set SALARY_AMOUNT = #{newSalary} where STAFF_ID = #{id}
+
+    </update>
+
+    <!--根据staff 添加新员工的当月工资-->
+    <insert id="insertNewStaff" >
+        insert  into t_monthly_Salary(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,POSITION_ID,SALARY_AMOUNT,SALARY_OF_AGE,IAHF,AWARD_AMOUNT,TOTAL)
+         values (#{staffId}, #{staffName}, #{departmentId},#{positionId}, #{salaryAmount}, #{salaryOfAge}, #{iahf}, #{awardAmount}, #{total})
+    </insert>
+
+    <!--删除离职员工的当月工资记录-->
+    <delete id="deleteStaff" parameterType="Integer">
+        delete from t_monthly_salary where STAFF_ID = #{staffId}
+    </delete>
+</mapper>
