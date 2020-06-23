@@ -11,8 +11,23 @@
         <result column="DEPARTURE_TIME" property="departureTime" />
     </resultMap>
 
+    <!-- 通用查询映射结果 -->
+    <resultMap id="WithIDNameResultMap" type="com.jxdinfo.salary.staff.model.Staff">
+        <id column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+    </resultMap>
+
     <!-- 带关联查询映射结果 -->
     <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
+                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
+        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
+                     column="POSITION_ID" select="getPositionByPositionId"/>
+    </resultMap>
+
+    <!-- 带关联查询映射结果 -->
+    <resultMap id="WithRef2ResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="WithIDNameResultMap">
         <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
         <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
                      column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
