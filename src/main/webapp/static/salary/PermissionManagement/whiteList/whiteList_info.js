@@ -144,7 +144,7 @@ WhiteListInfoDlg.editSubmit = function() {
         //提交信息
         var ajax = new $ax(Hussar.ctxPath + "/whiteList/update", function(data){
             if (data=="exist") {
-                Hussar.error("修改后的数据已存在,不可重复");
+                Hussar.error("修改后的权限已存在,不可重复");
                 return
             }
             if (data==true){
