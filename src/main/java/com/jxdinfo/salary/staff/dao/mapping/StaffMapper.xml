@@ -27,7 +27,7 @@
     </resultMap>
 
     <!-- 带关联查询映射结果 -->
-    <resultMap id="WithRef2ResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="WithIDNameResultMap">
+    <resultMap id="WithRefResultMap2" type="com.jxdinfo.salary.staff.model.Staff" extends="WithIDNameResultMap">
         <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
         <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
                      column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
