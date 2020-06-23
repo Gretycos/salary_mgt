@@ -55,6 +55,8 @@ public class DepartureLogController extends BaseController {
     @Autowired
     private IUtilService utilService;
 
+    private Staff currentUser;
+
     /**
      * 获取当前登陆人信息
      */
@@ -76,6 +78,7 @@ public class DepartureLogController extends BaseController {
     @BussinessLog(key = "/departure/view", type = BussinessLogType.QUERY, value = "离职日志页面")
     @RequiresPermissions("departure:view")
     public String index() {
+        currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         return PREFIX + "departureLog.html";
     }
 
@@ -98,8 +101,6 @@ public class DepartureLogController extends BaseController {
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
 
         //权限部分
-        boolean able=false;
-        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
             List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
@@ -108,11 +109,12 @@ public class DepartureLogController extends BaseController {
                 System.out.println("您没有查看该日志的权限！");
                 return 0;
             } else {
+                boolean able=false;
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("日志查看")){
-                        //该员工用户可以查看该部门的离职日志
+                        //该员工用户可以查看从该部门离职员工的日志
                         able = true;
-                        //筛选条件
+                        ew.or().eq("c.DEPARTMENT_ID",p.getDepartmentId());
                     }
                 }
                 if (!able){//该用户没有日志查看权限
@@ -124,16 +126,15 @@ public class DepartureLogController extends BaseController {
         else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门离职的日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门离职的日志
             if(currentUser.getDepartment().getDepartmentId()!=10 &&
                     currentUser.getDepartment().getDepartmentId()!=99){
-                able = true;
-                //筛选条件
+                ew.or().eq("c.DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
             }
         }
 
         Map<String, Object> result = new HashMap<>(5);
-        List<DepartureLog> list = departureLogService.likeSelect(page,condition1,condition2,condition3);
+        List<DepartureLog> list = departureLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);
         result.put("total", page.getTotal());
         result.put("rows", list);
         return result;
@@ -156,8 +157,6 @@ public class DepartureLogController extends BaseController {
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
 
         //权限部分
-        boolean able=false;
-        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
             List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
@@ -166,11 +165,12 @@ public class DepartureLogController extends BaseController {
                 System.out.println("您没有查看该日志的权限！");
                 return 0;
             } else {
+                boolean able=false;
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("日志查看")){
-                        //该员工用户可以查看该部门的离职日志
+                        //该员工用户可以查看从该部门离职员工的日志
                         able = true;
-                        //筛选条件
+                        ew.or().eq("c.DEPARTMENT_ID",p.getDepartmentId());
                     }
                 }
                 if (!able){//该用户没有日志查看权限
@@ -182,23 +182,34 @@ public class DepartureLogController extends BaseController {
         else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门离职的日志
+            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门离职的日志
             if(currentUser.getDepartment().getDepartmentId()!=10 &&
                     currentUser.getDepartment().getDepartmentId()!=99){
-                able = true;
-                //筛选条件
+                ew.or().eq("c.DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
             }
         }
 
         //模糊查询
-        List<DepartureLog> list = departureLogService.likeSelect(page,condition1,condition2,condition3);
+        List<DepartureLog> list = departureLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);
+
+        List<Department> departmentList = new ArrayList<>();
+        List<Position> positionList = new ArrayList<>();
         List<String> operationTimeList = new ArrayList<>();
+
         for(DepartureLog d:list){
+            departmentList.add(d.getDeparture().getDepartment());
+            positionList.add(d.getDeparture().getPosition());
             operationTimeList.add(d.getOperationTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(d.getOperationTime()));
         }
+
+        Set<Department> departments = new HashSet<>(departmentList);
+        Set<Position> positions = new HashSet<>(positionList);
         Set<String> operationTimes = new HashSet<>(operationTimeList);
+
         Map<String, Object> result = new HashMap<>();
         result.put("total", page.getTotal());
+        result.put("departments", departments);
+        result.put("positions", positions);
         result.put("operationTimes", operationTimes);
         return result;
     }
@@ -219,44 +230,19 @@ public class DepartureLogController extends BaseController {
                                 @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Map<String,String> info = JSONObject.parseObject(conditions,Map.class);
         Page<DepartureLog> page = new Page<>(pageNumber, pageSize);
+        String department = info.get("department");
+        String position = info.get("position");
         String operationTime = info.get("operationTime");
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
 
-        //权限部分
-        boolean able=false;
-        Staff currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
-        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
-            // 根据用户ID查询用户真实权限列表
-            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
-            if (permissionList.size()==0){
-                //当前用户无任何权限
-                System.out.println("您没有查看该日志的权限！");
-                return 0;
-            } else {
-                for (Util p: permissionList){
-                    if(p.getPermissionName().equals("日志查看")){
-                        //该员工用户可以查看该部门的离职日志
-                        able = true;
-                        //筛选条件
-                    }
-                }
-                if (!able){//该用户没有日志查看权限
-                    System.out.println("您没有查看该日志的权限！");
-                    return 0;
-                }
-            }
+        if (!department.equals("")){
+            int departmentId = Integer.parseInt(department);
+            ew.eq("c.DEPARTMENT_ID",departmentId);
         }
-        else{//当前用户不为员工,可能是部门经理或总经理
-            //如果是总经理，则可以查看全部日志
-            //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问自己部门离职的日志
-            if(currentUser.getDepartment().getDepartmentId()!=10 &&
-                    currentUser.getDepartment().getDepartmentId()!=99){
-                able = true;
-                //筛选条件
-            }
+        if (!position.equals("")){
+            int positionId = Integer.parseInt(position);
+            ew.eq("c.POSITION_ID",positionId);
         }
-
         if (!operationTime.equals("")){
             if (operationTime.equals("所有")){
                 ew.isNotNull("OPERATION_TIME");

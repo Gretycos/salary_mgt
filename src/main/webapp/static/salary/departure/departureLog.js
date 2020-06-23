@@ -12,6 +12,8 @@ var DepartureLog = {
 
 // 筛选列表
 var selectList={
+    department:'',
+    position:'',
     operationTime:''
 }
 
@@ -23,7 +25,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
 
-    form.on('select',function (data) {
+    form.on('select(searchBar)',function (data) {
         // console.log(data);
         selectList[data.elem.id] = data.value;
         // console.log(selectList);
@@ -78,7 +80,15 @@ DepartureLog.initColumn = function () {
             formatter: function(value, item, index){
                 return value.staffName
             }},
-            {title: '操作时间', field: 'operationTime', align: 'center',halign:'center'}
+        {title: '原属部门', field: 'departure', align: 'center',halign:'center',
+            formatter: function(value, item, index){
+                return value.department.departmentName
+            }},
+        {title: '原属岗位', field: 'departure', align: 'center',halign:'center',
+            formatter: function(value, item, index){
+                return value.position.positionName
+            }},
+        {title: '操作时间', field: 'operationTime', align: 'center',halign:'center'}
     ];
 };
 
@@ -107,6 +117,8 @@ DepartureLog.search = function () {
 
 //清空筛选下拉框
 selectList.empty = function(){
+    $("#department").empty();
+    $("#position").empty();
     $("#operationTime").empty();
 }
 
@@ -118,6 +130,18 @@ selectList.empty = function(){
         selectList.empty();
         var ajax = new $ax(Hussar.ctxPath + "/departure/list/select",function (data) {
             // console.log(data);
+            $("#department").append(new Option('请选择原属部门',""));
+            $("#department").val("");
+            $.each(data.departments,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#department").append(new Option(item.departmentName,item.departmentId));
+            });
+            $("#position").append(new Option('请选择原属岗位',""));
+            $("#position").val("");
+            $.each(data.positions,function (index,item) {
+                //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
+                $("#position").append(new Option(item.positionName,item.positionId));
+            });
             $("#operationTime").append(new Option('请选择员工离职时间',""));
             $("#operationTime").append(new Option('所有','所有'));
             $("#operationTime").val("");
@@ -125,7 +149,7 @@ selectList.empty = function(){
                 //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
                 $("#operationTime").append(new Option(item,item));
             });
-            form.render('select','searchBar');
+            form.render('select','search');
         },function (data) {
             Hussar.error("获取筛选列表失败!");
         });
