@@ -52,7 +52,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             },
             queryParamsType:'',
         }
-        $('#EntryLogTable').bootstrapTable('refreshOptions',{pageNumber:1});
+        $('#EntryLogTable').bootstrapTable('selectPage', 1);
         $('#EntryLogTable').bootstrapTable('refreshOptions',opt);
     });
 
@@ -109,6 +109,7 @@ EntryLog.search = function () {
             condition3:condition3
         }
     }
+
     $('#EntryLogTable').bootstrapTable('refresh',opt);
 };
 

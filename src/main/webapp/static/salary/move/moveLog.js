@@ -54,7 +54,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             },
             queryParamsType:'',
         }
-        $('#MoveLogTable').bootstrapTable('refreshOptions',{pageNumber:1});
+        $('#MoveLogTable').bootstrapTable('selectPage', 1);
         $('#MoveLogTable').bootstrapTable('refreshOptions',opt);
     });
 
