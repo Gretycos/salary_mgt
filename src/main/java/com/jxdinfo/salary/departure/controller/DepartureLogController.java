@@ -235,39 +235,6 @@ public class DepartureLogController extends BaseController {
         String operationTime = info.get("operationTime");
         Wrapper<DepartureLog> ew = new EntityWrapper<>();
 
-        //权限部分
-        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
-            // 根据用户ID查询用户真实权限列表
-            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
-            if (permissionList.size()==0){
-                //当前用户无任何权限
-                System.out.println("您没有查看该日志的权限！");
-                return 0;
-            } else {
-                boolean able=false;
-                for (Util p: permissionList){
-                    if(p.getPermissionName().equals("日志查看")){
-                        //该员工用户可以查看从该部门离职员工的日志
-                        able = true;
-                        ew.or().eq("c.DEPARTMENT_ID",p.getDepartmentId());
-                    }
-                }
-                if (!able){//该用户没有日志查看权限
-                    System.out.println("您没有查看该日志的权限！");
-                    return 0;
-                }
-            }
-        }
-        else{//当前用户不为员工,可能是部门经理或总经理
-            //如果是总经理，则可以查看全部日志
-            //如果是人力资源部经理，则可以查看全部日志
-            //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门离职的日志
-            if(currentUser.getDepartment().getDepartmentId()!=10 &&
-                    currentUser.getDepartment().getDepartmentId()!=99){
-                ew.or().eq("c.DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
-            }
-        }
-
         if (!department.equals("")){
             int departmentId = Integer.parseInt(department);
             ew.eq("c.DEPARTMENT_ID",departmentId);
