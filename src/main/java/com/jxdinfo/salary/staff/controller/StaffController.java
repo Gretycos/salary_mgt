@@ -18,6 +18,7 @@ import com.jxdinfo.salary.entry.service.IEntryLogService;
 import com.jxdinfo.salary.move.service.IMoveLogService;
 import com.jxdinfo.salary.position.model.Position;
 import com.jxdinfo.salary.position.service.IPositionService;
+import com.jxdinfo.salary.salaryList.service.ITMonthlySalaryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -63,7 +64,11 @@ public class StaffController extends BaseController {
     private IUtilService utilService;
     @Autowired
     private ITInisalaryInfoService inisalaryInfoService;
+    @Autowired
+    private ITMonthlySalaryService monthlySalaryService;
+    //当前用户
     private Staff currentUser;
+
     /**
      * 跳转到人员管理首页
      */
@@ -356,6 +361,7 @@ public class StaffController extends BaseController {
 //        System.out.println(staffId+"\n"+departmentId);
 //        System.out.println("==========================");
         inisalaryInfoService.addEmployee(staffId,staffName,departmentId); //录入初始工资
+        monthlySalaryService.insertNewStaff(staff); // 录入当月工资表
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
         res.put("message","成功");
@@ -423,8 +429,9 @@ public class StaffController extends BaseController {
             Timestamp departureTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     .format(new Date(jstime)));
             departure.setDepartureTime(departureTime);
-            staffService.updateById(departure); //离职
-            departureLogService.addDepartureLog(operator,departure,departureTime); //离职日志
+            staffService.updateById(departure); // 离职
+            departureLogService.addDepartureLog(operator,departure,departureTime); // 离职日志
+            monthlySalaryService.deleteStaff(departureId); // 移出当月工资表
         }
 
         Map<String,Object> res= new HashMap<>();
