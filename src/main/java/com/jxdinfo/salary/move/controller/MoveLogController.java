@@ -103,7 +103,7 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
+        if (currentUser.getPosition().getPositionId()!=2){ //当前用户不为超级管理员
             // 根据用户ID查询用户真实权限列表
             //List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
             if (permissionList.size()==0){
@@ -125,15 +125,15 @@ public class MoveLogController extends BaseController {
                 }
             }
         }
-        else{//当前用户不为员工,可能是部门经理或总经理
+        //else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
             //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出的日志
-            if(currentUser.getDepartment().getDepartmentId()!=10 &&
-                    currentUser.getDepartment().getDepartmentId()!=99){
-                    ew.or().eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
-                }
-            }
+        //    if(currentUser.getDepartment().getDepartmentId()!=10 &&
+        //            currentUser.getDepartment().getDepartmentId()!=99){
+        //            ew.or().eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
+        //        }
+        //    }
 
         Map<String, Object> result = new HashMap<>(5);
         List<MoveLog> list = moveLogService.likeSelectByCondition(page, ew, condition1, condition2, condition3);
@@ -180,15 +180,15 @@ public class MoveLogController extends BaseController {
                 }
             }
         }
-        else{//当前用户不为员工,可能是部门经理或总经理
+        //else{//当前用户不为员工,可能是部门经理或总经理
             //如果是总经理，则可以查看全部日志
             //如果是人力资源部经理，则可以查看全部日志
             //如果既不是总经理也不是人力资源部经理，则可以访问从自己部门调出的日志
-            if(currentUser.getDepartment().getDepartmentId()!=10 &&
-                    currentUser.getDepartment().getDepartmentId()!=99){
-                ew.or().eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
-            }
-        }
+        //    if(currentUser.getDepartment().getDepartmentId()!=10 &&
+        //            currentUser.getDepartment().getDepartmentId()!=99){
+        //        ew.or().eq("OLD_DEPARTMENT_ID", currentUser.getDepartment().getDepartmentId());
+        //    }
+        //}
 
         List<MoveLog> list = moveLogService.likeSelectByCondition(page,ew,condition1,condition2,condition3);
 
@@ -246,25 +246,45 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        if (!oldD.equals("")){
-            int oldDId = Integer.parseInt(oldD);
-            ew.andNew().eq("OLD_DEPARTMENT_ID",oldDId);
-        }
-        else{
-                boolean able=false;
-                ew.andNew();
-                for (Util p: permissionList){
-                    if(p.getPermissionName().equals("日志查看")){
-                        //该员工用户可以查看从该部门调出的日志
-                        able = true;
-                        ew.or().eq("OLD_DEPARTMENT_ID",p.getDepartmentId());
+        if (currentUser.getPosition().getPositionId()!=2) { //当前用户不为超级管理员
+            // 根据用户ID查询用户真实权限列表
+            if (permissionList.size() == 0) {
+                //当前用户无任何权限
+                System.out.println("您没有查看该日志的权限！");
+                return 0;
+            } else {
+                if (!oldD.equals("")) {
+                    int oldDId = Integer.parseInt(oldD);
+                    ew.andNew().eq("OLD_DEPARTMENT_ID", oldDId);
+                } else {
+                    boolean able = false;
+                    ew.andNew();
+                    int count = 1;
+                    for (Util p : permissionList) {
+                        if (p.getPermissionName().equals("日志查看")) {
+                            //该员工用户可以查看从该部门调出的日志
+                            if (count == 1) {
+                                ew.eq("OLD_DEPARTMENT_ID", p.getDepartmentId());
+                                count += 1;
+                            } else {
+                                ew.or().eq("OLD_DEPARTMENT_ID", p.getDepartmentId());
+                            }
+                            able = true;
+                        }
+                    }
+                    if (!able) {//该用户没有日志查看权限
+                        System.out.println("您没有查看该日志的权限！");
+                        return 0;
                     }
                 }
-                if (!able){//该用户没有日志查看权限
-                    System.out.println("您没有查看该日志的权限！");
-                    return 0;
-                }
             }
+        }
+        else {
+            if (!oldD.equals("")) {
+                int oldDId = Integer.parseInt(oldD);
+                ew.andNew().eq("OLD_DEPARTMENT_ID", oldDId);
+            }
+        }
 
 
         if (!oldP.equals("")){
