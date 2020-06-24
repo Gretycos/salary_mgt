@@ -158,7 +158,7 @@ public class MoveLogController extends BaseController {
         Wrapper<MoveLog> ew = new EntityWrapper<>();
 
         //权限部分
-        if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
+        if (currentUser.getPosition().getPositionId()!=2){ //当前用户不为超级管理员
             // 根据用户ID查询用户真实权限列表
             //List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
             if (permissionList.size()==0){
