@@ -110,7 +110,7 @@ StaffInfoDlg.addSubmit = function() {
                 window.parent.$('#StaffTable').bootstrapTable('refresh');
                 StaffInfoDlg.close();
             }else{
-                Hussar.error("新员工入职成功!" + data.message + "!");
+                Hussar.error("新员工入职失败!" + data.message + "!");
             }
         },function(data){
             Hussar.error("操作失败!" + data.responseJSON.message + "!");

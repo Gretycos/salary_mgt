@@ -20,6 +20,7 @@ import com.jxdinfo.salary.position.model.Position;
 import com.jxdinfo.salary.position.service.IPositionService;
 import com.jxdinfo.salary.salaryList.service.ITMonthlySalaryService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
@@ -125,7 +126,7 @@ public class StaffController extends BaseController {
         if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
             List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
-            if (permissionList.size()==0){
+            if (permissionList.size() == 0){
 //                System.out.println("=======================该用户无权限==================");
                 ew.eq("DEPARTMENT_ID",-1);
             } else {
@@ -199,8 +200,8 @@ public class StaffController extends BaseController {
             genders.add(s.getGender());
             departments.add(s.getDepartment());
             positions.add(s.getPosition());
-            entryTimes.add(new SimpleDateFormat("yyyy-MM-dd").format(s.getEntryTime()));
-            departureTimes.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(s.getDepartureTime()));
+            entryTimes.add(new SimpleDateFormat("yyyy-MM").format(s.getEntryTime()));
+            departureTimes.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM").format(s.getDepartureTime()));
         }
 
         Map<String, Object> result = new HashMap<>();
@@ -291,6 +292,7 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/add", type = BussinessLogType.INSERT, value = "新增人员管理---入职")
     @RequiresPermissions("staff:add")
     @ResponseBody
+    @Transactional
     public Object add(@RequestParam Map<String, String> staffInfo) {
 //        System.out.println(staffInfo);
 //        int operatorId = getCurrentAccountId();
@@ -394,6 +396,7 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/delete", type = BussinessLogType.DELETE, value = "删除人员管理---离职")
     @RequiresPermissions("staff:delete")
     @ResponseBody
+    @Transactional
     public Object delete(@RequestParam Map<String, String> info) {
         Long jstime = Long.parseLong(info.get("jstime"));
 
@@ -465,6 +468,7 @@ public class StaffController extends BaseController {
     @BussinessLog(key = "/staff/update", type = BussinessLogType.MODIFY, value = "修改人员管理")
     @RequiresPermissions("staff:update")
     @ResponseBody
+    @Transactional
     public Object update(@RequestParam Map<String, String> staffInfo) {
 //        System.out.println(staffInfo);
 //        int operatorId = getCurrentAccountId();
@@ -578,6 +582,9 @@ public class StaffController extends BaseController {
         return staffService.selectById(staffId);
     }
 
+    /**
+     * 获取当前登录用户的Id
+     */
     private int getCurrentAccountId(){
         String account = ShiroKit.getUser().getAccount();
         try{

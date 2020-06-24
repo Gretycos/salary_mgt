@@ -49,10 +49,6 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
                 }
             },
             queryParamsType:'',
-            // query:{
-            //     condition:condition,
-            //     selectList:JSON.stringify(selectList)
-            // }
         }
         $('#StaffTable').bootstrapTable('selectPage', 1);
         $('#StaffTable').bootstrapTable('refreshOptions',opt);
@@ -86,12 +82,12 @@ Staff.initColumn = function () {
                 }},
             {title: '入职时间', field: 'entryTime', align: 'center',halign:'center',
                 formatter: function(value, item, index){
-                    return value.split(' ')[0]
+                    return value.split(' ')[0].substring(0,7)
                 }},
             {title: '离职时间', field: 'departureTime', align: 'center',halign:'center',
                 formatter: function(value, item, index){
                     if(value){
-                        return value.split(' ')[0]
+                        return value.split(' ')[0].substring(0,7)
                     }
                 }}
     ];
@@ -294,7 +290,6 @@ selectList.init = function(){
 $(function () {
     var defaultColunms = Staff.initColumn();
 
-    selectList.init();
     $('#StaffTable').bootstrapTable({
             dataType:"json",
             url:'/staff/list',
@@ -308,6 +303,7 @@ $(function () {
             sidePagination:"server",
             onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size}
         });
+    selectList.init();
 
 })
 
