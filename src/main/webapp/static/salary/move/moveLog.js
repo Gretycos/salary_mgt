@@ -200,8 +200,7 @@ $(function () {
             sidePagination:"server",
             onPageChange:function(number, size){MoveLog.pageNumber = number ; MoveLog.pageSize = size}
         });
-})
-    form.render('select','searchBar');
     selectList.init();
+})
 
 });
