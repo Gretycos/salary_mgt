@@ -62,8 +62,8 @@ Staff.initColumn = function () {
     return [
         {checkbox:true, halign:'center',align:"center",width: 50},
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (Staff.pageNumber-1)*Staff.pageSize +1 +index ;}},
-            {title: '员工ID', field: 'staffId', align: 'center',halign:'center'},
-            {title: '姓名', field: 'staffName', align: 'center',halign:'center'},
+            {title: '员工工号', field: 'staffId', align: 'center',halign:'center'},
+            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center'},
             {title: '性别', field: 'gender', align: 'center',halign:'center',
                 formatter: function(value, item, index){
                     if(value === '0'){
@@ -80,14 +80,14 @@ Staff.initColumn = function () {
                 formatter: function(value, item, index){
                     return value.positionName
                 }},
-            {title: '入职时间', field: 'entryTime', align: 'center',halign:'center',
+            {title: '入职时间', field: 'entryTime', align: 'center',halign:'center',width: '145',
                 formatter: function(value, item, index){
-                    return value.split(' ')[0].substring(0,7)
+                    return value.split(' ')[0]
                 }},
-            {title: '离职时间', field: 'departureTime', align: 'center',halign:'center',
+            {title: '离职时间', field: 'departureTime', align: 'center',halign:'center',width: '145',
                 formatter: function(value, item, index){
                     if(value){
-                        return value.split(' ')[0].substring(0,7)
+                        return value.split(' ')[0]
                     }
                 }}
     ];
@@ -247,31 +247,32 @@ selectList.init = function(){
     selectList.empty();
     var ajax = new $ax(Hussar.ctxPath + "/staff/list/select",function (data) {
             // console.log(data);
-        $("#gender").append(new Option('请选择员工性别',""));
+        $("#gender").append(new Option('性别',""));
         $("#gender").val("");
         $.each(data.genders,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#gender").append(new Option(item==='0'?'女':'男',item));
         });
-        $("#department").append(new Option('请选择员工部门',""));
+        $("#department").append(new Option('部门',""));
         $("#department").val("");
         $.each(data.departments,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#department").append(new Option(item.departmentName,item.departmentId));
         });
-        $("#position").append(new Option('请选择员工职位',""));
+        $("#position").append(new Option('职位',""));
         $("#position").val("");
         $.each(data.positions,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#position").append(new Option(item.positionName,item.positionId));
         });
-        $("#entryTime").append(new Option('请选择员工入职时间',""));
+        form.render('select','toolbar');
+        $("#entryTime").append(new Option('入职时间',""));
         $("#entryTime").val("");
         $.each(data.entryTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#entryTime").append(new Option(item,item));
         });
-        $("#departureTime").append(new Option('请选择员工离职时间',""));
+        $("#departureTime").append(new Option('离职时间',""));
         $("#departureTime").append(new Option('在职','在职'));
         $("#departureTime").append(new Option('已离职','已离职'));
         $("#departureTime").val("");

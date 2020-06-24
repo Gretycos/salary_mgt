@@ -104,6 +104,7 @@ StaffInfoDlg.addSubmit = function() {
         Hussar.error("入职失败!总经理只能入职高管层");
     }else{
         //提交信息
+        var loading = layer.msg('正在提交', {icon: 16, shade: 0.3, time:0});
         var ajax = new $ax(Hussar.ctxPath + "/staff/add", function(data){
             if(data.code === 200){
                 window.parent.layui.Hussar.success("新员工入职成功!");
@@ -112,8 +113,10 @@ StaffInfoDlg.addSubmit = function() {
             }else{
                 Hussar.error("新员工入职失败!" + data.message + "!");
             }
+            layer.close(loading);
         },function(data){
             Hussar.error("操作失败!" + data.responseJSON.message + "!");
+            layer.close(loading);
         });
         ajax.set(this.staffInfoData);
         ajax.start();
