@@ -20,7 +20,6 @@ var selectList={
     departureTime:''
 }
 
-
 layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
@@ -28,7 +27,10 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 	    ,$ = layui.jquery
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
-    var loadingData = layer.load(1, {shade: [0.5,'#fff'], time:0});
+
+    var loadingData = layer.load(1, {shade: [0.5,'#fff'], time:0}); //遮罩
+
+    // 监听select的变化
 	form.on('select',function (data) {
         // console.log(data);
         selectList[data.elem.id] = data.value;
@@ -334,9 +336,9 @@ $(function () {
             columns: defaultColunms,
             height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
             sidePagination:"server",
-            onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
+            onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size;},
             onLoadSuccess:function () {
-                layer.close(loadingData)
+                layer.close(loadingData);
             }
         });
     selectList.init();

@@ -119,4 +119,48 @@
             DEPARTURE_TIME = #{et.departureTime}
         where STAFF_ID = #{et.staffId}
     </update>
+
+    <!-- 查询下拉性别-->
+    <select id="getGenderSet" resultType="String">
+        select distinct GENDER from t_staff
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!-- 查询下拉部门-->
+    <select id="getDepartmentSet" resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap">
+        select distinct s.DEPARTMENT_ID, d.DEPARTMENT_NAME
+        from t_staff s left join t_department d on (s.DEPARTMENT_ID=d.DEPARTMENT_ID)
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!-- 查询下拉职位-->
+    <select id="getPositionSet" resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap">
+        select distinct s.POSITION_ID, p.POSITION_NAME
+        from t_staff s left join t_position p on (s.POSITION_ID=p.POSITION_ID)
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!-- 查询下拉入职时间-->
+    <select id="getEntryTimeSet" resultType="String">
+        select distinct DATE_FORMAT(ENTRY_TIME,'%Y-%m')
+        from t_staff
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!-- 查询下拉离职时间-->
+    <select id="getDepartureTimeSet" resultType="String">
+        select distinct DATE_FORMAT(DEPARTURE_TIME,'%Y-%m')
+        from t_staff
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
 </mapper>

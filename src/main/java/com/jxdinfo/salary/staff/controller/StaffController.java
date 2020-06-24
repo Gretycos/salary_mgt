@@ -188,21 +188,19 @@ public class StaffController extends BaseController {
             ew.andNew().like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
 
-        List<Staff> staffList = staffService.selectPage(page, ew).getRecords();
+        Set<String> genders = staffService.getGenderSet(ew);
+        Set<Department> departments = staffService.getDepartmentSet(ew);
+        Set<Position> positions = staffService.getPositionSet(ew);
+        Set<String> entryTimes = staffService.getEntryTimeSet(ew);
+        Set<String> departureTimes = staffService.getDepartureTimeSet(ew);
 
-        Set<String> genders = new HashSet<>();
-        Set<Department> departments = new HashSet<>();
-        Set<Position> positions = new HashSet<>();
-        Set<String> entryTimes = new HashSet<>();
-        Set<String> departureTimes = new HashSet<>();
-
-        for (Staff s:staffList){
-            genders.add(s.getGender());
-            departments.add(s.getDepartment());
-            positions.add(s.getPosition());
-            entryTimes.add(new SimpleDateFormat("yyyy-MM").format(s.getEntryTime()));
-            departureTimes.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM").format(s.getDepartureTime()));
-        }
+//        for (Staff s:staffList){
+//            genders.add(s.getGender());
+//            departments.add(s.getDepartment());
+//            positions.add(s.getPosition());
+//            entryTimes.add(new SimpleDateFormat("yyyy-MM").format(s.getEntryTime()));
+//            departureTimes.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM").format(s.getDepartureTime()));
+//        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("total", page.getTotal());

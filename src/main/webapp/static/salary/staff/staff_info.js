@@ -147,7 +147,6 @@ StaffInfoDlg.editSubmit = function() {
                     window.parent.layui.Hussar.success("员工信息修改成功!");
                     window.parent.$('#StaffTable').bootstrapTable('refresh');
                 }else{
-                    StaffInfoDlg.close();
                     Hussar.error("员工信息修改失败!" + data.message + "!");
                 }
                 layer.close(loading);
