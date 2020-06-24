@@ -54,15 +54,13 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             +"&departmentName="+query.departmentName
             +"&permissionName="+query.permissionName;
         var u = "";
+        // 判断是合并状态还是展开状态 请求不同的url
         if (WhiteList.isFold)
-            u += "/whiteList/merge_showBySelect";
+            u += "/whiteList/merge_showBySelect"+str;
         else
-            u += "/whiteList/showBySelect";
-        var opt={
-            url: Hussar.ctxPath + u +str,
-            silent: true
-        };
-        $('#WhiteListTable').bootstrapTable('refresh',opt);
+            u += "/whiteList/showBySelect"+str;
+        // 重新生成表格
+        WhiteList.createNewTable(u);
     });
 
 
@@ -143,11 +141,7 @@ WhiteList.unfold = function(){
     $('#del').show();
     // 请求 whitelist/list
     WhiteList.isFold = false;
-    var opt={
-        url: Hussar.ctxPath + "/whiteList/list",
-        silent: true
-    };
-    $('#WhiteListTable').bootstrapTable('refresh',opt);
+    WhiteList.createNewTable("/whiteList/list");
 
 };
 
@@ -302,14 +296,15 @@ WhiteList.search = function () {
     // ajax.set("search_condition",search_condition);
     // ajax.start();
 
-    var opt={
-        url: Hussar.ctxPath + "/whiteList/merge_list",
-        silent: true,
-        query:{
-            search_condition:search_condition
-        }
-    }
-    $('#WhiteListTable').bootstrapTable('refresh',opt);
+    // var opt={
+    //     url: Hussar.ctxPath + "/whiteList/merge_list",
+    //     silent: true,
+    //     query:{
+    //         search_condition:search_condition
+    //     }
+    // }
+    // $('#WhiteListTable').bootstrapTable('refresh',opt);
+    WhiteList.createNewTable("/whiteList/merge_list?search_condition="+search_condition);
 
 };
 
@@ -328,29 +323,35 @@ WhiteList.reset = function(){
         departmentName:"",
         permissionName:""
     };
+};
 
+WhiteList.createNewTable = function(url){
+    $('#WhiteListTable').bootstrapTable('destroy');
+    WhiteList.pageNumber = 1;
+    WhiteList.pageSize = 20;
+    var defaultColunms = WhiteList.initColumn();
+    $('#WhiteListTable').bootstrapTable({
+        dataType:"json",
+        url:url,
+        pagination:true,
+        pageList:[10,15,20,50,100],
+        striped:true,
+        pageSize:20,
+        queryParamsType:'',
+        columns: defaultColunms,
+        height:$("body").height() - $(".layui-form").outerHeight(true) -$("#select-group").outerHeight(true)- 26,
+        sidePagination:"server",
+        onPageChange:function(number, size){
+            WhiteList.pageNumber = number ;
+            WhiteList.pageSize = size;
+        }
+    });
 };
 
 $(function () {
-    var defaultColunms = WhiteList.initColumn();
-    WhiteList.fold();
 
-    $('#WhiteListTable').bootstrapTable({
-            dataType:"json",
-            url:'/whiteList/merge_list',
-            pagination:true,
-            pageList:[10,15,20,50,100],
-            striped:true,
-            pageSize:20,
-            queryParamsType:'',
-            columns: defaultColunms,
-            height:$("body").height() - $(".layui-form").outerHeight(true) -$("#select-group").outerHeight(true)- 26,
-            sidePagination:"server",
-            onPageChange:function(number, size){
-                WhiteList.pageNumber = number ;
-                WhiteList.pageSize = size;
-            }
-        });
+    WhiteList.fold();
+    // WhiteList.createNewTable('/whiteList/merge_list')
 })
 
 });
