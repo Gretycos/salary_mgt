@@ -105,7 +105,7 @@ public class MoveLogController extends BaseController {
         //权限部分
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
-            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            //List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
             if (permissionList.size()==0){
                 //当前用户无任何权限
                 System.out.println("您没有查看该日志的权限！");
@@ -160,7 +160,7 @@ public class MoveLogController extends BaseController {
         //权限部分
         if (currentUser.getPosition().getPositionId()==0){ //当前用户为员工
             // 根据用户ID查询用户真实权限列表
-            List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
+            //List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
             if (permissionList.size()==0){
                 //当前用户无任何权限
                 System.out.println("您没有查看该日志的权限！");
@@ -203,7 +203,7 @@ public class MoveLogController extends BaseController {
             oldPList.add(m.getOldPosition());
             newDList.add(m.getNewDepartment());
             newPList.add(m.getNewPosition());
-            operationTimeList.add(m.getOperationTime()==null?"":new SimpleDateFormat("yyyy-MM-dd").format(m.getOperationTime()));
+            operationTimeList.add(m.getOperationTime()==null?"":new SimpleDateFormat("yyyy-MM").format(m.getOperationTime()));
         }
 
         Set<Department> oldDs = new HashSet<>(oldDList);

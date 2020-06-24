@@ -41,7 +41,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             method: 'POST',
             contentType:"application/x-www-form-urlencoded",
             queryParams:function(params){
-                console.log(params)
+                //console.log(params)
                 return{
                     condition1:condition1,
                     condition2:condition2,
@@ -186,7 +186,7 @@ MoveLog.search = function () {
 
 $(function () {
     var defaultColunms = MoveLog.initColumn();
-    selectList.init();
+
     $('#MoveLogTable').bootstrapTable({
             dataType:"json",
             url:'/move/list',
@@ -202,5 +202,6 @@ $(function () {
         });
 })
     form.render('select','searchBar');
+    selectList.init();
 
 });

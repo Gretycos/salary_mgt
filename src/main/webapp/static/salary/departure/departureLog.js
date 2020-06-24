@@ -39,7 +39,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
             method: 'POST',
             contentType:"application/x-www-form-urlencoded",
             queryParams:function(params){
-                console.log(params)
+                //console.log(params)
                 return{
                     condition1:condition1,
                     condition2:condition2,
@@ -161,7 +161,7 @@ selectList.empty = function(){
 
 $(function () {
     var defaultColunms = DepartureLog.initColumn();
-    selectList.init();
+
     $('#DepartureLogTable').bootstrapTable({
             dataType:"json",
             url:'/departure/list',
@@ -175,6 +175,7 @@ $(function () {
             sidePagination:"server",
             onPageChange:function(number, size){DepartureLog.pageNumber = number ; DepartureLog.pageSize = size}
         });
+    selectList.init();
 })
 
 });
