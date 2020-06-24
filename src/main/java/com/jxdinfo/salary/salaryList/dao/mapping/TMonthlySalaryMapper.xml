@@ -134,4 +134,5 @@
     <delete id="deleteById">
         delete from t_monthly_salary where STAFF_ID = #{staffId}
     </delete>
+
 </mapper>

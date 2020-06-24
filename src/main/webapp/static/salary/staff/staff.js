@@ -20,6 +20,7 @@ var selectList={
     departureTime:''
 }
 
+
 layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], function(){
 	var layer = layui.layer
 	    ,table = layui.table
@@ -27,18 +28,24 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 	    ,$ = layui.jquery
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
-
+    var loadingData = layer.load(1, {shade: [0.5,'#fff'], time:0});
 	form.on('select',function (data) {
         // console.log(data);
         selectList[data.elem.id] = data.value;
         // console.log(selectList);
         // selectList.empty();
+        $('#StaffTable').bootstrapTable('destroy');
+        Staff.pageNumber = 1;
+        Staff.pageSize = 20;
         var condition = $('#condition').val();
-        var opt = {
-            url: Hussar.ctxPath + "/staff/list/condition",
-            silent: true,
-            method: 'POST',
-            contentType:"application/x-www-form-urlencoded",
+        $('#StaffTable').bootstrapTable({
+            dataType:"json",
+            url:'/staff/list/condition',
+            pagination:true,
+            pageList:[10,15,20,50,100],
+            striped:true,
+            pageSize:20,
+            queryParamsType:'',
             queryParams:function(params){
                 // console.log(params)
                 return {
@@ -48,10 +55,33 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
                     pageSize:params.pageSize
                 }
             },
-            queryParamsType:'',
-        }
-        $('#StaffTable').bootstrapTable('selectPage', 1);
-        $('#StaffTable').bootstrapTable('refreshOptions',opt);
+            columns: Staff.initColumn(),
+            height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
+            sidePagination:"server",
+            onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
+            // onLoadSuccess:function () {
+            //     layer.close(loadingData)
+            // }
+        });
+        // var condition = $('#condition').val();
+        // var opt = {
+        //     url: Hussar.ctxPath + "/staff/list/condition",
+        //     silent: true,
+        //     method: 'POST',
+        //     contentType:"application/x-www-form-urlencoded",
+        //     queryParams:function(params){
+        //         // console.log(params)
+        //         return {
+        //             condition:condition,
+        //             selectList:JSON.stringify(selectList),
+        //             pageNumber:params.pageNumber,
+        //             pageSize:params.pageSize
+        //         }
+        //     },
+        //     queryParamsType:'',
+        // }
+        // $('#StaffTable').bootstrapTable('selectPage', 1);
+        // $('#StaffTable').bootstrapTable('refreshOptions',opt);
     });
 
 
@@ -62,8 +92,8 @@ Staff.initColumn = function () {
     return [
         {checkbox:true, halign:'center',align:"center",width: 50},
         {title: '序号',align:"center" ,halign:'center',width:50 ,formatter: function (value, row, index) {return (Staff.pageNumber-1)*Staff.pageSize +1 +index ;}},
-            {title: '员工工号', field: 'staffId', align: 'center',halign:'center'},
-            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center'},
+            {title: '工号', field: 'staffId', align: 'center',halign:'center'},
+            {title: '姓名', field: 'staffName', align: 'center',halign:'center'},
             {title: '性别', field: 'gender', align: 'center',halign:'center',
                 formatter: function(value, item, index){
                     if(value === '0'){
@@ -89,7 +119,8 @@ Staff.initColumn = function () {
                     if(value){
                         return value.split(' ')[0]
                     }
-                }}
+                }
+            }
     ];
 };
 
@@ -234,48 +265,48 @@ Staff.search = function () {
 * 清空筛选下拉框
 */
 selectList.empty = function(){
-    $("#gender").empty();
-    $("#department").empty();
-    $("#position").empty();
-    $("#entryTime").empty();
-    $("#departureTime").empty();
+    $("#gender option").not('option:first').remove();
+    $("#department option").not('option:first').remove();
+    $("#position option").not('option:first').remove();
+    $("#entryTime option").not('option:first').remove();
+    $("#departureTime option").not('option:first').remove();
 }
 
 // 筛选下拉框初始化
 selectList.init = function(){
     var condition = $('#condition').val();
-    selectList.empty();
+    // selectList.empty();
     var ajax = new $ax(Hussar.ctxPath + "/staff/list/select",function (data) {
             // console.log(data);
-        $("#gender").append(new Option('性别',""));
-        $("#gender").val("");
+        // $("#gender").append(new Option('性别',""));
+        // $("#gender").val("");
         $.each(data.genders,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#gender").append(new Option(item==='0'?'女':'男',item));
         });
-        $("#department").append(new Option('部门',""));
+        // $("#department").append(new Option('部门',""));
         $("#department").val("");
         $.each(data.departments,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#department").append(new Option(item.departmentName,item.departmentId));
         });
-        $("#position").append(new Option('职位',""));
-        $("#position").val("");
+        // $("#position").append(new Option('职位',""));
+        // $("#position").val("");
         $.each(data.positions,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#position").append(new Option(item.positionName,item.positionId));
         });
         form.render('select','toolbar');
-        $("#entryTime").append(new Option('入职时间',""));
-        $("#entryTime").val("");
+        // $("#entryTime").append(new Option('入职时间',""));
+        // $("#entryTime").val("");
         $.each(data.entryTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#entryTime").append(new Option(item,item));
         });
-        $("#departureTime").append(new Option('离职时间',""));
+        // $("#departureTime").append(new Option('离职时间',""));
         $("#departureTime").append(new Option('在职','在职'));
         $("#departureTime").append(new Option('已离职','已离职'));
-        $("#departureTime").val("");
+        // $("#departureTime").val("");
         $.each(data.departureTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#departureTime").append(new Option(item,item));
@@ -288,9 +319,10 @@ selectList.init = function(){
     ajax.start();
 }
 
+
+
 $(function () {
     var defaultColunms = Staff.initColumn();
-
     $('#StaffTable').bootstrapTable({
             dataType:"json",
             url:'/staff/list',
@@ -302,7 +334,10 @@ $(function () {
             columns: defaultColunms,
             height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
             sidePagination:"server",
-            onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size}
+            onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
+            onLoadSuccess:function () {
+                layer.close(loadingData)
+            }
         });
     selectList.init();
 

@@ -13,6 +13,6 @@ import com.jxdinfo.salary.staff.model.Staff;
  * @since 2020-06-18
  */
 public interface ITMonthlySalaryService extends IService<TMonthlySalary> {
-    public void insertNewStaff(Staff staff);
-    public void deleteStaff(Integer staffId);
+    void insertNewStaff(Staff staff);
+    void deleteStaff(Integer staffId);
 }

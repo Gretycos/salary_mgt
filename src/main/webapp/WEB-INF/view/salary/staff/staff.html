@@ -1,5 +1,5 @@
 @layout("/common/layout.html",{title:'管理'}){
-<div class="layui-fluid weadmin-body">
+<div id='staffBody' class="layui-fluid weadmin-body">
     <form class="layui-form" action="" lay-filter="toolbar">
         <div class="layui-elem-quote">
             <label>员工管理</label>
@@ -10,13 +10,19 @@
                 <input type="text" id="condition" placeholder="工号/姓名" autocomplete="off" class="layui-input" >
             </div>
             <div class="layui-input-inline" style="width: 70px;">
-                <select id="gender" lay-verify="required" lay-search=""></select>
+                <select id="gender" lay-verify="required" lay-search="">
+                    <option value="">性别</option>
+                </select>
             </div>
             <div class="layui-input-inline" style="width: 120px;">
-                <select id="department" lay-verify="required" lay-search=""></select>
+                <select id="department" lay-verify="required" lay-search="">
+                    <option value="">部门</option>
+                </select>
             </div>
             <div class="layui-input-inline" style="width: 70px;">
-                <select id="position" lay-verify="required" lay-search=""></select>
+                <select id="position" lay-verify="required" lay-search="">
+                    <option value="">职位</option>
+                </select>
             </div>
             <div class="layui-input-inline">
                 <button class="layui-btn" data-type="reload" type="button" onclick="Staff.search()"><i class="layui-icon">&#xe615;</i>查询</button>
@@ -37,10 +43,14 @@
         <div class="layui-form" lay-filter="searchBar">
             <div class="fr" style="display: flex">
                 <div class="layui-input-inline" style="width: 147px;">
-                    <select id="entryTime" lay-verify="required" lay-search="" class=""></select>
+                    <select id="entryTime" lay-verify="required" lay-search="" class="">
+                        <option value="">入职时间</option>
+                    </select>
                 </div>
                 <div class="layui-input-inline" style="width: 161px;">
-                    <select id="departureTime" lay-verify="required" lay-search=""></select>
+                    <select id="departureTime" lay-verify="required" lay-search="">
+                        <option value="">离职时间</option>
+                    </select>
                 </div>
             </div>
         </div>
