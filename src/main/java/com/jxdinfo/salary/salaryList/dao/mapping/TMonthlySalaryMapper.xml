@@ -115,14 +115,23 @@
 
     </update>
 
-    <!--根据staff 添加新员工的当月工资-->
-    <insert id="insertNewStaff" >
-        insert  into t_monthly_Salary(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,POSITION_ID,SALARY_AMOUNT,SALARY_OF_AGE,IAHF,AWARD_AMOUNT,TOTAL)
+<!--    &lt;!&ndash;根据staff 添加新员工的当月工资&ndash;&gt;-->
+<!--    <insert id="insertNewStaff" >-->
+<!--        insert  into t_monthly_Salary(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,POSITION_ID,SALARY_AMOUNT,SALARY_OF_AGE,IAHF,AWARD_AMOUNT,TOTAL)-->
+<!--         values (#{staffId}, #{staffName}, #{departmentId},#{positionId}, #{salaryAmount}, #{salaryOfAge}, #{iahf}, #{awardAmount}, #{total})-->
+<!--    </insert>-->
+
+<!--    &lt;!&ndash;删除离职员工的当月工资记录&ndash;&gt;-->
+<!--    <delete id="deleteStaff" parameterType="Integer">-->
+<!--        delete from t_monthly_salary where STAFF_ID = #{staffId}-->
+<!--    </delete>-->
+
+    <insert id="insert">
+        insert into t_monthly_salary(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,POSITION_ID,SALARY_AMOUNT,SALARY_OF_AGE,IAHF,AWARD_AMOUNT,TOTAL)
          values (#{staffId}, #{staffName}, #{departmentId},#{positionId}, #{salaryAmount}, #{salaryOfAge}, #{iahf}, #{awardAmount}, #{total})
     </insert>
 
-    <!--删除离职员工的当月工资记录-->
-    <delete id="deleteStaff" parameterType="Integer">
+    <delete id="deleteById">
         delete from t_monthly_salary where STAFF_ID = #{staffId}
     </delete>
 </mapper>

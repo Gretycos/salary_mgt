@@ -106,6 +106,7 @@ StaffInfoDlg.addSubmit = function() {
         //提交信息
         var loading = layer.msg('正在提交', {icon: 16, shade: 0.3, time:0});
         var ajax = new $ax(Hussar.ctxPath + "/staff/add", function(data){
+            layer.close(loading);
             if(data.code === 200){
                 window.parent.layui.Hussar.success("新员工入职成功!");
                 window.parent.$('#StaffTable').bootstrapTable('refresh');
@@ -113,10 +114,9 @@ StaffInfoDlg.addSubmit = function() {
             }else{
                 Hussar.error("新员工入职失败!" + data.message + "!");
             }
-            layer.close(loading);
         },function(data){
-            Hussar.error("操作失败!" + data.responseJSON.message + "!");
             layer.close(loading);
+            Hussar.error("操作失败!" + data.responseJSON.message + "!");
         });
         ajax.set(this.staffInfoData);
         ajax.start();
@@ -135,7 +135,9 @@ StaffInfoDlg.editSubmit = function() {
         Hussar.error("变动失败!总经理只能存在于高管层");
     } else {
         //提交信息
+        var loading = layer.msg('正在提交', {icon: 16, shade: 0.3, time:0});
         var ajax = new $ax(Hussar.ctxPath + "/staff/update", function(data){
+            layer.close(loading);
             if(data.code === 200){
                 window.parent.layui.Hussar.success("员工信息修改成功!");
                 window.parent.$('#StaffTable').bootstrapTable('refresh');
@@ -145,6 +147,7 @@ StaffInfoDlg.editSubmit = function() {
             }
 
         },function(data){
+            layer.close(loading);
             Hussar.error("修改失败!" + data.responseJSON.message + "!");
         });
         ajax.set(this.staffInfoData);

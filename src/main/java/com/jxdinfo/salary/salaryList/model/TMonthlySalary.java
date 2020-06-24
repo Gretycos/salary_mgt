@@ -66,6 +66,20 @@ public class TMonthlySalary extends Model<TMonthlySalary> {
     @TableField("TOTAL")
     private Integer total;
 
+    public TMonthlySalary(){}
+
+    public TMonthlySalary(Integer staffId, String staffName, Integer departmentId, Integer positionId,
+                          Integer salaryAmount, Integer salaryOfAge, Integer iahf, Integer awardAmount, Integer total) {
+        this.staffId = staffId;
+        this.staffName = staffName;
+        this.departmentId = departmentId;
+        this.positionId = positionId;
+        this.salaryAmount = salaryAmount;
+        this.salaryOfAge = salaryOfAge;
+        this.iahf = iahf;
+        this.awardAmount = awardAmount;
+        this.total = total;
+    }
 
     public Integer getStaffId() {
         return staffId;

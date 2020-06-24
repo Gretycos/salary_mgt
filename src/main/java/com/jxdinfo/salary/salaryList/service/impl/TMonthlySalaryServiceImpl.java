@@ -321,36 +321,16 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
 
     }
 
-    public boolean insertNewStaff(Staff staff)
-    {
-
-        Map param0 = new HashMap<>();
-        param0.put("staffId", staff.getStaffId());
-        param0.put("staffName", staff.getStaffName());
-        param0.put("departmentId",staff.getDepartment().getDepartmentId());
-        param0.put("positionId",staff.getPosition().getPositionId());
-        param0.put("salaryAmount",0);
-        param0.put("salaryOfAge",0);
-        param0.put("iahf",0);
-        param0.put("awardAmount",0);
-        param0.put("total",0);
-
-        InputStream inputStream = null;
-        try {
-            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
-        SqlSession session = factory.openSession();
-
-        session.insert("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.insertNewStaff",param0);
-        session.commit();
-
-
-        return true;
-
-
+    /**
+     * 将入职员工的当月工资加入
+     * @param staff
+     * @return
+     */
+    public void insertNewStaff(Staff staff) {
+        TMonthlySalary monthlySalary = new TMonthlySalary(staff.getStaffId(),staff.getStaffName(),
+                staff.getDepartment().getDepartmentId(),staff.getPosition().getPositionId(),
+                0,0,0,0,0);
+        insert(monthlySalary);
     }
 
     /**
@@ -358,22 +338,8 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
      * @param staffId
      * @return
      */
-    public boolean deleteStaff(Integer staffId)
-    {
-        InputStream inputStream = null;
-        try {
-            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
-        SqlSession session = factory.openSession();
-
-        session.delete("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.deleteStaff",staffId);
-        session.commit();
-
-        return true;
-
+    public void deleteStaff(Integer staffId) {
+        deleteById(staffId);
     }
 }
 
