@@ -25,7 +25,7 @@ public class TInisalaryInfo extends Model<TInisalaryInfo> {
     /**
      * 员工ID
      */
-    @TableId(value = "STAFF_ID", type = IdType.AUTO)
+    @TableId(value = "STAFF_ID")
     private Integer staffId;
     /**
      * 员工姓名
@@ -58,6 +58,16 @@ public class TInisalaryInfo extends Model<TInisalaryInfo> {
     @TableField("INITIAL_SALARY")
     private Integer initialSalary;
 
+    public TInisalaryInfo(){}
+
+    public TInisalaryInfo(Integer staffId,String staffName,Integer departmentId,Integer years,Integer level,Integer initialSalary){
+        this.staffId=staffId;
+        this.staffName=staffName;
+        this.departmentId=departmentId;
+        this.years=years;
+        this.level=level;
+        this.initialSalary=initialSalary;
+    }
 
     public Integer getStaffId() {
         return staffId;

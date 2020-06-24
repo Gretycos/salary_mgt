@@ -10,7 +10,7 @@
         <result column="YEARS" property="years" />
         <result column="LEVEL" property="level" />
         <result column="INITIAL_SALARY" property="initialSalary" />
-        <result column="DEPARTMENT_NAME" property="departmentName" />
+<!--        <result column="DEPARTMENT_NAME" property="departmentName" />-->
     </resultMap>
     <!-- 带关联查询映射结果 -->
     <resultMap id="WithRefResultMap" type="com.jxdinfo.hussar.inisalary.model.TInisalaryInfo" extends="BaseResultMap">
@@ -40,6 +40,12 @@
             ${ew.sqlSegment}
         </where>
     </select>
+
+     <!--新增员工初始工资-->
+    <insert id="insert" >
+        insert  into t_inisalary_info(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,YEARS,LEVEL,INITIAL_SALARY)
+         values (#{staffId}, #{staffName}, #{departmentId},#{years}, #{level}, #{initialSalary})
+    </insert>
 
 
 </mapper>

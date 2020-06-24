@@ -4,6 +4,7 @@ import com.jxdinfo.hussar.inisalary.model.TInisalaryInfo;
 import com.baomidou.mybatisplus.service.IService;
 import com.jxdinfo.hussar.inisalary.model.TInisalaryLevel;
 import com.jxdinfo.hussar.inisalary.service.impl.TInisalaryLevelServiceImpl;
+import com.jxdinfo.salary.staff.model.Staff;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.jxdinfo.hussar.inisalary.service.ITInisalaryLevelService;
 
@@ -26,6 +27,6 @@ public interface ITInisalaryInfoService extends IService<TInisalaryInfo> {
     /**
      * 增加新入职员工信息
      */
-    void addEmployee(int staffId,String staffName,int departmentId);
+    void addEmployee(Staff staff);
 
 }

@@ -6,9 +6,19 @@ import com.jxdinfo.hussar.inisalary.model.TInisalaryLevel;
 import com.jxdinfo.hussar.inisalary.service.ITInisalaryInfoService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.jxdinfo.hussar.inisalary.service.ITInisalaryLevelService;
+import com.jxdinfo.salary.staff.model.Staff;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.jxdinfo.hussar.inisalary.service.ITInisalaryLevelService;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -35,15 +45,13 @@ public class TInisalaryInfoServiceImpl extends ServiceImpl<TInisalaryInfoMapper,
     }
 
     @Override
-    public void addEmployee(int staffId,String staffName,int departmentId) {
-        TInisalaryInfo t = new TInisalaryInfo();
-        t.setStaffId(staffId);
-        t.setStaffName(staffName);
-        t.setDepartmentId(departmentId);
-        t.setLevel(1);
-        t.setYears(0);
-        int sal=itLevel.getInisalary(departmentId+"",1+"");
-        t.setInitialSalary(sal);
+    public void addEmployee(Staff staff) {
+
+
+        int sal=itLevel.getInisalary(staff.getDepartment().getDepartmentId().toString(),1+"");
+        TInisalaryInfo t = new TInisalaryInfo(staff.getStaffId(),staff.getStaffName(),staff.getDepartment().getDepartmentId(),
+                0,1,sal);
         insert(t);
+
     }
 }

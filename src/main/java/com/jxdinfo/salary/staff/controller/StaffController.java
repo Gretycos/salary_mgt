@@ -381,7 +381,7 @@ public class StaffController extends BaseController {
 //        System.out.println("==========================");
 //        System.out.println(staffId+"\n"+departmentId);
 //        System.out.println("==========================");
-        inisalaryInfoService.addEmployee(staffId,staffName,departmentId); //录入初始工资
+        inisalaryInfoService.addEmployee(staff); //录入初始工资
         monthlySalaryService.insertNewStaff(staff); // 录入当月工资表
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
