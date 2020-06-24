@@ -24,25 +24,35 @@
                        placeholder="请输入部门ID" value="${item.departmentId}">
             </div>
         </div>
+
         <div class="layui-form-item">
-            <label class="layui-form-label">设置部门:</label>
+            <label class="layui-form-label">部门名称:</label>
             <div class="layui-input-inline">
-                <select id="departmentName" name="departmentName" lay-search=""></select>
+                <input id="departmentName" name="departmentName" class="layui-input"
+                       placeholder="请输入部门名称" value="${item.departmentName}" disabled>
             </div>
         </div>
 
+        <!--<div class="layui-form-item">-->
+            <!--<label class="layui-form-label">设置部门:</label>-->
+            <!--<div class="layui-input-inline">-->
+                <!--<select id="departmentName" name="departmentName" lay-search=""></select>-->
+            <!--</div>-->
+        <!--</div>-->
+
         <!--权限ID是隐藏的-->
-        <div class="layui-form-item" style="display: none !important;">
-            <label class="layui-form-label">选择的权限ID：</label>
-            <div class="layui-input-inline">
-                <input id="permissionId" name="permissionId" class="layui-input"
-                       placeholder="请输入权限ID" value="${item.permissionId}">
-            </div>
-        </div>
+        <!--<div class="layui-form-item" style="display: none !important;">-->
+            <!--<label class="layui-form-label">选择的权限ID：</label>-->
+            <!--<div class="layui-input-inline">-->
+                <!--<input id="permissionId" name="permissionId" class="layui-input"-->
+                       <!--placeholder="请输入权限ID" value="${item.permissionId}">-->
+            <!--</div>-->
+        <!--</div>-->
         <div class="layui-form-item">
             <label class="layui-form-label">设置权限:</label>
             <div class="layui-input-inline">
-                <select id="permissionName" name="permissionName" lay-search=""></select>
+                <!--<select id="permissionName" name="permissionName" lay-search=""></select>-->
+                <div id="permissionName"></div>
             </div>
         </div>
         <div class="layerBtnCenter btn-box btn-box-1">
@@ -54,4 +64,5 @@
     </form>
 </div>
 <script src="${ctxPath}/static/salary/PermissionManagement/whiteList/whiteList_info.js"></script>
+<script src="${ctxPath}/static/salary/PermissionManagement/xm-select.js" type="text/javascript" charset="utf-8"></script>
 @}

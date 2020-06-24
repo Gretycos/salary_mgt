@@ -7,7 +7,8 @@ var BlackList = {
     table: null,
     layerIndex: -1,
     pageSize:20,
-    pageNumber:1
+    pageNumber:1,
+    isFold : true
 };
 
 /**
@@ -53,8 +54,13 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         var str = "?staffId="+query.staffId+"&staffName="+query.staffName
             +"&departmentName="+query.departmentName
             +"&permissionName="+query.permissionName;
+        var u ="";
+        if (BlackList.isFold)
+            u += "/blackList/merge_showBySelect";
+        else
+            u += "/blackList/showBySelect";
         var opt={
-            url: Hussar.ctxPath + "/blackList/showBySelect"+str,
+            url: Hussar.ctxPath + u +str,
             silent: true
         };
         $('#BlackListTable').bootstrapTable('refresh',opt);
@@ -127,9 +133,9 @@ BlackList.initColumn = function () {
     return [
         {checkbox:true, halign:'center',align:"center",width: "4%"},
         {title: '序号',align:"center" ,halign:'center',width: "4%",formatter: function (value, row, index) {return (BlackList.pageNumber-1)*BlackList.pageSize +1 +index ;}},
-            {title: '员工工号', field: 'staffId', align: 'center',halign:'center',width: "23%"},
-            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center',width: "23%"},
-            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center',width: "23%"},
+            {title: '员工工号', field: 'staff.staffId', align: 'center',halign:'center',width: "23%"},
+            {title: '员工姓名', field: 'staff.staffName', align: 'center',halign:'center',width: "23%"},
+            {title: '管理的部门', field: 'department.departmentName', align: 'center',halign:'center',width: "23%"},
             {title: '被限制的权限', field: 'permissionName', align: 'center',halign:'center',width: "23%"}
     ];
 };
@@ -146,6 +152,37 @@ BlackList.check = function () {
         BlackList.seItem = selected; // 这里修改成了保存整个selected数组
         return true;
     }
+};
+
+/**
+ *  展开合并的选项
+ */
+BlackList.unfold = function(){
+    BlackList.isFold = false;
+    $('#add').hide();
+    $('#edit').hide();
+    $('#unfold').hide();
+    $('#fold').show();
+    $('#del').show();
+
+    var opt={
+        url: Hussar.ctxPath + "/blackList/list",
+        silent: true
+    };
+    $('#BlackListTable').bootstrapTable('refresh',opt);
+};
+
+/**
+ *  收起合并的数据
+ */
+BlackList.fold = function(){
+    $('#add').show();
+    $('#edit').show();
+    $('#unfold').show();
+    $('#fold').hide();
+    $('#del').hide();
+    BlackList.isFold = true;
+    BlackList.reset();
 };
 
 /**
@@ -173,13 +210,13 @@ BlackList.openBlackListDetail = function () {
             Hussar.error("不可选择多条数据");
             return
         }
+
         // BlackList.seItem[0] 转换请求参数字符串
-        var modify_item = "?staffId="+String(BlackList.seItem[0].staffId)
-            +"&departmentId="+String(BlackList.seItem[0].departmentId)
-            +"&permissionId="+String(BlackList.seItem[0].permissionId)
-            +"&staffName="+BlackList.seItem[0].staffName
-            +"&departmentName="+BlackList.seItem[0].departmentName
-            +"&permissionName="+BlackList.seItem[0].permissionName;
+        var modify_item = "?staffId="+String(BlackList.seItem[0].staff.staffId)
+            +"&departmentId="+String(BlackList.seItem[0].department.departmentId)
+            +"&staffName="+BlackList.seItem[0].staff.staffName
+            +"&departmentName="+BlackList.seItem[0].department.departmentName;
+
 
         var index = layer.open({
             type: 2,
@@ -205,9 +242,17 @@ BlackList.delete = function () {
             }, function (data) {
                 Hussar.error("删除失败!" + data.responseJSON.message + "!");
             });
-            // 将BlackList.seItem数据转化为JSON格式的字符串
-            var delete_list = JSON.stringify(BlackList.seItem);
-            console.log(delete_list);
+            // 构造BlackList对象数据 并且转化为JSON格式的字符串
+            var delete_list_arr = [];
+            for (var key in BlackList.seItem){
+                var tmp ={
+                    staffId:BlackList.seItem[key].staff.staffId,
+                    departmentId:BlackList.seItem[key].department.departmentId,
+                    permissionId:BlackList.seItem[key].permissionList[0].permissionId
+                };
+                delete_list_arr.push(tmp)
+            }
+            var delete_list = JSON.stringify(delete_list_arr);
             ajax.set("delete_list",delete_list);
             ajax.start();
             // 不管是否成功都将 BlackList.seItem重新设置为Null
@@ -222,7 +267,7 @@ BlackList.delete = function () {
 BlackList.search = function () {
     var search_condition = $('#condition').val();
     var opt={
-        url: Hussar.ctxPath + "/blackList/list",
+        url: Hussar.ctxPath + "/blackList/merge_list",
         silent: true,
         query:{
             search_condition:search_condition
@@ -251,11 +296,10 @@ BlackList.reset = function(){
 };
 $(function () {
     var defaultColunms = BlackList.initColumn();
-    BlackList.createSelect();
-    BlackList.getTableColWidth();
+
     $('#BlackListTable').bootstrapTable({
             dataType:"json",
-            url:'/blackList/list',
+            url:'/blackList/merge_list',
             pagination:true,
             pageList:[10,15,20,50,100],
             striped:true,
@@ -266,6 +310,7 @@ $(function () {
             sidePagination:"server",
             onPageChange:function(number, size){BlackList.pageNumber = number ; BlackList.pageSize = size}
         });
+    BlackList.fold();
 })
 
 });

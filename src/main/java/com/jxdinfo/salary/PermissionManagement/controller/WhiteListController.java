@@ -1,12 +1,14 @@
 package com.jxdinfo.salary.PermissionManagement.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.jxdinfo.hussar.core.base.controller.BaseController;
 import com.jxdinfo.hussar.core.shiro.ShiroKit;
 import com.jxdinfo.hussar.core.shiro.ShiroUser;
+import com.jxdinfo.salary.PermissionManagement.model.MergeList;
+import com.jxdinfo.salary.PermissionManagement.service.IMergeListService;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.permission.model.Permission;
@@ -14,6 +16,7 @@ import com.jxdinfo.salary.permission.service.IPermissionService;
 import com.jxdinfo.salary.staff.model.Staff;
 import com.jxdinfo.salary.staff.service.IStaffService;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -25,10 +28,7 @@ import com.jxdinfo.hussar.core.log.type.BussinessLogType;
 import com.jxdinfo.salary.PermissionManagement.model.WhiteList;
 import com.jxdinfo.salary.PermissionManagement.service.IWhiteListService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 薪资权限管理--白名单维护控制器
@@ -50,6 +50,8 @@ public class WhiteListController extends BaseController {
     private IDepartmentService departmentService;
     @Autowired
     private IStaffService staffService;
+    @Autowired
+    private IMergeListService mergeListService;
 
 
 
@@ -374,25 +376,103 @@ public class WhiteListController extends BaseController {
     }
 
 
+
     /**
      *
      * 根据下拉选择框的值筛选数据 返回结果
      */
     @ResponseBody
-    @RequestMapping("/showBySelect")
-    public Object showBySelect(@RequestParam(value="staffId", defaultValue="") String staffId,
+    @RequestMapping("/merge_showBySelect")
+    public Object merge_showBySelect(@RequestParam(value="staffId", defaultValue="") String staffId,
                                @RequestParam(value="staffName", defaultValue="") String staffName,
                                @RequestParam(value="departmentName", defaultValue="")String departmentName,
                                @RequestParam(value="permissionName", defaultValue="") String permissionName,
                                @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                                @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
 
-        Page<WhiteList> page = new Page<>(pageNumber, pageSize);
-        Wrapper<WhiteList> ew = new EntityWrapper<>();
-        ew.where("d.DEPARTURE_TIME is null");
+        Page<MergeList> page = new Page<>(pageNumber, pageSize);
+        Wrapper<MergeList> ew = new EntityWrapper<>();
 
         if(staffId.length()>0)
             ew.where("a.STAFF_ID = {0}", Integer.valueOf(staffId));
+        if(staffName.length()>0)
+            ew.where("b.STAFF_NAME = {0}", staffName);
+        if(departmentName.length()>0)
+            ew.where("DEPARTMENT_NAME = {0}", departmentName);
+        if(permissionName.length()>0)
+            ew.where("PERMISSION_NAME = {0}", permissionName);
+
+
+        // 获取当前登录账号的ID
+        try {
+            ShiroUser user = ShiroKit.getUser();
+            Long userStaffId = Long.parseLong(user.getAccount());
+            //根据当前ID返回它能查询的内容
+            Wrapper<Staff> s_w = new EntityWrapper<>();
+            s_w.where("STAFF_ID = {0}",userStaffId);
+            Staff staff = staffService.selectOne(s_w);
+            if (staff.getDepartment().getDepartmentName().equals("财务部")){
+                //如果是财务部的部长 则只能查看财务部权限情况 即黑名单中StaffId是财务人员
+                // 财务部的DEPARTMENT_ID是12
+                ew.where("b.DEPARTMENT_ID = {0}",12);
+            }else {
+                // 不是财务部长
+                if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
+                    //如果是人力资源部的部长 则只能查看人力资源部权限情况 即黑名单中StaffId是HR
+                    // 人力资源部的DEPARTMENT_ID是10
+                    ew.where("b.DEPARTMENT_ID = {0}",10);
+                }else {
+                    //都不是的话就是超级管理员了 可以查看全部的
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
+
+        // 控制台输出ew
+        System.out.println(ew.getSqlSegment());
+        Map<String, Object> result = new HashMap<>(5);
+
+        Page<MergeList> mergeListPage = mergeListService.selectPageWhite(page, ew);
+        // 构造 MergeList对象的permissionName
+        // 得到mergeList对象列表
+        List<MergeList> mls= mergeListPage.getRecords();
+        // 遍历列表 将每一个mergeList对象的permissionList变成一个字符串
+        for (MergeList ml :mls){
+            String str = "";
+            List<Permission> mlPermissionList = ml.getPermissionList();
+            for (Permission p:mlPermissionList){
+                str+=" ["+p.getPermissionName()+"]";
+            }
+            ml.setPermissionName(str);
+        }
+
+        result.put("total", mergeListPage.getTotal());
+        result.put("rows", mls);
+        return result;
+
+    }
+
+
+    /**
+     * 展开版
+     * 根据下拉选择框的值筛选数据 返回结果
+     */
+    @ResponseBody
+    @RequestMapping("/showBySelect")
+    public Object showBySelect(@RequestParam(value="staffId", defaultValue="") String staffId,
+                                     @RequestParam(value="staffName", defaultValue="") String staffName,
+                                     @RequestParam(value="departmentName", defaultValue="")String departmentName,
+                                     @RequestParam(value="permissionName", defaultValue="") String permissionName,
+                                     @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                                     @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
+
+        Page<WhiteList> page = new Page<>(pageNumber, pageSize);
+        Wrapper<WhiteList> ew = new EntityWrapper<>();
+
+        if(staffId.length()>0)
+            ew.where("d.STAFF_ID = {0}", Integer.valueOf(staffId));
         if(staffName.length()>0)
             ew.where("d.STAFF_NAME = {0}", staffName);
         if(departmentName.length()>0)
@@ -431,12 +511,40 @@ public class WhiteListController extends BaseController {
         // 控制台输出ew
         System.out.println(ew.getSqlSegment());
         Map<String, Object> result = new HashMap<>(5);
-        List<WhiteList> list = whiteListService.selectPage(page, ew).getRecords();
+
+        Page<WhiteList> whiteListPage = whiteListService.selectPage(page, ew);
+        List<WhiteList> wls= whiteListPage.getRecords();
+
+        // 构造MergeList的形式 和merge版相同 满足前端bootstraptable的field
+        // 将wls中的每个whiteList对象转移到MergeList中
+        List<MergeList> mls = new ArrayList<>();
+        for (WhiteList b:wls){
+            MergeList ml = new MergeList();
+            Staff staff = new Staff();
+            staff.setStaffId(b.getStaffId());
+            staff.setStaffName(b.getStaffName());
+            ml.setStaff(staff);
+            Department department = new Department();
+            department.setDepartmentId(b.getDepartmentId());
+            department.setDepartmentName(b.getDepartmentName());
+            ml.setDepartment(department);
+            List<Permission> permissionList = new ArrayList<>();
+            Permission p = new Permission();
+            p.setPermissionId(b.getPermissionId());
+            p.setPermissionName(b.getPermissionName());
+            permissionList.add(p);
+            ml.setPermissionList(permissionList);
+            ml.setPermissionName(b.getPermissionName());
+            mls.add(ml);
+        }
+
+
         result.put("total", page.getTotal());
-        result.put("rows", list);
+        result.put("rows", mls);
         return result;
 
     }
+
 
 
     /**
@@ -453,7 +561,8 @@ public class WhiteListController extends BaseController {
 
     /**
      *  返回修改白名单权限的页面（IFrame）
-     *  参数有六个 正好是WhiteList对象的属性 使用WhiteList接收
+     *  参数有两个 第一个是WhiteList （但是不包含permission的信息）
+     *  第二个是permissionList 是一个数组 包含选择的所有权限
      */
     @RequestMapping(value = "/whiteList_update",method = RequestMethod.GET)
     @BussinessLog(key = "/whiteList/whiteList_update", type = BussinessLogType.MODIFY, value = "跳转到修改薪资权限管理--白名单维护")
@@ -521,10 +630,104 @@ public class WhiteListController extends BaseController {
 
         Map<String, Object> result = new HashMap<>(5);
         List<WhiteList> list = whiteListService.selectPage(page, ew).getRecords();
+
+        // 将list中的每个whiteList对象转移到MergeList中 与merge_list 方法返回值对应
+        List<MergeList> mls = new ArrayList<>();
+        for (WhiteList b:list){
+            MergeList ml = new MergeList();
+            Staff staff = new Staff();
+            staff.setStaffId(b.getStaffId());
+            staff.setStaffName(b.getStaffName());
+            ml.setStaff(staff);
+            Department department = new Department();
+            department.setDepartmentId(b.getDepartmentId());
+            department.setDepartmentName(b.getDepartmentName());
+            ml.setDepartment(department);
+            List<Permission> permissionList = new ArrayList<>();
+            Permission p = new Permission();
+            p.setPermissionId(b.getPermissionId());
+            p.setPermissionName(b.getPermissionName());
+            permissionList.add(p);
+            ml.setPermissionList(permissionList);
+            ml.setPermissionName(b.getPermissionName());
+            mls.add(ml);
+        }
+
         result.put("total", page.getTotal());
-        result.put("rows", list);
+        result.put("rows", mls);
         return result;
     }
+
+    /**
+     * 将白名单中的权限进行合并
+     * 同一个人 同一部门的人放在一起
+     * 每一个MergeList对象就是一条合并后的数据
+     */
+    @RequestMapping(value = "/merge_list")
+    @BussinessLog(key = "/blackList/merge_list", type = BussinessLogType.QUERY, value = "获取薪资权限管理---白名单维护列表 合并后--")
+    @ResponseBody
+    public Object merge_list(@RequestParam(value = "search_condition",required = false,defaultValue = "") String search_condition,
+                             @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
+                             @RequestParam(value="pageSize", defaultValue="20") int pageSize){
+
+
+
+        Map<String, Object> result = new HashMap<>(5);
+        Page<MergeList> page = new Page<>(pageNumber, pageSize);
+        Wrapper<MergeList> ew = new EntityWrapper<>();
+        String condition = "%"+search_condition+"%";
+        ew.where("(b.STAFF_ID like {0} or b.STAFF_NAME like {1})", condition,condition);
+
+        // 获取当前登录账号的ID
+        try {
+            ShiroUser user = ShiroKit.getUser();
+            Long staffId = Long.parseLong(user.getAccount());
+            //根据当前ID返回它能查询的内容
+            Wrapper<Staff> s_w = new EntityWrapper<>();
+            s_w.where("STAFF_ID = {0}",staffId);
+            Staff staff = staffService.selectOne(s_w);
+            if (staff.getDepartment().getDepartmentName().equals("财务部")){
+                //如果是财务部的部长 则只能查看财务部权限情况 即黑名单中StaffId是财务人员
+                // 财务部的DEPARTMENT_ID是12
+                ew.where("b.DEPARTMENT_ID = {0}",12);
+            }else {
+                // 不是财务部长
+                if (staff.getDepartment().getDepartmentName().equals("人力资源部")){
+                    //如果是人力资源部的部长 则只能查看人力资源部权限情况 即黑名单中StaffId是HR
+                    // 人力资源部的DEPARTMENT_ID是10
+                    ew.where("b.DEPARTMENT_ID = {0}",10);
+                }else {
+                    //都不是的话就是超级管理员了 可以查看全部的权限授情况
+//                    ew.where("(d.DEPARTMENT_ID = {0} or d.DEPARTMENT_ID = {1} )",10,12);
+                }
+            }
+
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
+
+        Page<MergeList> mergeListPage = mergeListService.selectPageWhite(page, ew);
+
+
+        // 下面将构造mergeList对象的setPermissionName属性
+        // 得到mergeList对象列表
+        List<MergeList> mls= mergeListPage.getRecords();
+        // 遍历列表 将每一个mergeList对象的permissionList变成一个字符串
+        for (MergeList ml :mls){
+            String str = "";
+            List<Permission> mlPermissionList = ml.getPermissionList();
+            for (Permission p:mlPermissionList){
+                str+=" ["+p.getPermissionName()+"]";
+            }
+            ml.setPermissionName(str);
+        }
+        result.put("total", mergeListPage.getTotal());
+        result.put("rows",mls );
+        return result;
+
+    }
+
 
     /**
      * 新增权限白名单
@@ -533,33 +736,74 @@ public class WhiteListController extends BaseController {
     @BussinessLog(key = "/whiteList/add", type = BussinessLogType.INSERT, value = "新增薪资权限管理--白名单维护")
     @RequiresPermissions("whiteList:add")
     @ResponseBody
-    public Object add(WhiteList param) {
+    public Object add(
+             String paramStr,
+             String permissionNameListStr) {
+        // 将接收到的字符串转化为WhiteList对象 和List<String>
+        JSONObject jsonObject = JSONObject.fromObject(paramStr);
+        WhiteList param = (WhiteList) JSONObject.toBean(jsonObject, WhiteList.class);
+        JSONArray jsonArray = JSONArray.fromObject(permissionNameListStr);
+        List<String> permissionNameList = (List<String>) JSONArray.toCollection(jsonArray,String.class);
+
+
         //先根据部门和权限的名称得到部门和权限的ID
         Wrapper<Department> w1 = new EntityWrapper<>();
         w1.where("DEPARTMENT_NAME = {0}", param.getDepartmentName());
-        Wrapper<Permission> w2 = new EntityWrapper<>();
-        w2.where("PERMISSION_NAME = {0}", param.getPermissionName());
         Department department = departmentService.selectOne(w1);
-        Permission permission = permissionService.selectOne(w2);
         param.setDepartmentId(department.getDepartmentId());
-        param.setPermissionId(permission.getPermissionId());
 
-        // 然后查询表中是否已经有改数据了
-        Wrapper<WhiteList> wrapper = new EntityWrapper<>();
-        wrapper.where("STAFF_ID = {0}",param.getStaffId());
-        wrapper.where("DEPARTMENT_ID = {0}",param.getDepartmentId());
-        wrapper.where("PERMISSION_ID = {0}",param.getPermissionId());
-        List<WhiteList> lists = whiteListService.selectList(wrapper);
-        System.out.println("=================要插入的数据是："+param);
-        System.out.println(lists);
-        if (lists.isEmpty()||lists==null){
-            //如果没有改数据可以插入 否则不可以
-            System.out.println("可以插入该条数据");
-            //将param（WhiteList对象添加到表中）
-            boolean res = whiteListService.insert(param);
-            return res;
+        // 对数据进行过滤 判断有没有已经存在的数据
+        // 形成 size(permissionNameList)个WhiteList对象
+        List<WhiteList> whiteListList = new ArrayList<>();
+        for (String pName:permissionNameList){
+            WhiteList tmp = new WhiteList();
+            tmp.setStaffId(param.getStaffId());
+            tmp.setDepartmentId(param.getDepartmentId());
+            Wrapper<Permission> w2 = new EntityWrapper<>();
+            w2.where("PERMISSION_NAME = {0}", pName);
+            Permission permission = permissionService.selectOne(w2);
+            tmp.setPermissionId(permission.getPermissionId());
+            whiteListList.add(tmp);
+        }
+
+        // 然后查询表中是否已经有该数据了
+        Boolean[] isExsit = new Boolean[whiteListList.size()];
+        int i = 0;
+        for (WhiteList wl: whiteListList){
+            Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+            wrapper.where("STAFF_ID = {0}",wl.getStaffId());
+            wrapper.where("DEPARTMENT_ID = {0}",wl.getDepartmentId());
+            wrapper.where("PERMISSION_ID = {0}",wl.getPermissionId());
+            List<WhiteList> lists = whiteListService.selectList(wrapper);
+            System.out.println("=================要插入的数据是："+wl);
+            if (lists.isEmpty()||lists==null){
+                isExsit[i] = false;
+            }else {
+                isExsit[i] = true;
+            }
+            i++;
+        }
+
+        // 判断是否有重复的 是哪几个重复
+        String res = "";
+        for (int j=0;j<isExsit.length;j++){
+            if (isExsit[j])
+                res += " ["+permissionNameList.get(j)+"] ";
+        }
+
+        // 如果没有重复的 开始插入
+        if (res.length()==0){
+            // 进行插入
+            try {
+                for (WhiteList w :whiteListList)
+                    whiteListService.insert(w);
+                return true;
+            }catch (Exception e){
+                e.printStackTrace();
+                return false;
+            }
         }else {
-            return "exist";
+            return res;
         }
 
     }
@@ -595,43 +839,80 @@ public class WhiteListController extends BaseController {
     @BussinessLog(key = "/whiteList/update", type = BussinessLogType.MODIFY, value = "修改薪资权限管理--白名单维护")
     @RequiresPermissions("whiteList:update")
     @ResponseBody
-    public Object update(WhiteList whiteList) {
+    public Object update(String whiteListStr,String permissionNameListStr) {
+
+        // 将字符串转化为对象和列表
+        JSONObject jsonObject = JSONObject.fromObject(whiteListStr);
+        WhiteList whiteList = (WhiteList)JSONObject.toBean(jsonObject, WhiteList.class);
+        JSONArray jsonArray = JSONArray.fromObject(permissionNameListStr);
+        List<String> permissionNameList = (List<String>) JSONArray.toCollection(jsonArray,String.class);
+
+
         Integer staffId = whiteList.getStaffId();
         Integer oldDepartmentId = whiteList.getDepartmentId();
-        Integer oldPermissionId = whiteList.getPermissionId();
 
-        // 首先根据部门名称查找到部门的ID 权限名称查找权限ID
-        Wrapper<Department> wrapper1 = new EntityWrapper<>();
-        wrapper1.where("DEPARTMENT_NAME = {0}", whiteList.getDepartmentName());
-        Department department = departmentService.selectOne(wrapper1);
-        Wrapper<Permission> wrapper2 = new EntityWrapper<>();
-        wrapper2.where("PERMISSION_NAME = {0}", whiteList.getPermissionName());
-        Permission permission = permissionService.selectOne(wrapper2);
-        //设置新的ID
-        whiteList.setDepartmentId(department.getDepartmentId());
-        whiteList.setPermissionId(permission.getPermissionId());
-
-        // 然后查询表中是否已经有修改后的数据了如果有则不能修改
-        Wrapper<WhiteList> wrapper0 = new EntityWrapper<>();
-        wrapper0.where("STAFF_ID = {0}",whiteList.getStaffId());
-        wrapper0.where("DEPARTMENT_ID = {0}",whiteList.getDepartmentId());
-        wrapper0.where("PERMISSION_ID = {0}",whiteList.getPermissionId());
-        System.out.println("=================修改后的数据是："+whiteList);
-
-        List<WhiteList> lists = whiteListService.selectList(wrapper0);
-        if (lists.isEmpty()||lists==null){
-            System.out.println("==============可以修改该条数据");
-            // 然后根据三个主键找到并修改
-            Wrapper<WhiteList> wrapper = new EntityWrapper<>();
-            wrapper.where("STAFF_ID = {0}",staffId);
-            wrapper.where("DEPARTMENT_ID = {0}",oldDepartmentId);
-            wrapper.where("PERMISSION_ID = {0}",oldPermissionId);
-            boolean res = whiteListService.update(whiteList, wrapper);
-            return res;
-        }else {
-            return "exist";
+        // 构造size（permissionNameList） 个WhiteList对象
+        List<WhiteList> whiteListList = new ArrayList<>();
+        for (int j=0;j<permissionNameList.size();j++){
+            WhiteList wl = new WhiteList();
+            wl.setStaffId(staffId);
+            wl.setDepartmentId(oldDepartmentId);
+            // 根据权限名称查找权限ID
+            Wrapper<Permission> wrapper2 = new EntityWrapper<>();
+            wrapper2.where("PERMISSION_NAME = {0}", permissionNameList.get(j));
+            Permission permission = permissionService.selectOne(wrapper2);
+            wl.setPermissionId(permission.getPermissionId());
+            // 将wl存进对象列表
+            whiteListList.add(wl);
         }
 
+        // 修改前进行过滤 判断数据库中是否已经存在该数据了
+        Boolean[] isExsit = new Boolean[whiteListList.size()];
+        int i = 0;
+        for (WhiteList wl: whiteListList){
+            Wrapper<WhiteList> wrapper = new EntityWrapper<>();
+            wrapper.where("STAFF_ID = {0}",wl.getStaffId());
+            wrapper.where("DEPARTMENT_ID = {0}",wl.getDepartmentId());
+            wrapper.where("PERMISSION_ID = {0}",wl.getPermissionId());
+            List<WhiteList> lists = whiteListService.selectList(wrapper);
+            System.out.println("=================要插入的数据是："+wl);
+            if (lists.isEmpty()||lists==null){
+                isExsit[i] = false;
+            }else {
+                isExsit[i] = true;
+            }
+            i++;
+        }
+
+        // 判断是否有重复的 是哪几个重复
+        String res = "";
+        for (int j=0;j<isExsit.length;j++){
+            if (isExsit[j])
+                res += " ["+permissionNameList.get(j)+"] ";
+        }
+
+        // 如果没有重复的  先删掉 oldDepartmentId 和 staffID为原来值的 然后插入
+        if (res.length()==0){
+            // 进行插入
+            try {
+                // 删除操作
+                Wrapper<WhiteList> wd = new EntityWrapper<>();
+                wd.where("STAFF_ID = {0}",staffId);
+                wd.where("DEPARTMENT_ID = {0}",oldDepartmentId);
+                List<WhiteList> dlist = whiteListService.selectList(wd);
+                if (!dlist.isEmpty()){
+                    whiteListService.deleteBatchByIds(dlist);
+                }
+                for (WhiteList w :whiteListList)
+                    whiteListService.insert(w);
+                return true;
+            }catch (Exception e){
+                e.printStackTrace();
+                return false;
+            }
+        }else {
+            return res;
+        }
     }
 
     /**

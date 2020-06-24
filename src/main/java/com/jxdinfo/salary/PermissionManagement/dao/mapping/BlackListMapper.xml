@@ -24,7 +24,7 @@
             a.DEPARTMENT_ID = b.DEPARTMENT_ID and a.PERMISSION_ID = c.PERMISSION_ID and a.STAFF_ID = d.STAFF_ID
             <if test="ew.sqlSegment!=null">${ew.sqlSegment}</if>
         </where>
-        order by a.STAFF_ID ASC ,DEPARTMENT_NAME ASC
+        order by a.STAFF_ID ASC ,DEPARTMENT_NAME ASC,PERMISSION_NAME ASC
     </select>
 
     <select id="selectStaffId" resultType="int">

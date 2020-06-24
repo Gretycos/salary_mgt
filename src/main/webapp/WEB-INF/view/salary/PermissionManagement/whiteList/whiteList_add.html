@@ -27,7 +27,8 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">设置权限:</label>
                 <div class="layui-input-inline">
-                    <select id="permissionName" name="permissionName" lay-filter="dp" lay-search=""></select>
+                    <!--<select id="permissionName" name="permissionName" lay-filter="dp" lay-search="" multiple="multiple"></select>-->
+                    <div id="permissionName"></div>
                 </div>
             </div>
 
@@ -41,6 +42,9 @@
             </div>
     </form>
 </div>
+<!-- 引入插件 -->
+<!-- 渲染页面 -->
 <script src="${ctxPath}/static/salary/PermissionManagement/whiteList/whiteList_add.js"></script>
+<script src="${ctxPath}/static/salary/PermissionManagement/xm-select.js" type="text/javascript" charset="utf-8"></script>
 @}
 

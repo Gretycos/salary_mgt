@@ -7,7 +7,8 @@ var WhiteList = {
     table: null,
     layerIndex: -1,
     pageSize:20,
-    pageNumber:1
+    pageNumber:1,
+    isFold:true
 };
 
 /**
@@ -38,7 +39,7 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         var id = data.elem.id;
         var val = data.value;
         SelectValDict[id] = val;
-        console.log(SelectValDict)
+        console.log(SelectValDict);
         // console.log(data.othis); //得到美化后的DOM对象
 
         // 和黑名单一样 根据下拉选择框的SelectValDict去查询 更新bootstrapTable
@@ -52,8 +53,13 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         var str = "?staffId="+query.staffId+"&staffName="+query.staffName
             +"&departmentName="+query.departmentName
             +"&permissionName="+query.permissionName;
+        var u = "";
+        if (WhiteList.isFold)
+            u += "/whiteList/merge_showBySelect";
+        else
+            u += "/whiteList/showBySelect";
         var opt={
-            url: Hussar.ctxPath + "/whiteList/showBySelect"+str,
+            url: Hussar.ctxPath + u +str,
             silent: true
         };
         $('#WhiteListTable').bootstrapTable('refresh',opt);
@@ -117,11 +123,45 @@ WhiteList.initColumn = function () {
     return [
         {checkbox:true, halign:'center',align:"center",width: "4%"},
         {title: '序号',align:"center" ,halign:'center',width:"4%" ,formatter: function (value, row, index) {return (WhiteList.pageNumber-1)*WhiteList.pageSize +1 +index ;}},
-            {title: '员工工号', field: 'staffId', align: 'center',halign:'center',width:"23%"},
-            {title: '员工姓名', field: 'staffName', align: 'center',halign:'center',width:"23%"},
-            {title: '管理的部门', field: 'departmentName', align: 'center',halign:'center',width:"23%"},
+            {title: '员工工号', field: 'staff.staffId', align: 'center',halign:'center',width:"23%"},
+            {title: '员工姓名', field: 'staff.staffName', align: 'center',halign:'center',width:"23%"},
+            {title: '管理的部门', field: 'department.departmentName', align: 'center',halign:'center',width:"23%"},
             {title: '拥有的权限', field: 'permissionName', align: 'center',halign:'center',width:"23%"}
     ];
+};
+
+
+/**
+ *  展开合并的数据
+ */
+WhiteList.unfold = function(){
+    // 将 收起 添加 修改按钮隐藏起来
+    $('#add').hide();
+    $('#edit').hide();
+    $('#unfold').hide();
+    $('#fold').show();
+    $('#del').show();
+    // 请求 whitelist/list
+    WhiteList.isFold = false;
+    var opt={
+        url: Hussar.ctxPath + "/whiteList/list",
+        silent: true
+    };
+    $('#WhiteListTable').bootstrapTable('refresh',opt);
+
+};
+
+/**
+ *  收起合并的数据
+ */
+WhiteList.fold = function(){
+    $('#add').show();
+    $('#edit').show();
+    $('#unfold').show();
+    $('#fold').hide();
+    $('#del').hide();
+    WhiteList.isFold = true;
+    WhiteList.reset();
 };
 
 /**
@@ -165,12 +205,11 @@ WhiteList.openWhiteListDetail = function () {
             return
         }
         // 先将WhiteList.seItem[0] 转换请求参数字符串
-        var modify_item = "?staffId="+String(WhiteList.seItem[0].staffId)
-                        +"&departmentId="+String(WhiteList.seItem[0].departmentId)
-                        +"&permissionId="+String(WhiteList.seItem[0].permissionId)
-                        +"&staffName="+WhiteList.seItem[0].staffName
-                        +"&departmentName="+WhiteList.seItem[0].departmentName
-                        +"&permissionName="+WhiteList.seItem[0].permissionName;
+        var modify_item = "?staffId="+String(WhiteList.seItem[0].staff.staffId)
+                        +"&departmentId="+String(WhiteList.seItem[0].department.departmentId)
+                        +"&staffName="+WhiteList.seItem[0].staff.staffName
+                        +"&departmentName="+WhiteList.seItem[0].department.departmentName;
+
 
         var index = layer.open({
             type: 2, //打开的类型设置为iframe
@@ -179,7 +218,12 @@ WhiteList.openWhiteListDetail = function () {
             fix: false, //不固定
             maxmin: false, //是否可最大最小化
             //content是用来设置要显示的iframe的页面的
-            content: Hussar.ctxPath + "/whiteList/whiteList_update" + modify_item
+            content: Hussar.ctxPath + "/whiteList/whiteList_update"+modify_item,
+            success: function(layero, index){
+                //弹出成功后回调
+                // var permissionList = WhiteList.seItem[0].permissionList;
+                // console.log(layero, index);
+            }
           });
         this.layerIndex = index;
         console.log(WhiteList.layerIndex)
@@ -208,7 +252,17 @@ WhiteList.delete = function () {
             //     tmp = WhiteList.transName(WhiteList.seItem[k]);
             //     delete_array.push(tmp);
             // }
-            var delete_list = JSON.stringify(WhiteList.seItem);
+            // 将WhiteList.seItem转化为WhiteList数组
+            var delete_list_arr = [];
+            for(var key in WhiteList.seItem){
+                var tmp = {
+                    staffId:WhiteList.seItem[key].staff.staffId,
+                    departmentId:WhiteList.seItem[key].department.departmentId,
+                    permissionId:WhiteList.seItem[key].permissionList[0].permissionId
+                }
+                delete_list_arr.push(tmp)
+            }
+            var delete_list = JSON.stringify(delete_list_arr);
             ajax.set("delete_list",delete_list);
             ajax.start();
 
@@ -249,7 +303,7 @@ WhiteList.search = function () {
     // ajax.start();
 
     var opt={
-        url: Hussar.ctxPath + "/whiteList/list",
+        url: Hussar.ctxPath + "/whiteList/merge_list",
         silent: true,
         query:{
             search_condition:search_condition
@@ -279,11 +333,11 @@ WhiteList.reset = function(){
 
 $(function () {
     var defaultColunms = WhiteList.initColumn();
-    WhiteList.createSelect();
+    WhiteList.fold();
 
     $('#WhiteListTable').bootstrapTable({
             dataType:"json",
-            url:'/whiteList/list',
+            url:'/whiteList/merge_list',
             pagination:true,
             pageList:[10,15,20,50,100],
             striped:true,

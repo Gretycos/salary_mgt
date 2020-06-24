@@ -10,7 +10,9 @@ var BlackListInfoDlg = {
         staffId:null,
         departmentId:null,
         permissionId:null
-    }
+    },
+    select_data : [],
+    multiSelector:null
 };
 
 layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
@@ -60,15 +62,25 @@ form.on('select(staffId)', function(data){
             var permissionList = data.permissionList;
             var departmentList = data.departmentList;
             if (permissionList.length==1){
-                str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                // str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                BlackListInfoDlg.select_data=[{
+                    name: permissionList[0].permissionName,
+                    value:permissionList[0].permissionName
+                }];
                 str3 += "<option value=\""+departmentList[0].departmentName+"\">"+departmentList[0].departmentName+"</option>";
-                BlackListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                // BlackListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
                 BlackListInfoDlg.selectDepartmentAndPermission['departmentName'] = departmentList[0].departmentName;
             } else {
-                str2 += "<option value=''>请搜索或选择权限</option>";
+                // str2 += "<option value=''>请搜索或选择权限</option>";
+                BlackListInfoDlg.select_data=[];
                 str3 += "<option value=''>请搜索或选择部门</option>";
                 for (var key in permissionList) {
-                    str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                    // str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                    var tmp={
+                        name: permissionList[key].permissionName,
+                        value:permissionList[key].permissionName
+                    };
+                    BlackListInfoDlg.select_data.push(tmp);
                 }
                 for (var key in departmentList) {
                     str3 += "<option value=\""+departmentList[key].departmentName+"\">"+departmentList[key].departmentName+"</option>";
@@ -76,7 +88,8 @@ form.on('select(staffId)', function(data){
             }
             // 通过JQuery给相应的select添加上option
             $('#staffName').empty().append(str1);
-            $('#permissionName').empty().append(str2);
+            // $('#permissionName').empty().append(str2);
+            BlackListInfoDlg.multiSelector.update({data:BlackListInfoDlg.select_data});
             $('#departmentName').empty().append(str3);
 
             form.render('select');
@@ -122,15 +135,25 @@ form.on('select(staffName)', function(data){
                 var permissionList = data.permissionList;
                 var departmentList = data.departmentList;
                 if (permissionList.length==1){
-                    str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                    // str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                    BlackListInfoDlg.select_data=[{
+                       name:permissionList[0].permissionName,
+                       value:permissionList[0].permissionName
+                    }];
                     str3 += "<option value=\""+departmentList[0].departmentName+"\">"+departmentList[0].departmentName+"</option>";
-                    BlackListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                    // BlackListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
                     BlackListInfoDlg.selectDepartmentAndPermission['departmentName'] = departmentList[0].departmentName;
                 } else {
-                    str2 += "<option value=''>请搜索或选择权限</option>";
+                    // str2 += "<option value=''>请搜索或选择权限</option>";
+                    BlackListInfoDlg.select_data=[];
                     str3 += "<option value=''>请搜索或选择部门</option>";
                     for (var key in permissionList) {
-                        str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                        // str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                        var tmp = {
+                            name:permissionList[key].permissionName,
+                            value:permissionList[key].permissionName
+                        };
+                        BlackListInfoDlg.select_data.push(tmp);
                     }
                     for (var key in departmentList) {
                         str3 += "<option value=\""+departmentList[key].departmentName+"\">"+departmentList[key].departmentName+"</option>";
@@ -146,7 +169,8 @@ form.on('select(staffName)', function(data){
 
             // 通过JQuery给相应的select添加上option
             $('#staffId').empty().append(str1);
-            $('#permissionName').empty().append(str2);
+            // $('#permissionName').empty().append(str2);
+            BlackListInfoDlg.multiSelector.update({data:BlackListInfoDlg.select_data});
             $('#departmentName').empty().append(str3);
             form.render('select');
 
@@ -161,23 +185,6 @@ form.on('select(staffName)', function(data){
     console.log(BlackListInfoDlg.selectDepartmentAndPermission);
 });
 
-/**
- * 重置四个select
- */
-BlackListInfoDlg.reset = function(){
-    BlackListInfoDlg.createSelectOfStaff();
-    BlackListInfoDlg.createSelectOfDP();
-    BlackListInfoDlg.selectDepartmentAndPermission= {
-        departmentName:"",
-        permissionName:"",
-        staffName:"",
-        staffId:null,
-        departmentId:null,
-        permissionId:null
-    }
-
-};
-
 
 /**
  * 初始化部门下拉选择框和权限下拉选择框
@@ -191,20 +198,23 @@ BlackListInfoDlg.createSelectOfDP= function(){
         // 下面开始拼接option
         var str1="",str2="";
         str1 += "<option value=''>请搜索或选择部门</option>";
-        str2 += "<option value=''>请搜索或选择权限</option>";
+        // str2 += "<option value=''>请搜索或选择权限</option>";
         for (var key in departmentList){
             str1 +=  "<option value=\""+departmentList[key].departmentName+"\">"
                 +departmentList[key].departmentName+"</option>";
         }
-
+        BlackListInfoDlg.select_data = [];
         for (var key in permissionList){
-            str2 +=  "<option value=\""+permissionList[key].permissionName+"\">"
-                +permissionList[key].permissionName+"</option>";
+            var tmp ={
+                name : permissionList[key].permissionName,
+                value : permissionList[key].permissionName
+            };
+            BlackListInfoDlg.select_data.push(tmp);
         }
 
         // 通过JQuery给相应的select添加上option
         $('#departmentName').empty().append(str1);
-        $('#permissionName').empty().append(str2);
+        // $('#permissionName').empty().append(str2);
 
         form.render('select') //不要忘记render
     },function(data){
@@ -271,14 +281,14 @@ BlackListInfoDlg.addSubmit = function() {
         Hussar.error("请选择部门!");
         return;
     }
-    if (param.permissionName==""){
+    if (BlackListInfoDlg.multiSelector.getValue("value").length==0){
         Hussar.error("请选择权限!");
         return;
     }
     // 都没有问题之后进行提交
     var ajax = new $ax(Hussar.ctxPath + "/blackList/add", function(data){
-        if (data=="exist") {
-            Hussar.error("该权限已授予!");
+        if (data!=true&&data!=false) {
+            Hussar.error(data+"权限已授予,不可重复添加");
             return;
         }
         if (data==true){
@@ -291,7 +301,10 @@ BlackListInfoDlg.addSubmit = function() {
     },function(data){
         Hussar.error("添加失败!" + data.responseJSON.message + "!");
     });
-    ajax.set(param);
+    ajax.set({
+        "paramStr":JSON.stringify(param),
+        "permissionNameListStr":JSON.stringify(BlackListInfoDlg.multiSelector.getValue("value"))
+    });
     ajax.start();
 };
 
@@ -309,7 +322,42 @@ BlackListInfoDlg.initLaydate = function() {
             trigger: 'click'
         });
     });
-}
+};
+
+
+/**
+ * 重置四个select
+ */
+BlackListInfoDlg.reset = function(){
+    BlackListInfoDlg.createSelectOfStaff();
+    BlackListInfoDlg.createSelectOfDP();
+    BlackListInfoDlg.multiSelector = BlackListInfoDlg.multiSelect(BlackListInfoDlg.select_data);
+    BlackListInfoDlg.selectDepartmentAndPermission= {
+        departmentName:"",
+        permissionName:"",
+        staffName:"",
+        staffId:null,
+        departmentId:null,
+        permissionId:null
+    }
+
+};
+
+// xm-select 渲染下拉多选框
+BlackListInfoDlg.multiSelect = function(data){
+    return  xmSelect.render({
+        // 这里绑定css选择器
+        el: '#permissionName',
+        direction: 'down',
+        theme:{
+            color:'#1cbbb4'
+        },
+        tips: '请选择要授予的权限',
+        autoRow:true,
+        // 渲染的数据
+        data: data
+    });
+};
 
 $(function() {
     BlackListInfoDlg.reset();

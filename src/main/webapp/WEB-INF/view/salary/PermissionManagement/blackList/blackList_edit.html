@@ -2,14 +2,14 @@
 <div class="weadmin-body-1" style="padding-bottom:50px;">
     <form class="layui-form">
         <div class="layui-form-item">
-            <label class="layui-form-label">工号:</label>
+            <label class="layui-form-label">员工工号:</label>
             <div class="layui-input-inline">
                 <input id="staffId" name="staffId" class="layui-input"
                        placeholder="请输入员工ID" value="${item.staffId}" disabled>
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">姓名:</label>
+            <label class="layui-form-label">员工姓名:</label>
             <div class="layui-input-inline">
                 <input id="staffName" name="staffName" class="layui-input"
                        placeholder="请输入员工姓名" value="${item.staffName}" disabled>
@@ -24,25 +24,33 @@
                        placeholder="请输入部门ID" value="${item.departmentId}">
             </div>
         </div>
+        <!--<div class="layui-form-item">-->
+            <!--<label class="layui-form-label">部门:</label>-->
+            <!--<div class="layui-input-inline">-->
+                <!--<select id="departmentName" name="departmentName" lay-search=""></select>-->
+            <!--</div>-->
+        <!--</div>-->
         <div class="layui-form-item">
-            <label class="layui-form-label">部门:</label>
+            <label class="layui-form-label">部门名称:</label>
             <div class="layui-input-inline">
-                <select id="departmentName" name="departmentName" lay-search=""></select>
+                <input id="departmentName" name="departmentName" class="layui-input"
+                       placeholder="请输入部门名称" value="${item.departmentName}" disabled>
             </div>
         </div>
 
         <!--权限ID是隐藏的-->
-        <div class="layui-form-item" style="display: none !important;">
-            <label class="layui-form-label">选择的权限ID：</label>
-            <div class="layui-input-inline">
-                <input id="permissionId" name="permissionId" class="layui-input"
-                       placeholder="请输入权限ID" value="${item.permissionId}">
-            </div>
-        </div>
+        <!--<div class="layui-form-item" style="display: none !important;">-->
+            <!--<label class="layui-form-label">选择的权限ID：</label>-->
+            <!--<div class="layui-input-inline">-->
+                <!--<input id="permissionId" name="permissionId" class="layui-input"-->
+                       <!--placeholder="请输入权限ID" value="${item.permissionId}">-->
+            <!--</div>-->
+        <!--</div>-->
         <div class="layui-form-item">
-            <label class="layui-form-label">权限:</label>
+            <label class="layui-form-label">设置权限:</label>
             <div class="layui-input-inline">
-                <select id="permissionName" name="permissionName" lay-search=""></select>
+                <!--<select id="permissionName" name="permissionName" lay-search=""></select>-->
+                <div id="permissionName"></div>
             </div>
         </div>
         <div class="layerBtnCenter btn-box btn-box-1">
@@ -54,4 +62,5 @@
     </form>
 </div>
 <script src="${ctxPath}/static/salary/PermissionManagement/blackList/blackList_info.js"></script>
+<script src="${ctxPath}/static/salary/PermissionManagement/xm-select.js" type="text/javascript" charset="utf-8"></script>
 @}

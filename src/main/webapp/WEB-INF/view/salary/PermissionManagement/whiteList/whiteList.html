@@ -1,5 +1,8 @@
 @layout("/common/layout.html",{title:'管理'}){
 <link type="text/css" href="/static/css/salary/permission.css"/>
+<style>
+    td{vertical-align: middle !important;}
+</style>
 <div class="layui-fluid weadmin-body">
     <form class="layui-form" action="">
         <div class="layui-elem-quote">
@@ -21,6 +24,10 @@
                 onclick="WhiteList.openWhiteListDetail()"><i class="layui-icon">&#xe642;</i>修改</button>
                 <button type="button" class="layui-btn" id="del"
                 onclick="WhiteList.delete()"><i class="layui-icon">&#xe640;</i>删除</button>
+                <button type="button" class="layui-btn" id="unfold"
+                onclick="WhiteList.unfold()"><i class="layui-icon">&#xe622;</i>展开</button>
+                <button type="button" class="layui-btn" id="fold"
+                onclick="WhiteList.fold()"><i class="layui-icon">&#xe758;</i>收起</button>
             </div>
         </div>
     </form>
@@ -48,7 +55,7 @@
         </form>
     </div>
 
-    <table id="WhiteListTable" ></table>
+    <table id="WhiteListTable"></table>
 </div>
 <script src="${ctxPath}/static/salary/PermissionManagement/whiteList/whiteList.js"></script>
 @}

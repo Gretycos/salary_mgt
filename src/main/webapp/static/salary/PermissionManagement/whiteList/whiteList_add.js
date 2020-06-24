@@ -5,12 +5,14 @@
 var WhiteListInfoDlg = {
     selectDepartmentAndPermission:{
         departmentName:"",
-        permissionName:"",
+        permissionName:"", // 因为权限可以是多选了 这里改成了数组
         staffName:"",
         staffId:null,
         departmentId:null,
         permissionId:null
-    }
+    },
+    select_data : [],
+    multiSelector:null
 };
 
 layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
@@ -58,23 +60,42 @@ form.on('select(staffId)', function(data){
             var permissionList = data.permissionList;
             var departmentList = data.departmentList;
             if (permissionList.length==1){
-                str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                // str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                WhiteListInfoDlg.select_data=[
+                    {
+                        name : permissionList[0].permissionName,
+                        value : permissionList[0].permissionName
+                    }
+                ];
+                // 刷新multiSelector 刷新数据
                 str3 += "<option value=\""+departmentList[0].departmentName+"\">"+departmentList[0].departmentName+"</option>";
-                WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                // 修改保存的当前的要提交的数据
+                WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = "";
+                // WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'].push(permissionList[0].permissionName);
                 WhiteListInfoDlg.selectDepartmentAndPermission['departmentName'] = departmentList[0].departmentName;
             } else {
-                str2 += "<option value=''>请搜索或选择权限</option>";
+                // str2 += "<option value=''>请搜索或选择权限</option>";
                 str3 += "<option value=''>请搜索或选择部门</option>";
-                for (var key in permissionList) {
-                    str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
-                }
+                // for (var key in permissionList) {
+                //     str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                // }
                 for (var key in departmentList) {
                     str3 += "<option value=\""+departmentList[key].departmentName+"\">"+departmentList[key].departmentName+"</option>";
+                }
+                // 0623 修改 权限多选
+                WhiteListInfoDlg.select_data=[];
+                for (var key in permissionList) {
+                    var tmp ={
+                        name : permissionList[key].permissionName,
+                        value : permissionList[key].permissionName
+                    };
+                    WhiteListInfoDlg.select_data.push(tmp);
                 }
             }
             // 通过JQuery给相应的select添加上option
             $('#staffName').empty().append(str1);
-            $('#permissionName').empty().append(str2);
+            // $('#permissionName').empty().append(str2);
+            WhiteListInfoDlg.multiSelector.update({data:WhiteListInfoDlg.select_data});
             $('#departmentName').empty().append(str3);
 
             
@@ -118,15 +139,28 @@ form.on('select(staffName)', function(data){
                 var permissionList = data.permissionList;
                 var departmentList = data.departmentList;
                 if (permissionList.length==1){
-                    str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                    // str2 += "<option value=\""+permissionList[0].permissionName+"\">"+permissionList[0].permissionName+"</option>";
+                    WhiteListInfoDlg.select_data=[
+                        {
+                            name:permissionList[0].permissionName,
+                            value:permissionList[0].permissionName
+                        }
+                    ];
                     str3 += "<option value=\""+departmentList[0].departmentName+"\">"+departmentList[0].departmentName+"</option>";
-                    WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                    // WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = permissionList[0].permissionName;
+                    // WhiteListInfoDlg.selectDepartmentAndPermission['permissionName'] = null; // 将当前的permissionName数组清空
                     WhiteListInfoDlg.selectDepartmentAndPermission['departmentName'] = departmentList[0].departmentName;
                 } else {
-                    str2 += "<option value=''>请搜索或选择权限</option>";
+                    // str2 += "<option value=''>请搜索或选择权限</option>";
                     str3 += "<option value=''>请搜索或选择部门</option>";
+                    WhiteListInfoDlg.select_data= [];
                     for (var key in permissionList) {
-                        str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                        // str2 += "<option value=\""+permissionList[key].permissionName+"\">"+permissionList[key].permissionName+"</option>";
+                        var tmp = {
+                            name:permissionList[key].permissionName,
+                            value:permissionList[key].permissionName
+                        };
+                        WhiteListInfoDlg.select_data.push(tmp);
                     }
                     for (var key in departmentList) {
                         str3 += "<option value=\""+departmentList[key].departmentName+"\">"+departmentList[key].departmentName+"</option>";
@@ -142,7 +176,8 @@ form.on('select(staffName)', function(data){
 
             // 通过JQuery给相应的select添加上option
             $('#staffId').empty().append(str1);
-            $('#permissionName').empty().append(str2);
+            // $('#permissionName').empty().append(str2);
+            WhiteListInfoDlg.multiSelector.update({data:WhiteListInfoDlg.select_data});
             $('#departmentName').empty().append(str3);
             form.render('select');
 
@@ -157,22 +192,7 @@ form.on('select(staffName)', function(data){
     console.log(WhiteListInfoDlg.selectDepartmentAndPermission);
 });
 
-/**
- * 重置四个select
- */
-WhiteListInfoDlg.reset = function(){
-    WhiteListInfoDlg.createSelectOfStaff();
-    WhiteListInfoDlg.createSelectOfDP();
-    WhiteListInfoDlg.selectDepartmentAndPermission= {
-            departmentName:"",
-            permissionName:"",
-            staffName:"",
-            staffId:null,
-            departmentId:null,
-            permissionId:null
-    }
 
-};
 /**
  * 初始化部门下拉选择框和权限下拉选择框
  */
@@ -185,20 +205,25 @@ WhiteListInfoDlg.createSelectOfDP= function(){
         // 下面开始拼接option
         var str1="",str2="";
         str1 += "<option value=''>请搜索或选择部门</option>";
-        str2 += "<option value=''>请搜索或选择权限</option>";
+        // str2 += "<option value=''>请搜索或选择权限</option>";
         for (var key in departmentList){
             str1 +=  "<option value=\""+departmentList[key].departmentName+"\">"
                         +departmentList[key].departmentName+"</option>";
         }
 
+        // 构造权限的下拉多选框 的data = [{name:"",value:""},{name:"",value:""}...]
+        WhiteListInfoDlg.select_data=[];
         for (var key in permissionList){
-            str2 +=  "<option value=\""+permissionList[key].permissionName+"\">"
-                +permissionList[key].permissionName+"</option>";
+            var tmp ={
+                name : permissionList[key].permissionName,
+                value : permissionList[key].permissionName
+            };
+            WhiteListInfoDlg.select_data.push(tmp);
         }
 
         // 通过JQuery给相应的select添加上option
         $('#departmentName').empty().append(str1);
-        $('#permissionName').empty().append(str2);
+        // $('#permissionName').empty().append(str2);
 
         form.render('select') //不要忘记render
     },function(data){
@@ -206,6 +231,9 @@ WhiteListInfoDlg.createSelectOfDP= function(){
     });
     ajax.start();
 };
+
+// 监听权限的下拉多选框
+    
 
 /**
  * 初始化员工工号和姓名选择框
@@ -265,14 +293,15 @@ WhiteListInfoDlg.addSubmit = function() {
         Hussar.error("请选择部门!");
         return;
     }
-    if (param.permissionName==""){
+    if (WhiteListInfoDlg.multiSelector.getValue("value").length==0){
         Hussar.error("请选择权限!");
         return;
     }
     // 都没有问题之后进行提交
     var ajax = new $ax(Hussar.ctxPath + "/whiteList/add", function(data){
-        if (data=="exist") {
-            Hussar.error("该权限已授予");
+
+        if (data!=true&&data!=false) {
+            Hussar.error(data+"权限已授予,不可重复添加");
             return;
         }
         if (data==true){
@@ -285,7 +314,11 @@ WhiteListInfoDlg.addSubmit = function() {
     },function(data){
         Hussar.error("添加失败!" + data.responseJSON.message + "!");
     });
-    ajax.set(param);
+    // ajax.setContentType("application/x-www-form-urlencoded");
+    ajax.set({
+        "paramStr":JSON.stringify(param),
+        "permissionNameListStr":JSON.stringify(WhiteListInfoDlg.multiSelector.getValue("value"))
+    });
     ajax.start();
 };
 
@@ -302,12 +335,48 @@ WhiteListInfoDlg.initLaydate = function() {
             trigger: 'click'
         });
     });
-}
+};
+
+/**
+ * 重置四个select
+ */
+WhiteListInfoDlg.reset = function(){
+    WhiteListInfoDlg.createSelectOfStaff();
+    WhiteListInfoDlg.createSelectOfDP();
+    WhiteListInfoDlg.multiSelector = WhiteListInfoDlg.multiSelect(WhiteListInfoDlg.select_data);
+    WhiteListInfoDlg.selectDepartmentAndPermission= {
+        departmentName:"",
+        permissionName:"",
+        staffName:"",
+        staffId:null,
+        departmentId:null,
+        permissionId:null
+    }
+
+};
+
+WhiteListInfoDlg.multiSelect = function(cur_data){
+  return  xmSelect.render({
+      // 这里绑定css选择器
+      el: '#permissionName',
+      direction: 'down',
+      tips: '请选择要授予的权限',
+      autoRow:true,
+      theme:{
+          color:'#1cbbb4'
+      },
+      // 渲染的数据
+      data: cur_data,
+      // on:function (data) {
+      //     console.log("当前权限");
+      //     console.log(data.arr);
+      // }
+  });
+};
 
 $(function() {
     WhiteListInfoDlg.initLaydate();   //初始化时间控件
     WhiteListInfoDlg.reset();
-    // select
 });
 
 });
