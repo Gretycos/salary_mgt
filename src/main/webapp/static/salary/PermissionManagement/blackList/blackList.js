@@ -166,6 +166,14 @@ BlackList.unfold = function(){
     $('#unfold').hide();
     $('#fold').show();
     $('#del').show();
+    // 重置下拉选择框
+    BlackList.createSelect();
+    SelectValDict ={
+        staffId:"",
+        staffName:"",
+        departmentName:"",
+        permissionName:""
+    };
 
     // var opt={
     //     url: Hussar.ctxPath + "/blackList/list",

@@ -141,6 +141,13 @@ WhiteList.unfold = function(){
     $('#del').show();
     // 请求 whitelist/list
     WhiteList.isFold = false;
+    WhiteList.createSelect();
+    SelectValDict={
+        staffId:"",
+        staffName:"",
+        departmentName:"",
+        permissionName:""
+    };
     WhiteList.createNewTable("/whiteList/list");
 
 };
