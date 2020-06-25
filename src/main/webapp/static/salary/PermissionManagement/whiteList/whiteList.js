@@ -8,7 +8,8 @@ var WhiteList = {
     layerIndex: -1,
     pageSize:20,
     pageNumber:1,
-    isFold:true
+    isFold:true,
+    loadIndex:-2
 };
 
 /**
@@ -333,6 +334,14 @@ WhiteList.reset = function(){
 };
 
 WhiteList.createNewTable = function(url){
+    // 添加一层遮罩
+    WhiteList.loadIndex = layer.load({
+        icon :1,
+        shade: [0.5, '#1cbbb4'],
+        area:[$("body").height(),$("body").width()],
+        time:0 // 需要手动关闭
+    });
+
     $('#WhiteListTable').bootstrapTable('destroy');
     WhiteList.pageNumber = 1;
     WhiteList.pageSize = 20;
@@ -351,6 +360,13 @@ WhiteList.createNewTable = function(url){
         onPageChange:function(number, size){
             WhiteList.pageNumber = number ;
             WhiteList.pageSize = size;
+        },
+        onLoadSuccess:function () {
+            if (WhiteList.loadIndex>=0){
+                // 数据加载完成之后 关闭遮罩
+                layer.close(WhiteList.loadIndex);
+                WhiteList.loadIndex = -2
+            }
         }
     });
 };

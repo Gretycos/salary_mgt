@@ -8,7 +8,8 @@ var BlackList = {
     layerIndex: -1,
     pageSize:20,
     pageNumber:1,
-    isFold : true
+    isFold : true,
+    loadIndex:-2
 };
 
 /**
@@ -311,7 +312,14 @@ BlackList.reset = function(){
  * 销毁之前的表格 创建新的表格
  */
 BlackList.createNewTable = function(url){
-    $('#BlackListTable').bootstrapTable('destroy')
+    // 重新创建表格时添加遮罩
+    BlackList.loadIndex = layer.load({
+        icon :1,
+        area:[$("body").height(),$("body").width()],
+        shade: [0.5, '#1cbbb4'],
+        time:0 // 需要手动关闭
+    });
+    $('#BlackListTable').bootstrapTable('destroy');
     BlackList.pageNumber = 1;
     BlackList.pageSize = 20;
     var defaultColunms = BlackList.initColumn();
@@ -326,7 +334,14 @@ BlackList.createNewTable = function(url){
         columns: defaultColunms,
         height:$("body").height() - $(".layui-form").outerHeight(true) - $("#select-group").outerHeight(true) - 26,
         sidePagination:"server",
-        onPageChange:function(number, size){BlackList.pageNumber = number ; BlackList.pageSize = size}
+        onPageChange:function(number, size){BlackList.pageNumber = number ; BlackList.pageSize = size},
+        onLoadSuccess:function () {
+            // 数据加载完成后触发
+            if (BlackList.loadIndex>=0){
+                layer.close(BlackList.loadIndex);
+                BlackList.loadIndex = -2
+            }
+        }
     });
 };
 

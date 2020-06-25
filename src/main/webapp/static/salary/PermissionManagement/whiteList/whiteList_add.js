@@ -12,7 +12,8 @@ var WhiteListInfoDlg = {
         permissionId:null
     },
     select_data : [],
-    multiSelector:null
+    multiSelector:null,
+    loadIndexInAdd:-1
 };
 
 layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
@@ -306,6 +307,12 @@ WhiteListInfoDlg.addSubmit = function() {
         }
         if (data==true){
             window.parent.layui.Hussar.success("添加成功!");
+            // 给父页面设置数据加载遮罩
+            window.parent.WhiteList.loadIndex = window.parent.layer.load({
+                icon :1,
+                shade: [0.5, '#1cbbb4'],
+                time:0 // 需要手动关闭
+            });
             window.parent.$('#WhiteListTable').bootstrapTable('refresh');
             WhiteListInfoDlg.close();
         }else {
@@ -341,6 +348,10 @@ WhiteListInfoDlg.initLaydate = function() {
  * 重置四个select
  */
 WhiteListInfoDlg.reset = function(){
+    // // 增加遮罩
+    // WhiteListInfoDlg.loadIndexInAdd = layer.load({
+    //
+    // });
     WhiteListInfoDlg.createSelectOfStaff();
     WhiteListInfoDlg.createSelectOfDP();
     WhiteListInfoDlg.multiSelector = WhiteListInfoDlg.multiSelect(WhiteListInfoDlg.select_data);
@@ -352,6 +363,7 @@ WhiteListInfoDlg.reset = function(){
         departmentId:null,
         permissionId:null
     }
+    //关闭遮罩
 
 };
 

@@ -12,7 +12,8 @@ var BlackListInfoDlg = {
         permissionId:null
     },
     select_data : [],
-    multiSelector:null
+    multiSelector:null,
+    loadIndexInAdd:-1
 };
 
 layui.use(['layer', 'Hussar', 'HussarAjax', 'laydate','form'], function(){
@@ -293,6 +294,11 @@ BlackListInfoDlg.addSubmit = function() {
         }
         if (data==true){
             window.parent.layui.Hussar.success("添加成功!");
+            window.parent.BlackList.loadIndex = window.parent.layer.load({
+                icon :1,
+                shade: [0.5, '#1cbbb4'],
+                time:0 // 需要手动关闭
+            });
             window.parent.$('#BlackListTable').bootstrapTable('refresh');
             BlackListInfoDlg.close();
         }else {
@@ -329,6 +335,12 @@ BlackListInfoDlg.initLaydate = function() {
  * 重置四个select
  */
 BlackListInfoDlg.reset = function(){
+    // // 增加遮罩
+    // BlackListInfoDlg.loadIndexInAdd = layer.load({
+    //     icon :1,
+    //     shade: [0.5, '#1cbbb4'],
+    //     time:0 // 需要手动关闭
+    // });
     BlackListInfoDlg.createSelectOfStaff();
     BlackListInfoDlg.createSelectOfDP();
     BlackListInfoDlg.multiSelector = BlackListInfoDlg.multiSelect(BlackListInfoDlg.select_data);
@@ -339,7 +351,9 @@ BlackListInfoDlg.reset = function(){
         staffId:null,
         departmentId:null,
         permissionId:null
-    }
+    };
+    // 关闭遮罩
+    // layer.close(BlackListInfoDlg.loadIndexInAdd);
 
 };
 
