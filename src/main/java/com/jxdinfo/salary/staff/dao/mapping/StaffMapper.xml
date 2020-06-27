@@ -122,7 +122,7 @@
 
     <!-- 查询下拉性别-->
     <select id="getGenderSet" resultType="String">
-        select distinct GENDER from t_staff
+        select distinct GENDER from t_staff s
         <where>
             ${ew.sqlSegment}
         </where>
@@ -149,7 +149,7 @@
     <!-- 查询下拉入职时间-->
     <select id="getEntryTimeSet" resultType="String">
         select distinct DATE_FORMAT(ENTRY_TIME,'%Y-%m')
-        from t_staff
+        from t_staff s
         <where>
             ${ew.sqlSegment}
         </where>
@@ -158,9 +158,9 @@
     <!-- 查询下拉离职时间-->
     <select id="getDepartureTimeSet" resultType="String">
         select distinct DATE_FORMAT(DEPARTURE_TIME,'%Y-%m')
-        from t_staff
-        where DEPARTURE_TIME is not null
+        from t_staff s
         <where>
+            DEPARTURE_TIME is not null
             ${ew.sqlSegment}
         </where>
     </select>

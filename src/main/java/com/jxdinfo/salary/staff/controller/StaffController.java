@@ -170,17 +170,17 @@ public class StaffController extends BaseController {
         if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
             if (permissionList.size()==0){
-                ew.eq("DEPARTMENT_ID",-1);
+                ew.eq("s.DEPARTMENT_ID",-1);
             } else {
                 boolean canQuery = false;
                 for (Util p: permissionList){
                     if(p.getPermissionName().equals("查看信息")){
                         canQuery = true;
-                        ew.or().eq("DEPARTMENT_ID",p.getDepartmentId());
+                        ew.or().eq("s.DEPARTMENT_ID",p.getDepartmentId());
                     }
                 }
                 if (!canQuery){
-                    ew.eq("DEPARTMENT_ID",-1);
+                    ew.eq("s.DEPARTMENT_ID",-1);
                 }
             }
         }
