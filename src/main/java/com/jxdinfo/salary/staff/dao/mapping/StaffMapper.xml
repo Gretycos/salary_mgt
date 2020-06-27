@@ -159,6 +159,7 @@
     <select id="getDepartureTimeSet" resultType="String">
         select distinct DATE_FORMAT(DEPARTURE_TIME,'%Y-%m')
         from t_staff
+        where DEPARTURE_TIME is not null
         <where>
             ${ew.sqlSegment}
         </where>
