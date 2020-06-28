@@ -88,7 +88,7 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 跳转到添加人员管理
+     * 跳转到添加人员页面
      */
     @RequestMapping("/staff_add")
     @BussinessLog(key = "/staff/staff_add", type = BussinessLogType.INSERT, value = "跳转到添加人员管理")
@@ -98,7 +98,7 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 跳转到修改人员管理
+     * 跳转到修改人员页面
      */
     @RequestMapping("/staff_update/{staffId}")
     @BussinessLog(key = "/staff/staff_update", type = BussinessLogType.MODIFY, value = "跳转到修改人员管理")
@@ -567,7 +567,7 @@ public class StaffController extends BaseController {
         move.setPosition(newPosition);
         staffService.updateById(move);
         moveLogService.addMoveLog(operator,move,oldDepartment,newDepartment,oldPosition,newPosition,operationTime);
-
+        monthlySalaryService.updateDeId(departmentId,positionId,moveId);
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
         res.put("message","成功");

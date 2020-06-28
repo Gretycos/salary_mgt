@@ -80,7 +80,6 @@ public class TMonthlySalary extends Model<TMonthlySalary> {
         this.awardAmount = awardAmount;
         this.total = total;
     }
-
     public Integer getStaffId() {
         return staffId;
     }

@@ -11,19 +11,26 @@
         <result column="DEPARTURE_TIME" property="departureTime" />
     </resultMap>
 
-    <!-- 通用查询映射结果 -->
+    <!-- 通用查询映射结果，不需要性别、入职时间、离职时间 -->
     <resultMap id="WithIDNameResultMap" type="com.jxdinfo.salary.staff.model.Staff">
         <id column="STAFF_ID" property="staffId" />
         <result column="STAFF_NAME" property="staffName" />
     </resultMap>
 
     <!-- 带关联查询映射结果 -->
+<!--    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">-->
+<!--        &lt;!&ndash;association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名&ndash;&gt;-->
+<!--        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"-->
+<!--                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>-->
+<!--        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"-->
+<!--                     column="POSITION_ID" select="getPositionByPositionId"/>-->
+<!--    </resultMap>-->
     <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">
         <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
         <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
-                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
+                     resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap" />
         <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
-                     column="POSITION_ID" select="getPositionByPositionId"/>
+                     resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap"/>
     </resultMap>
 
     <!-- 带关联查询映射结果 -->
@@ -34,6 +41,14 @@
         <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
                      column="POSITION_ID" select="getPositionByPositionId"/>
     </resultMap>
+
+<!--    <resultMap id="WithRefResultMap2" type="com.jxdinfo.salary.staff.model.Staff" extends="WithIDNameResultMap">-->
+<!--        &lt;!&ndash;association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名&ndash;&gt;-->
+<!--        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"-->
+<!--                     resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap"/>-->
+<!--        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"-->
+<!--                     resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap"/>-->
+<!--    </resultMap>-->
 
     <!-- 带部门查询映射结果 -->
     <resultMap id="WithDepResultMap" type="com.jxdinfo.salary.staff.model.Staff" extends="BaseResultMap">
@@ -65,30 +80,60 @@
     </sql>
 
     <!-- 分页查询 -->
+<!--    <select id="selectPage" resultMap="WithRefResultMap">-->
+<!--        select *-->
+<!--        from t_staff-->
+<!--        <where>-->
+<!--            ${ew.sqlSegment}-->
+<!--        </where>-->
+<!--    </select>-->
     <select id="selectPage" resultMap="WithRefResultMap">
-        select * from t_staff
+        select *
+        from t_staff s natural join t_department natural join t_position
         <where>
             ${ew.sqlSegment}
         </where>
     </select>
 
     <!-- 查询单个人 -->
+<!--    <select id="selectOne" resultMap="WithRefResultMap">-->
+<!--        select * from t_staff-->
+<!--        <where>-->
+<!--            ${ew.sqlSegment}-->
+<!--        </where>-->
+<!--    </select>-->
     <select id="selectOne" resultMap="WithRefResultMap">
+        select * from(
         select * from t_staff
         <where>
             ${ew.sqlSegment}
         </where>
+        ) t1 natural join t_department natural join t_position
     </select>
 
     <!-- 查询单个人 -->
+<!--    <select id="selectById" resultMap="WithRefResultMap">-->
+<!--        select * from t_staff-->
+<!--        where STAFF_ID = #{var1}-->
+<!--    </select>-->
     <select id="selectById" resultMap="WithRefResultMap">
+        select * from (
         select * from t_staff
         where STAFF_ID = #{var1}
+        ) t1 natural join t_department natural join t_position
     </select>
 
-    <!-- 查询单个人 -->
+    <!-- 查询列表 -->
+<!--    <select id="selectList" resultMap="WithRefResultMap">-->
+<!--        select *-->
+<!--        from t_staff-->
+<!--        <where>-->
+<!--            ${ew.sqlSegment}-->
+<!--        </where>-->
+<!--    </select>-->
     <select id="selectList" resultMap="WithRefResultMap">
-        select * from t_staff
+        select *
+        from t_staff s natural join t_department natural join t_position
         <where>
             ${ew.sqlSegment}
         </where>

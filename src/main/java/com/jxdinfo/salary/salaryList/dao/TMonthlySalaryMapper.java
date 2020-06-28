@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * @since 2020-06-18
  */
 public interface TMonthlySalaryMapper extends BaseMapper<TMonthlySalary> {
-
+    void updateDeId(Integer departmentId,Integer positionId,Integer staffId);
 }

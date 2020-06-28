@@ -6,10 +6,12 @@ import com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper;
 import com.jxdinfo.salary.salaryList.service.ITMonthlySalaryService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.jxdinfo.salary.staff.model.Staff;
+import com.jxdinfo.salary.staff.service.IStaffService;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -17,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -29,6 +33,8 @@ import java.util.*;
  */
 @Service
 public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper, TMonthlySalary> implements ITMonthlySalaryService {
+    @Autowired
+    TMonthlySalaryMapper monthlySalaryMapper;
 
     /**
      * 新增
@@ -41,13 +47,13 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
     public List<TMonthlySalary> getCurrentSalary(@RequestParam Integer id) {
 
 
-        List<Integer> ids;
+        List<Integer> ids = new ArrayList<>();
         List<TMonthlySalary> tMonthlySalaries = new ArrayList<>();
 
 
         InputStream inputStream = null;
         try {
-            inputStream = Resources.getResourceAsStream("config/SqlMapConfig.xml");
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,92 +62,110 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
 
         //获取负责员工id
         int departmentId = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_departmentId", id);
-        int positionId = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_positionId", id);
 
-        if (departmentId == 99 || departmentId == 12) {
+        if (departmentId == 99) {
             //如果是超级管理员，返回所有员工id
             ids = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.all_staff_list", departmentId);
         } else {
-            //否则，只能返回本部门职别比自己低的员工id
-            Map param0 = new HashMap<>();
-            param0.put("departmentId", departmentId);
-            param0.put("positionId", positionId);
-            ids = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_id_list", param0);
+            List<Integer> departmentIds = WhiteDepartmentIds(id);
+            //否则，只能返回负责的员工id
+            for(Integer dId:departmentIds)
+            {
+                Integer departmentIdS = dId;
+                List<Integer> idInD = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_id_list", departmentIdS);
+                for (Integer i:idInD)
+                {
+                    ids.add(i);
+                }
+            }
+
         }
 
 
         if (ids != null) {
             for (Integer staffId : ids) {
 
-                //     System.out.println("处理员工： " + staffId);
+                System.out.println("处理员工： " + staffId);
 
 
                 //获取该员工的工资明细
                 TMonthlySalary MonthlySalary = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_monthly_salary", staffId);
 
 
-                //           System.out.println("原始当月工资明细： " + MonthlySalary.toString());
+//                System.out.println("原始当月工资明细： " + MonthlySalary.toString());
 
                 Calendar cal = Calendar.getInstance();
 
                 Map param1 = new HashMap<>();
                 param1.put("id", staffId);
                 param1.put("payMonth", cal.get(Calendar.MONTH) + 1);
-                TBonus tBonus = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.getBonus", param1);
+                TBonus Bonus = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.getBonus", param1);
 
 
-                if (tBonus == null) {
-                    tBonus = new TBonus();
+                if(Bonus==null)
+                {
+                    Bonus = new TBonus();
 
                 }
 
-                //      System.out.println("员工奖金明细：" + Bonus.toString());
+                //               System.out.println("员工奖金明细：" + Bonus.toString());
 
 
                 try {
                     //计算该员工本月的奖金总额
 
-                    if (MonthlySalary != null && tBonus.getTotal() != MonthlySalary.getAwardAmount()) {
+                    if (MonthlySalary != null )
+                    {
+                        Integer t = MonthlySalary.getSalaryAmount()+MonthlySalary.getSalaryOfAge()-MonthlySalary.getIahf()+Bonus.getTotal();
+                        Integer totalSalary = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.getTotal",staffId);
 
-                        //如果奖金数与当前工资表不同，则更新当前工资表
-                        Map param = new HashMap<>();
-                        param.put("awardAmount", tBonus.getTotal());
-                        param.put("id", staffId);
-
-                        System.out.println("更新参数：" + param);
-
-                        session.update("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.updateBonus", param);
-                        session.commit();
-
-                        Integer t = MonthlySalary.getSalaryAmount() + MonthlySalary.getSalaryOfAge() - MonthlySalary.getIahf() + tBonus.getTotal();
-
-                        Map param2 = new HashMap<>();
-                        param2.put("total", t);
-                        param2.put("id", staffId);
-                        session.update("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.updateTotal", param2);
-                        session.commit();
+                        if((Bonus.getTotal() != MonthlySalary.getAwardAmount() ) || (t!= totalSalary)){
 
 
-                        //       System.out.println("更新当月工资数据表完成");
+
+                            //如果奖金数与当前工资表不同，则更新当前工资表
+                            Map param = new HashMap<>();
+                            param.put("awardAmount", Bonus.getTotal());
+                            param.put("id", staffId);
+
+                            System.out.println("更新参数：" + param);
+
+                            session.update("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.updateBonus", param);
+                            session.commit();
 
 
-                        MonthlySalary.setAwardAmount(tBonus.getTotal());
-
-                        MonthlySalary.setTotal(t);
-
-                        //     System.out.println("现在的MonthlySalary:" + MonthlySalary);
-
-                        tMonthlySalaries.add(MonthlySalary);
-
-                        //     System.out.println("形成的MonthlySalary：" + MonthlySalary);
+                            Map param2 = new HashMap<>();
+                            param2.put("total", t);
+                            param2.put("id", staffId);
+                            session.update("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.updateTotal", param2);
+                            session.commit();
 
 
+                            System.out.println("更新当月工资数据表完成");
+
+
+                            MonthlySalary.setAwardAmount(Bonus.getTotal());
+
+                            MonthlySalary.setTotal(t);
+
+                            System.out.println("现在的MonthlySalary:" + MonthlySalary);
+
+                            tMonthlySalaries.add(MonthlySalary);
+
+                            System.out.println("形成的MonthlySalary：" + MonthlySalary);
+
+
+                        }
                     }
+
+
+
 
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
 
 
             }
@@ -160,8 +184,9 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
      * @param id 负责人id
      * @return 员工id列表
      */
-    public List<Integer> staffIdList(@RequestParam Integer id) {
-        List<Integer> ids;
+    public List<Integer> staffIdList(@RequestParam Integer id)
+    {
+        List<Integer> ids = new ArrayList<>();
 
 
         InputStream inputStream = null;
@@ -176,18 +201,23 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
         int departmentId = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_departmentId", id);
 
 
-        if (departmentId == 99 || departmentId == 12) {
+        if (departmentId == 99 ) {
             //如果是超级管理员，返回所有员工id
             ids = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.all_staff_list", departmentId);
         } else {
             //获取负责员工id
-            int positionId = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_positionId", id);
+            List<Integer> departmentIds = WhiteDepartmentIds(id);
+            //否则，只能返回负责的员工id
+            for(Integer dId:departmentIds)
+            {
+                Integer departmentIdS = dId;
+                List<Integer> idInD = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_id_list", departmentIdS);
+                for (Integer i:idInD)
+                {
+                    ids.add(i);
+                }
+            }
 
-            //否则，只能返回本部门职别比自己低的员工id
-            Map param0 = new HashMap<>();
-            param0.put("departmentId", departmentId);
-            param0.put("positionId", positionId);
-            ids = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_id_list", param0);
         }
 
         return ids;
@@ -314,12 +344,89 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
     /**
      * 将本月工资提交给财务
      */
-    public void commitSalary()
+    public void commitSalary(Integer id)
     {
+        System.out.println("历史工资提交");
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.getTime();
+
+        List<TMonthlySalary> monthlySalaries = getStaffMonthlySalary(id);
+        for(TMonthlySalary monthlySalary:monthlySalaries)
+        {
+
+            if(monthlySalary!=null)
+            {
+                Map param1 = new HashMap<>();
+                param1.put("staffId", monthlySalary.getStaffId());
+                param1.put("month", calendar.get(Calendar.MONTH)+1);
 
 
+                Timestamp timestamp = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.getMonthlyWage",param1);
+                if(timestamp==null || timestamp.getYear()+1900 < Calendar.YEAR)
+                {
+                    System.out.println();
+                    System.out.println("处理："+monthlySalary);
+                    System.out.println();
+
+
+                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+
+
+                    Map param0 = new HashMap<>();
+                    param0.put("staffId", monthlySalary.getStaffId());
+                    param0.put("staffName", monthlySalary.getStaffName());
+                    param0.put("departmentId",monthlySalary.getDepartmentId());
+                    param0.put("positionId",monthlySalary.getPositionId());
+                    param0.put("monthlyPayroll",calendar.get(Calendar.MONTH)+1);
+                    param0.put("payTime",Timestamp.valueOf(df.format(new Date())));
+                    param0.put("salaryAmount",monthlySalary.getSalaryAmount());
+                    param0.put("salaryOfAge",monthlySalary.getSalaryOfAge());
+                    param0.put("iahf",monthlySalary.getIahf());
+                    param0.put("awardAmount",monthlySalary.getAwardAmount());
+
+                    System.out.println("提交历史工资");
+                    session.insert("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.insertHistoryWage",param0);
+                    session.commit();
+                }
+
+            }
+
+        }
 
     }
+
+
+    /**
+     * 将离职员工的当月工资删除
+     * @param //staffId
+     * @return
+     */
+   /* public boolean deleteStaff(Integer staffId)
+    {
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        session.delete("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.deleteStaff",staffId);
+        session.commit();
+
+        return true;
+
+    }*/
 
     /**
      * 将入职员工的当月工资加入
@@ -341,5 +448,119 @@ public class TMonthlySalaryServiceImpl extends ServiceImpl<TMonthlySalaryMapper,
     public void deleteStaff(Integer staffId) {
         deleteById(staffId);
     }
+
+    /**
+     *更新部门id
+     */
+    @Override
+    public void updateDeId(Integer departmentId,Integer positionId,Integer staffId) {
+        monthlySalaryMapper.updateDeId(departmentId,positionId,staffId);
+    }
+
+
+    public Integer getDepartmentId(String departmentName)
+    {
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        Integer departmentId = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.getDepartmentId",departmentName);
+
+        session.close();
+        return departmentId;
+    }
+
+    /**
+     * 获得黑名单中的部门号
+     * @param id
+     * @return
+     */
+    public List<Integer> BlackDepartmentIds(Integer id)
+    {
+
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        List<Integer> ids = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.DepartmentIdInBlack",id);
+
+        return ids;
+
+
+
+
+    }
+
+    /**
+     * 获取白名单中的部门号
+     * @param id
+     * @return
+     */
+    public List<Integer> WhiteDepartmentIds(Integer id)
+    {
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        List<Integer> ids = session.selectList("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.DepartmentIdInWhite",id);
+
+        return ids;
+
+
+    }
+
+    public Integer departmentId(Integer id)
+    {
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        Integer departmentId = session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_departmentId",id);
+
+        session.close();
+        return departmentId;
+    }
+
+    public List<TMonthlySalary> getStaffMonthlySalary(Integer mid)
+    {
+        InputStream inputStream = null;
+        try {
+            inputStream =Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession session = factory.openSession();
+
+        List<Integer> ids = staffIdList(mid);
+        List<TMonthlySalary> monthlySalaries = new ArrayList<>();
+        for(Integer id:ids)
+        {
+            monthlySalaries.add(session.selectOne("com.jxdinfo.salary.salaryList.dao.TMonthlySalaryMapper.staff_monthly_salary",id));
+        }
+        return monthlySalaries;
+
+    }
+
 }
 

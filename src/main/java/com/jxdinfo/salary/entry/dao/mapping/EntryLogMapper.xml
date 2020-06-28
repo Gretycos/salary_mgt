@@ -9,12 +9,57 @@
     </resultMap>
 
     <!-- 带关联查询映射结果 -->
+<!--    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.entry.model.EntryLog" extends="BaseResultMap">-->
+<!--        &lt;!&ndash;association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名&ndash;&gt;-->
+<!--        <association property="operator" javaType="com.jxdinfo.salary.staff.model.Staff"-->
+<!--                     column="OPERATOR_ID" select="getOperatorById"/>-->
+<!--        <association property="entrant" javaType="com.jxdinfo.salary.staff.model.Staff"-->
+<!--                     column="ENTRANT_ID" select="getEntrantById"/>-->
+<!--    </resultMap>-->
     <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.entry.model.EntryLog" extends="BaseResultMap">
         <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
         <association property="operator" javaType="com.jxdinfo.salary.staff.model.Staff"
-                     column="OPERATOR_ID" select="getOperatorById"/>
+                     resultMap="OperatorResultMap"/>
         <association property="entrant" javaType="com.jxdinfo.salary.staff.model.Staff"
-                     column="ENTRANT_ID" select="getEntrantById"/>
+                     resultMap="EntryResultMap"/>
+    </resultMap>
+
+    <!-- 关联查询操作员 -->
+    <resultMap id="OperatorResultMap" type="com.jxdinfo.salary.staff.model.Staff">
+        <id column="OPERATOR_ID" property="staffId" />
+        <result column="OPERATOR_NAME" property="staffName" />
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
+                     resultMap="OperatorDepartmentResultMap"/>
+        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
+                     resultMap="OperatorPositionResultMap"/>
+    </resultMap>
+    <resultMap id="OperatorDepartmentResultMap" type="com.jxdinfo.salary.department.model.Department">
+        <id column="OPERATOR_DEPARTMENT_ID" property="departmentId" />
+        <result column="OPERATOR_DEPARTMENT_NAME" property="departmentName" />
+    </resultMap>
+    <resultMap id="OperatorPositionResultMap" type="com.jxdinfo.salary.position.model.Position">
+        <id column="OPERATOR_POSITION_ID" property="positionId" />
+        <result column="OPERATOR_POSITION_NAME" property="positionName" />
+    </resultMap>
+
+    <!-- 关联查询入职人员 -->
+    <resultMap id="EntryResultMap" type="com.jxdinfo.salary.staff.model.Staff">
+        <id column="ENTRANT_ID" property="staffId" />
+        <result column="ENTRANT_NAME" property="staffName" />
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
+                     resultMap="EntrantDepartmentResultMap"/>
+        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
+                     resultMap="EntrantPositionResultMap"/>
+    </resultMap>
+    <resultMap id="EntrantDepartmentResultMap" type="com.jxdinfo.salary.department.model.Department">
+        <id column="ENTRANT_DEPARTMENT_ID" property="departmentId" />
+        <result column="ENTRANT_DEPARTMENT_NAME" property="departmentName" />
+    </resultMap>
+    <resultMap id="EntrantPositionResultMap" type="com.jxdinfo.salary.position.model.Position">
+        <id column="ENTRANT_POSITION_ID" property="positionId" />
+        <result column="ENTRANT_POSITION_NAME" property="positionName" />
     </resultMap>
 
     <!-- 关联查询员工 -->
@@ -52,8 +97,18 @@
     </select>
 
     <!-- 分页查询 -->
+<!--    <select id="selectByDidPage" resultMap="WithRefResultMap">-->
+<!--        select * from t_entry_log-->
+<!--        <where>-->
+<!--            ${ew.sqlSegment}-->
+<!--        </where>-->
+<!--    </select>-->
     <select id="selectByDidPage" resultMap="WithRefResultMap">
-        select * from t_entry_log
+        select a.OPERATION_ID,b.STAFF_ID,b.STAFF_NAME,b.DEPARTMENT_ID,b.POSITION_ID,d.DEPARTMENT_NAME,e.POSITION_NAME,
+        c.STAFF_ID,c.STAFF_NAME,c.DEPARTMENT_ID,c.POSITION_ID,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
+        from t_entry_log a left join t_staff b on a.OPERATOR_ID=b.STAFF_ID left join t_staff c on a.ENTRANT_ID=c.STAFF_ID
+        left join t_department d on b.DEPARTMENT_ID=d.DEPARTMENT_ID left join t_position e on b.POSITION_ID=e.POSITION_ID
+        left join t_department f on c.DEPARTMENT_ID=f.DEPARTMENT_ID left join t_position g on c.POSITION_ID=g.POSITION_ID
         <where>
             ${ew.sqlSegment}
         </where>
@@ -104,9 +159,43 @@
     </select>
 
     <!--带筛选的模糊查询-->
+<!--    <select id="likeSelectByCondition" resultMap="WithRefResultMap" parameterType="string">-->
+<!--        select a.OPERATION_ID,a.OPERATOR_ID,a.ENTRANT_ID,a.OPERATION_TIME-->
+<!--        from t_entry_log a left join t_staff b on a.OPERATOR_ID=b.STAFF_ID left join t_staff c on a.ENTRANT_ID = c.STAFF_ID-->
+<!--        <where>-->
+<!--            1 = 1-->
+<!--            <if test="condition1 != null and condition1 != '' ">-->
+<!--                and a.OPERATION_ID like concat(concat("%",#{condition1}),"%")-->
+<!--            </if>-->
+<!--            <if test="condition2 != null and condition2 != '' ">-->
+<!--                and( b.STAFF_NAME like concat(concat("%",#{condition2}),"%")-->
+<!--                or a.OPERATOR_ID like concat(concat("%",#{condition2}),"%"))-->
+<!--            </if>-->
+<!--            <if test="condition3 != null and condition3 != '' ">-->
+<!--                and( c.STAFF_NAME like concat(concat("%",#{condition3}),"%")-->
+<!--                or a.ENTRANT_ID like concat(concat("%",#{condition3}),"%"))-->
+<!--            </if>-->
+<!--            ${ew.sqlSegment}-->
+<!--        </where>-->
+<!--    </select>-->
     <select id="likeSelectByCondition" resultMap="WithRefResultMap" parameterType="string">
-        select a.OPERATION_ID,a.OPERATOR_ID,a.ENTRANT_ID,a.OPERATION_TIME
-        from t_entry_log a left join t_staff b on a.OPERATOR_ID=b.STAFF_ID left join t_staff c on a.ENTRANT_ID = c.STAFF_ID
+        select a.OPERATION_ID,
+        b.STAFF_ID OPERATOR_ID,
+        b.STAFF_NAME OPERATOR_NAME,
+        b.DEPARTMENT_ID OPERATOR_DEPARTMENT_ID,
+        b.POSITION_ID OPERATOR_POSITION_ID,
+        d.DEPARTMENT_NAME OPERATOR_DEPARTMENT_NAME,
+        e.POSITION_NAME OPERATOR_POSITION_NAME,
+        c.STAFF_ID ENTRANT_ID,
+        c.STAFF_NAME ENTRANT_NAME,
+        c.DEPARTMENT_ID ENTRANT_DEPARTMENT_ID,
+        c.POSITION_ID ENTRANT_POSITION_ID,
+        f.DEPARTMENT_NAME ENTRANT_DEPARTMENT_NAME,
+        g.POSITION_NAME ENTRANT_POSITION_NAME,
+        a.OPERATION_TIME
+        from t_entry_log a left join t_staff b on a.OPERATOR_ID=b.STAFF_ID left join t_staff c on a.ENTRANT_ID=c.STAFF_ID
+        left join t_department d on b.DEPARTMENT_ID=d.DEPARTMENT_ID left join t_position e on b.POSITION_ID=e.POSITION_ID
+        left join t_department f on c.DEPARTMENT_ID=f.DEPARTMENT_ID left join t_position g on c.POSITION_ID=g.POSITION_ID
         <where>
             1 = 1
             <if test="condition1 != null and condition1 != '' ">

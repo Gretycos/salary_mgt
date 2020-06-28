@@ -28,6 +28,14 @@ public class TBonus extends Model<TBonus> {
      */
     @TableField("STAFF_NAME")
     private String staffName;
+    ///////
+    @TableField("DEPARTMENT_ID")
+    private  Integer departmentId;
+    /**
+     * 职位ID
+     */
+    @TableField("POSITION_ID")
+    private Integer positionId;
     /**
      * 发放工资月份
      */
@@ -75,6 +83,16 @@ public class TBonus extends Model<TBonus> {
 
     }
 
+    public Integer getDepartmentId(){return departmentId;}
+    public void setDepartmentId(Integer departmentId){this.departmentId=departmentId;}
+
+    public Integer getPositionId() {
+        return positionId;
+    }
+
+    public void setPositionId(Integer positionId) {
+        this.positionId = positionId;
+    }
     public Integer getStaffId() {
         return staffId;
     }

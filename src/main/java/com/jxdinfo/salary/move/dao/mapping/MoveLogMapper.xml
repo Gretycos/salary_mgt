@@ -9,22 +9,72 @@
     </resultMap>
 
     <!-- 带关联查询映射结果 -->
+<!--    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.move.model.MoveLog" extends="BaseResultMap">-->
+<!--        &lt;!&ndash;association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名&ndash;&gt;-->
+<!--        <association property="operator" javaType="com.jxdinfo.salary.staff.model.Staff"-->
+<!--                     column="OPERATOR_ID" select="getOperatorById"/>-->
+<!--        <association property="move" javaType="com.jxdinfo.salary.staff.model.Staff"-->
+<!--                     column="MOVE_ID" select="getMoveById"/>-->
+<!--        <association property="oldDepartment" javaType="com.jxdinfo.salary.department.model.Department"-->
+<!--                     column="OLD_DEPARTMENT_ID" select="getOldDepartmentByDepartmentId"/>-->
+<!--        <association property="newDepartment" javaType="com.jxdinfo.salary.department.model.Department"-->
+<!--                     column="NEW_DEPARTMENT_ID" select="getNewDepartmentByDepartmentId"/>-->
+<!--        <association property="oldPosition" javaType="com.jxdinfo.salary.position.model.Position"-->
+<!--                     column="OLD_POSITION_ID" select="getOldPositionByPositionId"/>-->
+<!--        <association property="newPosition" javaType="com.jxdinfo.salary.position.model.Position"-->
+<!--                     column="NEW_POSITION_ID" select="getNewPositionByPositionId"/>-->
+<!--    </resultMap>-->
     <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.move.model.MoveLog" extends="BaseResultMap">
         <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
         <association property="operator" javaType="com.jxdinfo.salary.staff.model.Staff"
-                     column="OPERATOR_ID" select="getOperatorById"/>
+                     resultMap="OperatorResultMap"/>
         <association property="move" javaType="com.jxdinfo.salary.staff.model.Staff"
-                     column="MOVE_ID" select="getMoveById"/>
+                     resultMap="MoveResultMap"/>
         <association property="oldDepartment" javaType="com.jxdinfo.salary.department.model.Department"
-                     column="OLD_DEPARTMENT_ID" select="getOldDepartmentByDepartmentId"/>
+                     resultMap="OldDepartmentResultMap"/>
         <association property="newDepartment" javaType="com.jxdinfo.salary.department.model.Department"
-                     column="NEW_DEPARTMENT_ID" select="getNewDepartmentByDepartmentId"/>
+                     resultMap="NewDepartmentResultMap"/>
         <association property="oldPosition" javaType="com.jxdinfo.salary.position.model.Position"
-                     column="OLD_POSITION_ID" select="getOldPositionByPositionId"/>
+                     resultMap="OldPositionResultMap"/>
         <association property="newPosition" javaType="com.jxdinfo.salary.position.model.Position"
-                     column="NEW_POSITION_ID" select="getNewPositionByPositionId"/>
+                     resultMap="NewPositionResultMap"/>
     </resultMap>
 
+    <!-- 查询操作人员 -->
+    <resultMap id="OperatorResultMap" type="com.jxdinfo.salary.staff.model.Staff">
+        <id column="OPERATOR_ID" property="staffId" />
+        <result column="OPERATOR_NAME" property="staffName" />
+    </resultMap>
+
+    <!-- 查询调动人员 -->
+    <resultMap id="MoveResultMap" type="com.jxdinfo.salary.staff.model.Staff">
+        <id column="MOVE_ID" property="staffId" />
+        <result column="MOVE_NAME" property="staffName" />
+    </resultMap>
+
+    <!-- 查询旧部门 -->
+    <resultMap id="OldDepartmentResultMap" type="com.jxdinfo.salary.department.model.Department">
+        <id column="OLD_DEPARTMENT_ID" property="departmentId" />
+        <result column="OLD_DEPARTMENT_NAME" property="departmentName" />
+    </resultMap>
+
+    <!-- 查询新部门 -->
+    <resultMap id="NewDepartmentResultMap" type="com.jxdinfo.salary.department.model.Department">
+        <id column="NEW_DEPARTMENT_ID" property="departmentId" />
+        <result column="NEW_DEPARTMENT_NAME" property="departmentName" />
+    </resultMap>
+
+    <!-- 查询旧职位 -->
+    <resultMap id="OldPositionResultMap" type="com.jxdinfo.salary.position.model.Position">
+        <id column="OLD_POSITION_ID" property="positionId" />
+        <result column="OLD_POSITION_NAME" property="positionName" />
+    </resultMap>
+
+    <!-- 查询新职位 -->
+    <resultMap id="NewPositionResultMap" type="com.jxdinfo.salary.position.model.Position">
+        <id column="NEW_POSITION_ID" property="positionId" />
+        <result column="NEW_POSITION_NAME" property="positionName" />
+    </resultMap>
 
     <!-- 关联查询员工 -->
     <select id="getOperatorById" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
@@ -195,10 +245,20 @@
 
     <!--带筛选的模糊查询-->
     <select id="likeSelectByCondition" resultMap="WithRefResultMap" parameterType="string">
-        select a.OPERATION_ID,a.OPERATOR_ID,b.STAFF_NAME,a.MOVE_ID,c.STAFF_NAME,
-        d.DEPARTMENT_NAME,e.POSITION_NAME,f.DEPARTMENT_NAME,g.POSITION_NAME,a.OPERATION_TIME
-        ,d.DEPARTMENT_ID as OLD_DEPARTMENT_ID, f.DEPARTMENT_ID as NEW_DEPARTMENT_ID,
-        e.POSITION_ID as OLD_POSITION_ID, g.POSITION_ID  as NEW_POSITION_ID
+        select a.OPERATION_ID,
+        b.STAFF_ID OPERATOR_ID,
+        b.STAFF_NAME OPERATOR_NAME,
+        c.STAFF_ID MOVE_ID,
+        c.STAFF_NAME MOVE_NAME,
+        d.DEPARTMENT_ID OLD_DEPARTMENT_ID,
+        d.DEPARTMENT_NAME OLD_DEPARTMENT_NAME,
+        f.DEPARTMENT_ID NEW_DEPARTMENT_ID,
+        f.DEPARTMENT_NAME NEW_DEPARTMENT_NAME,
+        e.POSITION_ID OLD_POSITION_ID,
+        e.POSITION_NAME OLD_POSITION_NAME,
+        g.POSITION_ID NEW_POSITION_ID,
+        g.POSITION_NAME NEW_POSITION_NAME,
+        a.OPERATION_TIME
         from t_move_log a,t_staff b,t_staff c,t_department d,
         t_position e,t_department f,t_position g
         <where>

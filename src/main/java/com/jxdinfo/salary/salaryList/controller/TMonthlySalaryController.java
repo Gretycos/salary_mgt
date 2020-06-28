@@ -66,7 +66,7 @@ public class TMonthlySalaryController extends BaseController {
      @BussinessLog(key = "/tMonthlySalary/list", type = BussinessLogType.QUERY, value = "获取列表")
      @RequiresPermissions("tMonthlySalary:list")
      @ResponseBody
-     public Object list(String condition,
+     public Object list(@RequestParam(value = "condition", defaultValue = "") String condition,
                         @RequestParam(value="pageNumber", defaultValue="1")int pageNumber,
                         @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
 
@@ -82,24 +82,19 @@ public class TMonthlySalaryController extends BaseController {
              id = 2020999999;
          }
 
-         System.out.println();
-         System.out.println();
-         System.out.println("account:"+shiroUser.getAccount());
-         System.out.println("id:"+id);
-         System.out.println();
-         System.out.println();
-
-
-
 
          TMonthlySalaryServiceImpl MonthlySalaryService0 = new TMonthlySalaryServiceImpl();
          List<Integer> ids = MonthlySalaryService0.staffIdList(id);//设置权限
-         //System.out.println(ids);
-         //MonthlySalaryService0.getCurrentSalary(id);
 
          Page<TMonthlySalary> page = new Page<>(pageNumber, pageSize);
          Wrapper<TMonthlySalary> ew = new EntityWrapper<>();
          ew.in("STAFF_ID",ids);
+
+         if(!condition.equals(""))
+         {
+             Integer departmentId= MonthlySalaryService0.getDepartmentId(condition);
+             ew.eq("DEPARTMENT_ID",departmentId);
+         }
 
          Map<String, Object> result = new HashMap<>(5);
          List<TMonthlySalary> list = tMonthlySalaryService.selectPage(page, ew).getRecords();
@@ -108,7 +103,6 @@ public class TMonthlySalaryController extends BaseController {
          return result;
 
      }
-
 
 
 
@@ -239,5 +233,30 @@ public class TMonthlySalaryController extends BaseController {
 
     }
 
+    //新增
+    /**
+     * 提交
+     */
+    @RequestMapping(value = "/commit")
+    @BussinessLog(key = "/tMonthlySalary/commit", type = BussinessLogType.QUERY, value = "提交生成")
+    @RequiresPermissions("tMonthlySalary:commit")
+    @ResponseBody
+    public Object commitSalary() {
+        System.out.println("开始提交历史工资");
+        ShiroUser shiroUser = ShiroKit.getUser();
+        Integer id;
+        if(isDigit(shiroUser.getAccount()))
+        {
+            id = Integer.valueOf(shiroUser.getAccount());
+        }else
+        {
+            id = 2020999999;
+        }
+        TMonthlySalaryServiceImpl MonthlySalaryService1 = new TMonthlySalaryServiceImpl();
+
+        MonthlySalaryService1.commitSalary(id);
+
+        return SUCCESS_TIP;
+    }
 
 }
