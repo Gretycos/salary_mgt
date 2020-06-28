@@ -11,6 +11,7 @@ import com.jxdinfo.hussar.core.shiro.ShiroUser;
 import com.jxdinfo.hussar.inisalary.service.ITInisalaryInfoService;
 import com.jxdinfo.salary.PermissionManagement.model.Util;
 import com.jxdinfo.salary.PermissionManagement.service.IUtilService;
+import com.jxdinfo.salary.bonus.service.IBonusService;
 import com.jxdinfo.salary.department.model.Department;
 import com.jxdinfo.salary.department.service.IDepartmentService;
 import com.jxdinfo.salary.departure.service.IDepartureLogService;
@@ -67,6 +68,8 @@ public class StaffController extends BaseController {
     private ITInisalaryInfoService inisalaryInfoService;
     @Autowired
     private ITMonthlySalaryService monthlySalaryService;
+    @Autowired
+    private IBonusService bonusService;
     //当前用户
     private Staff currentUser;
     //当前用户权限
@@ -381,6 +384,7 @@ public class StaffController extends BaseController {
 //        System.out.println("==========================");
         inisalaryInfoService.addEmployee(staff); //录入初始工资
         monthlySalaryService.insertNewStaff(staff); // 录入当月工资表
+        bonusService.insertNewStaff(staff); // 录入津贴表
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
         res.put("message","成功");
@@ -451,6 +455,7 @@ public class StaffController extends BaseController {
             staffService.updateById(departure); // 离职
             departureLogService.addDepartureLog(operator,departure,departureTime); // 离职日志
             monthlySalaryService.deleteStaff(departureId); // 移出当月工资表
+            bonusService.deleteStaff(departureId); // 移出津贴表
         }
 
         Map<String,Object> res= new HashMap<>();

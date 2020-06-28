@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.salary.bonus.dao.BonusMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.salary.bonus.model.Bonus">
+        <result column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+        <result column="DEPARTMENT_ID" property="departmentId"/>
+        <result column="POSITION_ID" property="positionId"/>
+        <result column="MONTHLY_PAYROLL" property="monthlyPayroll" />
+        <result column="PAY_TIME" property="payTime" />
+        <result column="PERFORMANCE_APPRAISAL_BONUS" property="performanceAppraisalBonus" />
+        <result column="NO_ABSENT_BONUS" property="noAbsentBonus" />
+        <result column="SPECIAL_CONTRIBUTIONS_BONUS" property="specialContributionsBonus" />
+        <result column="DECEMBER_BONUS" property="decemberBonus" />
+    </resultMap>
+    <!-- 通用查询映射结果 -->
+    <resultMap id="WithIDNameResultMap" type="com.jxdinfo.salary.bonus.model.Bonus">
+        <id column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+    </resultMap>
+    <!--根据员工id获取员工奖金情况
+    <select id="getBonusbyID" parameterType="Integer" resultMap="BaseTBonusMap">
+        select * from t_bonus where STAFF_ID= #{var1}
+    </select>-->
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        STAFF_ID AS staffId, STAFF_NAME AS staffName,DEPARTMENT_ID AS departmentId, POSITION_ID AS positionId, MONTHLY_PAYROLL AS monthlyPayroll, PAY_TIME AS payTime, PERFORMANCE_APPRAISAL_BONUS AS performanceAppraisalBonus, NO_ABSENT_BONUS AS noAbsentBonus, SPECIAL_CONTRIBUTIONS_BONUS AS specialContributionsBonus, DECEMBER_BONUS AS decemberBonus
+    </sql>
+    <update id="updateById">
+        update t_bonus
+        set
+            STAFF_ID=#{et.staffId},
+            STAFF_NAME = #{et.staffName},
+            DEPARTMENT_ID=#{et.departmentId},
+            POSITION_ID=#{et.positionId},
+            MONTHLY_PAYROLL = #{et.monthlyPayroll},
+            PAY_TIME = #{et.payTime},
+            PERFORMANCE_APPRAISAL_BONUS = #{et.performanceAppraisalBonus},
+            NO_ABSENT_BONUS = #{et.noAbsentBonus},
+            SPECIAL_CONTRIBUTIONS_BONUS=#{et.specialContributionsBonus},
+            DECEMBER_BONUS=#{et.decemberBonus}
+        where STAFF_ID = #{et.staffId}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select * from t_bonus
+        where STAFF_ID = #{staffId}
+    </select>
+
+    <insert id="insert">
+        insert into t_bonus(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,POSITION_ID,MONTHLY_PAYROLL,PAY_TIME,PERFORMANCE_APPRAISAL_BONUS,NO_ABSENT_BONUS,SPECIAL_CONTRIBUTIONS_BONUS,DECEMBER_BONUS)
+         values (#{staffId}, #{staffName}, #{departmentId},#{positionId}, #{monthlyPayroll}, #{payTime}, #{performanceAppraisalBonus}, #{noAbsentBonus}, #{specialContributionsBonus},#{decemberBonus})
+    </insert>
+
+    <delete id="deleteById">
+        delete from t_bonus where STAFF_ID = #{staffId}
+    </delete>
+</mapper>
