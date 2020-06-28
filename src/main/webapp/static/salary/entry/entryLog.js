@@ -7,7 +7,8 @@ var EntryLog = {
     table: null,
     layerIndex: -1,
     pageSize:20,
-    pageNumber:1
+    pageNumber:1,
+    loadIndex:-2
 };
 
 // 筛选列表
@@ -25,19 +26,28 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 	    ,$ax = layui.HussarAjax
         ,form = layui.form;
 
+    var loadingData = layer.load(1, {shade: [0.5,'#fff'], time:0}); //遮罩
+
+    // 监听select的变化
     form.on('select(searchBar)',function (data) {
         // console.log(data);
         selectList[data.elem.id] = data.value;
         // console.log(selectList);
         // selectList.empty();
+        $('#EntryLogTable').bootstrapTable('destroy');
+        EntryLog.pageNumber = 1;
+        EntryLog.pageSize = 20;
         var condition1 = $('#condition1').val();
         var condition2 = $('#condition2').val();
         var condition3 = $('#condition3').val();
-        var opt = {
-            url: Hussar.ctxPath + "/entry/list/condition",
-            silent: true,
-            method: 'POST',
-            contentType:"application/x-www-form-urlencoded",
+        $('#EntryLogTable').bootstrapTable( {
+            dataType:"json",
+            url:'/entry/list/condition',
+            pagination:true,
+            pageList:[10,15,20,50,100],
+            striped:true,
+            pageSize:20,
+            queryParamsType:'',
             queryParams:function(params){
                 //console.log(params)
                 return{
@@ -50,10 +60,12 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
                 }
 
             },
-            queryParamsType:'',
-        }
-        $('#EntryLogTable').bootstrapTable('selectPage', 1);
-        $('#EntryLogTable').bootstrapTable('refreshOptions',opt);
+            columns: EntryLog.initColumn(),
+            height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
+            sidePagination:"server",
+            onPageChange:function(number, size){EntryLog.pageNumber = number ; EntryLog.pageSize = size},
+        });
+
     });
 
 
@@ -100,24 +112,55 @@ EntryLog.search = function () {
     var condition1 = $('#condition1').val();
     var condition2 = $('#condition2').val();
     var condition3 = $('#condition3').val();
-    var opt = {
-        url: Hussar.ctxPath + "/entry/list",
-        silent: true,
-        query:{
-            condition1:condition1,
-            condition2:condition2,
-            condition3:condition3
-        }
-    }
+    //var opt = {
+    //    url: Hussar.ctxPath + "/entry/list",
+    //    silent: true,
+    //    query:{
+    //        condition1:condition1,
+    //        condition2:condition2,
+    //        condition3:condition3
+    //    }
+    //}
 
-    $('#EntryLogTable').bootstrapTable('refresh',opt);
+    //$('#EntryLogTable').bootstrapTable('refresh',opt);
+    // 添加一层遮罩
+    EntryLog.loadIndex = layer.load({
+        icon :1,
+        shade: [0.5, '#1cbbb4'],
+        area:[$("body").height(),$("body").width()],
+        time:0 // 需要手动关闭
+    });
+
+    $('#EntryLogTable').bootstrapTable('destroy');
+    EntryLog.pageNumber = 1;
+    EntryLog.pageSize = 20;
+    $('#EntryLogTable').bootstrapTable({
+        dataType:"json",
+        url:"/entry/list?condition1="+condition1+"&condition2="+condition2+"&condition3="+condition3,
+        pagination:true,
+        pageList:[10,15,20,50,100],
+        striped:true,
+        pageSize:20,
+        queryParamsType:'',
+        columns: EntryLog.initColumn(),
+        height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
+        sidePagination:"server",
+        onPageChange:function(number, size){EntryLog.pageNumber = number ; EntryLog.pageSize = size},
+        onLoadSuccess:function () {
+            if (EntryLog.loadIndex>=0){
+                // 数据加载完成之后 关闭遮罩
+                layer.close(EntryLog.loadIndex);
+                EntryLog.loadIndex = -2
+            }
+        }
+    });
 };
 
 //清空筛选下拉框
     selectList.empty = function(){
-        $("#department").empty();
-        $("#position").empty();
-        $("#operationTime").empty();
+        $("#department option").not('option:first').remove();
+        $("#position option").not('option:first').remove();
+        $("#operationTime option").not('option:first').remove();
     }
 
 // 筛选下拉框初始化
@@ -125,11 +168,11 @@ EntryLog.search = function () {
         var condition1 = $('#condition1').val();
         var condition2 = $('#condition2').val();
         var condition3 = $('#condition3').val();
-        selectList.empty();
+        //selectList.empty();
         var ajax = new $ax(Hussar.ctxPath + "/entry/list/select",function (data) {
             // console.log(data);
-            $("#department").append(new Option('请选择入职部门',""));
-            $("#department").val("");
+            //$("#department").append(new Option('请选择入职部门',""));
+            //$("#department").val("");
             $.each(data.departments,function (index,item) {
                 //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
                 $("#department").append(new Option(item.departmentName,item.departmentId));
@@ -140,9 +183,9 @@ EntryLog.search = function () {
                 //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
                 $("#position").append(new Option(item.positionName,item.positionId));
             });
-            $("#operationTime").append(new Option('请选择员工入职时间',""));
-            $("#operationTime").append(new Option('所有','所有'));
-            $("#operationTime").val("");
+            //$("#operationTime").append(new Option('请选择员工入职时间',""));
+            //$("#operationTime").append(new Option('所有','所有'));
+            //$("#operationTime").val("");
             $.each(data.operationTimes,function (index,item) {
                 //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
                 $("#operationTime").append(new Option(item,item));
@@ -171,7 +214,10 @@ $(function () {
             columns: defaultColunms,
             height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
             sidePagination:"server",
-            onPageChange:function(number, size){EntryLog.pageNumber = number ; EntryLog.pageSize = size}
+            onPageChange:function(number, size){EntryLog.pageNumber = number ; EntryLog.pageSize = size},
+        onLoadSuccess:function () {
+            layer.close(loadingData);
+        }
         });
     selectList.init();
 })
