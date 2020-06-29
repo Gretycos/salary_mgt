@@ -4,10 +4,16 @@
 
     <!--配置映射-->
     <resultMap id="BaseResultMap" type="com.jxdinfo.salary.PermissionManagement.model.MergeList">
-        <association property="staff" column="STAFF_ID" javaType="com.jxdinfo.salary.staff.model.Staff" select="getStaffById"></association>
-        <association property="department" column="DEPARTMENT_ID" javaType="com.jxdinfo.salary.department.model.Department" select="getDepartmentById"></association>
+<!--        <association property="staff" column="STAFF_ID" javaType="com.jxdinfo.salary.staff.model.Staff" select="getStaffById"/>-->
+        <association property="staff" javaType="com.jxdinfo.salary.staff.model.Staff"
+            resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithIDNameResultMap"/>
+<!--        <association property="department" column="DEPARTMENT_ID" javaType="com.jxdinfo.salary.department.model.Department" select="getDepartmentById"/>-->
+        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
+                     resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap"/>
         <collection property="permissionList" javaType="ArrayList"  column="{STAFF_ID=STAFF_ID,DEPARTMENT_ID=DEPARTMENT_ID}"
                     ofType="com.jxdinfo.salary.permission.model.Permission" select="getPermissionList"/>
+<!--        <collection property="permissionList" javaType="ArrayList" ofType="com.jxdinfo.salary.permission.model.Permission"-->
+<!--                    resultMap="com.jxdinfo.salary.permission.dao.PermissionMapper.BaseResultMap"/>-->
     </resultMap>
 
     <resultMap id="BaseResultMap2" type="com.jxdinfo.salary.PermissionManagement.model.MergeList">
@@ -18,8 +24,8 @@
     </resultMap>
 
     <select id="selectPageWhite" resultMap="BaseResultMap">
-        select distinct a.STAFF_ID,a.DEPARTMENT_ID
-          from t_white_list a,t_staff b,t_permission c ,t_department d
+        select distinct b.STAFF_ID,b.STAFF_NAME,d.DEPARTMENT_ID,d.DEPARTMENT_NAME,c.PERMISSION_ID,c.PERMISSION_NAME
+        from t_white_list a,t_staff b,t_permission c ,t_department d
         <where>
             a.STAFF_ID = b.STAFF_ID and b.DEPARTURE_TIME is null and a.DEPARTMENT_ID = d.DEPARTMENT_ID
             and a.PERMISSION_ID = c.PERMISSION_ID
