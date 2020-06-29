@@ -253,14 +253,42 @@ Staff.delete = function () {
  */
 Staff.search = function () {
     var condition = $('#condition').val();
-    var opt = {
-        url: Hussar.ctxPath + "/staff/list",
-        silent: true,
-        query:{
-            condition:condition
-        }
-    }
-    $('#StaffTable').bootstrapTable('refresh',opt);
+    $('#StaffTable').bootstrapTable('destroy');
+    // var opt = {
+    //     url: Hussar.ctxPath + "/staff/list",
+    //     silent: true,
+    //     query:{
+    //         condition:condition
+    //     }
+    // }
+    // $('#StaffTable').bootstrapTable('refresh',opt);
+    Staff.pageNumber = 1;
+    Staff.pageSize = 20;
+    $('#StaffTable').bootstrapTable({
+        dataType:"json",
+        url:'/staff/list/condition',
+        pagination:true,
+        pageList:[10,15,20,50,100],
+        striped:true,
+        pageSize:20,
+        queryParamsType:'',
+        queryParams:function(params){
+            // console.log(params)
+            return {
+                condition:condition,
+                selectList:JSON.stringify(selectList),
+                pageNumber:params.pageNumber,
+                pageSize:params.pageSize
+            }
+        },
+        columns: Staff.initColumn(),
+        height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
+        sidePagination:"server",
+        onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
+        // onLoadSuccess:function () {
+        //     layer.close(loadingData)
+        // }
+    });
 };
 
 /**
