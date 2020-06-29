@@ -312,7 +312,10 @@ WhiteList.search = function () {
     //     }
     // }
     // $('#WhiteListTable').bootstrapTable('refresh',opt);
-    WhiteList.createNewTable("/whiteList/merge_list?search_condition="+search_condition);
+    if (WhiteList.isFold)
+        WhiteList.createNewTable("/whiteList/merge_list?search_condition="+search_condition);
+    else
+        WhiteList.createNewTable("/whiteList/list?search_condition="+search_condition);
 
 };
 

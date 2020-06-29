@@ -286,7 +286,11 @@ BlackList.search = function () {
     //     }
     // };
     // $('#BlackListTable').bootstrapTable('refresh',opt);
-    BlackList.createNewTable("/blackList/merge_list?search_condition="+search_condition)
+    if(BlackList.isFold) // 如果是收起状态 就以合并接口去查询
+        BlackList.createNewTable("/blackList/merge_list?search_condition="+search_condition)
+    else
+        BlackList.createNewTable("/blackList/list?search_condition="+search_condition)
+
 };
 
 
