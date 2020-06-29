@@ -2,18 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jxdinfo.salary.PermissionManagement.dao.MergeListMapper">
 
+    <!--嵌套结果查询-->
+    <resultMap id="BaseResultMap12" type="com.jxdinfo.salary.PermissionManagement.model.MergeList">
+        <association property="staff" javaType="com.jxdinfo.salary.staff.model.Staff">
+            <id property="staffId" column="STAFF_ID"></id>
+            <result property="staffName" column="STAFF_NAME"></result>
+        </association>
+        <association property="department"  javaType="com.jxdinfo.salary.department.model.Department">
+            <id property="departmentId" column="DEPARTMENT_ID"></id>
+            <result property="departmentName" column="DEPARTMENT_NAME"></result>
+        </association>
+        <collection property="permissionList" javaType="ArrayList"
+                    ofType="com.jxdinfo.salary.permission.model.Permission">
+            <id property="permissionId" column="PERMISSION_ID"></id>
+            <result property="permissionName" column="PERMISSION_NAME"></result>
+        </collection>
+    </resultMap>
+
     <!--配置映射-->
     <resultMap id="BaseResultMap" type="com.jxdinfo.salary.PermissionManagement.model.MergeList">
-<!--        <association property="staff" column="STAFF_ID" javaType="com.jxdinfo.salary.staff.model.Staff" select="getStaffById"/>-->
-        <association property="staff" javaType="com.jxdinfo.salary.staff.model.Staff"
-            resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.WithIDNameResultMap"/>
-<!--        <association property="department" column="DEPARTMENT_ID" javaType="com.jxdinfo.salary.department.model.Department" select="getDepartmentById"/>-->
-        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
-                     resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap"/>
+        <association property="staff" column="STAFF_ID" javaType="com.jxdinfo.salary.staff.model.Staff" select="getStaffById"></association>
+        <association property="department" column="DEPARTMENT_ID" javaType="com.jxdinfo.salary.department.model.Department" select="getDepartmentById"></association>
         <collection property="permissionList" javaType="ArrayList"  column="{STAFF_ID=STAFF_ID,DEPARTMENT_ID=DEPARTMENT_ID}"
                     ofType="com.jxdinfo.salary.permission.model.Permission" select="getPermissionList"/>
-<!--        <collection property="permissionList" javaType="ArrayList" ofType="com.jxdinfo.salary.permission.model.Permission"-->
-<!--                    resultMap="com.jxdinfo.salary.permission.dao.PermissionMapper.BaseResultMap"/>-->
     </resultMap>
 
     <resultMap id="BaseResultMap2" type="com.jxdinfo.salary.PermissionManagement.model.MergeList">
@@ -24,7 +35,7 @@
     </resultMap>
 
     <select id="selectPageWhite" resultMap="BaseResultMap">
-        select distinct b.STAFF_ID,b.STAFF_NAME,d.DEPARTMENT_ID,d.DEPARTMENT_NAME,c.PERMISSION_ID,c.PERMISSION_NAME
+        select distinct a.STAFF_ID,a.DEPARTMENT_ID
         from t_white_list a,t_staff b,t_permission c ,t_department d
         <where>
             a.STAFF_ID = b.STAFF_ID and b.DEPARTURE_TIME is null and a.DEPARTMENT_ID = d.DEPARTMENT_ID
@@ -33,13 +44,23 @@
         </where>
         order by a.STAFF_ID ASC
     </select>
+    <!--<select id="selectPageWhite" resultMap="BaseResultMap12">-->
+    <!--select a.STAFF_ID, b.STAFF_NAME, a.DEPARTMENT_ID, d.DEPARTMENT_NAME,a.PERMISSION_ID,c.PERMISSION_NAME-->
+    <!--from t_white_list a,t_staff b,t_permission c ,t_department d,t_white_list e-->
+    <!--<where>-->
+    <!--a.STAFF_ID = b.STAFF_ID and b.DEPARTURE_TIME is null and a.DEPARTMENT_ID = d.DEPARTMENT_ID-->
+    <!--and a.PERMISSION_ID = c.PERMISSION_ID-->
+    <!--${ew.sqlSegment}-->
+    <!--</where>-->
+    <!--order by a.STAFF_ID ASC-->
+    <!--</select>-->
 
     <select id="selectPageBlack" resultMap="BaseResultMap2">
         select distinct a.STAFF_ID,a.DEPARTMENT_ID
         from t_black_list a,t_staff b,t_permission c ,t_department d
         <where>
-             a.STAFF_ID = b.STAFF_ID and b.DEPARTURE_TIME is null and a.DEPARTMENT_ID = d.DEPARTMENT_ID
-              and a.PERMISSION_ID = c.PERMISSION_ID
+            a.STAFF_ID = b.STAFF_ID and b.DEPARTURE_TIME is null and a.DEPARTMENT_ID = d.DEPARTMENT_ID
+            and a.PERMISSION_ID = c.PERMISSION_ID
             ${ew.sqlSegment}
         </where>
         order by a.STAFF_ID ASC
@@ -47,7 +68,7 @@
 
     <select id="getStaffById" parameterType="int" resultMap="com.jxdinfo.salary.staff.dao.StaffMapper.BaseResultMap">
         select * from t_staff
-          where STAFF_ID = #{STAFF_ID}
+        where STAFF_ID = #{STAFF_ID}
     </select>
 
     <select id="getDepartmentById" parameterType="int" resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap">
@@ -58,7 +79,7 @@
     <!--白名单使用-->
     <select id="getPermissionList" resultMap="com.jxdinfo.salary.permission.dao.PermissionMapper.BaseResultMap">
         select b.PERMISSION_ID,b.PERMISSION_NAME
-         from t_white_list a,t_permission b
+        from t_white_list a,t_permission b
         where a.STAFF_ID = #{STAFF_ID} and  a.DEPARTMENT_ID = #{DEPARTMENT_ID} and a.PERMISSION_ID = b.PERMISSION_ID
     </select>
 

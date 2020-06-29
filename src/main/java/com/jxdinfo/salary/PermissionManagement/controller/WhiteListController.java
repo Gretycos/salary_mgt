@@ -81,7 +81,6 @@ public class WhiteListController extends BaseController {
 //        map.put("staffNameList", staffNameList);
         Wrapper<WhiteList> wrapper = new EntityWrapper<>();
         wrapper.where("DEPARTURE_TIME is null");
-
         // 获取当前登录账号的ID
         try {
             ShiroUser user = ShiroKit.getUser();
@@ -105,7 +104,6 @@ public class WhiteListController extends BaseController {
                     //都不是的话就是超级管理员了 可以查看全部的
                 }
             }
-
         }catch (Exception e){
             System.out.println(e);
             e.printStackTrace();
@@ -707,12 +705,26 @@ public class WhiteListController extends BaseController {
             e.printStackTrace();
         }
 
+
+//        Long startTime = System.currentTimeMillis();
         Page<MergeList> mergeListPage = mergeListService.selectPageWhite(page, ew);
+//        Long endTime = System.currentTimeMillis();
+//        // 计算并打印耗时
+//        Long tempTime = (endTime - startTime);
+//        System.out.println("花费时间："+
+//                (((tempTime/86400000)>0)?((tempTime/86400000)+"d"):"")+
+//                ((((tempTime/86400000)>0)||((tempTime%86400000/3600000)>0))?((tempTime%86400000/3600000)+"h"):(""))+
+//                ((((tempTime/3600000)>0)||((tempTime%3600000/60000)>0))?((tempTime%3600000/60000)+"m"):(""))+
+//                ((((tempTime/60000)>0)||((tempTime%60000/1000)>0))?((tempTime%60000/1000)+"s"):(""))+
+//                ((tempTime%1000)+"ms"));
+//        System.out.println("====================================================================================================");
 
 
         // 下面将构造mergeList对象的setPermissionName属性
         // 得到mergeList对象列表
         List<MergeList> mls= mergeListPage.getRecords();
+
+//        Long startTime2 = System.currentTimeMillis();
         // 遍历列表 将每一个mergeList对象的permissionList变成一个字符串
         for (MergeList ml :mls){
             String str = "";
@@ -722,6 +734,16 @@ public class WhiteListController extends BaseController {
             }
             ml.setPermissionName(str);
         }
+//        Long endTime2 = System.currentTimeMillis();
+//        Long tempTime2 = (endTime2 - startTime2); // 计算并打印耗时
+//        System.out.println("拼接花费时间："+
+//                (((tempTime2/86400000)>0)?((tempTime2/86400000)+"d"):"")+
+//                ((((tempTime2/86400000)>0)||((tempTime2%86400000/3600000)>0))?((tempTime2%86400000/3600000)+"h"):(""))+
+//                ((((tempTime2/3600000)>0)||((tempTime2%3600000/60000)>0))?((tempTime2%3600000/60000)+"m"):(""))+
+//                ((((tempTime2/60000)>0)||((tempTime2%60000/1000)>0))?((tempTime2%60000/1000)+"s"):(""))+
+//                ((tempTime2%1000)+"ms"));
+//        System.out.println("====================================================================================================");
+
         result.put("total", mergeListPage.getTotal());
         result.put("rows",mls );
         return result;
