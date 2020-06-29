@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxdinfo.hussar.inisalary.dao.TInisalaryInforLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jxdinfo.hussar.inisalary.model.TInisalaryInforLog">
+        <id column="STAFF_ID" property="staffId" />
+        <result column="STAFF_NAME" property="staffName" />
+        <result column="DEPARTMENT_ID" property="departmentId" />
+        <result column="LEVEL" property="level" />
+        <result column="INITIAL_SALARY" property="initialSalary" />
+        <result column="INFORMATION_TIME" property="informationTime" />
+        <result column="EFFECTIVENESS" property="effectiveness" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        STAFF_ID AS staffId, STAFF_NAME AS staffName, DEPARTMENT_ID AS departmentId, LEVEL AS level, INITIAL_SALARY AS initialSalary, INFORMATION_TIME AS informationTime, EFFECTIVENESS AS effectiveness
+    </sql>
+
+</mapper>

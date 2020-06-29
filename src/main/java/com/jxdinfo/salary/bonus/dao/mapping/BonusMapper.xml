@@ -6,8 +6,6 @@
     <resultMap id="BaseResultMap" type="com.jxdinfo.salary.bonus.model.Bonus">
         <result column="STAFF_ID" property="staffId" />
         <result column="STAFF_NAME" property="staffName" />
-        <result column="DEPARTMENT_ID" property="departmentId"/>
-        <result column="POSITION_ID" property="positionId"/>
         <result column="MONTHLY_PAYROLL" property="monthlyPayroll" />
         <result column="PAY_TIME" property="payTime" />
         <result column="PERFORMANCE_APPRAISAL_BONUS" property="performanceAppraisalBonus" />
@@ -20,6 +18,14 @@
         <id column="STAFF_ID" property="staffId" />
         <result column="STAFF_NAME" property="staffName" />
     </resultMap>
+
+    <resultMap id="WithRefResultMap" type="com.jxdinfo.salary.bonus.model.Bonus" extends="BaseResultMap">
+        <!--association关联属性  property属性名 javaType属性类型 column在多的一方的表中的列名-->
+        <association property="department" javaType="com.jxdinfo.salary.department.model.Department"
+                     column="DEPARTMENT_ID" select="getDepartmentByDepartmentId"/>
+        <association property="position" javaType="com.jxdinfo.salary.position.model.Position"
+                     column="POSITION_ID" select="getPositionByPositionId"/>
+    </resultMap>
     <!--根据员工id获取员工奖金情况
     <select id="getBonusbyID" parameterType="Integer" resultMap="BaseTBonusMap">
         select * from t_bonus where STAFF_ID= #{var1}
@@ -27,15 +33,23 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        STAFF_ID AS staffId, STAFF_NAME AS staffName,DEPARTMENT_ID AS departmentId, POSITION_ID AS positionId, MONTHLY_PAYROLL AS monthlyPayroll, PAY_TIME AS payTime, PERFORMANCE_APPRAISAL_BONUS AS performanceAppraisalBonus, NO_ABSENT_BONUS AS noAbsentBonus, SPECIAL_CONTRIBUTIONS_BONUS AS specialContributionsBonus, DECEMBER_BONUS AS decemberBonus
+        STAFF_ID AS staffId, STAFF_NAME AS staffName,MONTHLY_PAYROLL AS monthlyPayroll, PAY_TIME AS payTime, PERFORMANCE_APPRAISAL_BONUS AS performanceAppraisalBonus, NO_ABSENT_BONUS AS noAbsentBonus, SPECIAL_CONTRIBUTIONS_BONUS AS specialContributionsBonus, DECEMBER_BONUS AS decemberBonus
     </sql>
+
+    <select id="getDepartmentByDepartmentId" resultMap="com.jxdinfo.salary.department.dao.DepartmentMapper.BaseResultMap">
+        select * from t_department where DEPARTMENT_ID=#{departmentId}
+    </select>
+
+    <!-- 关联查询职位 -->
+    <select id="getPositionByPositionId" resultMap="com.jxdinfo.salary.position.dao.PositionMapper.BaseResultMap">
+        select * from t_position where POSITION_ID=#{positionId}
+    </select>
+
     <update id="updateById">
         update t_bonus
         set
             STAFF_ID=#{et.staffId},
             STAFF_NAME = #{et.staffName},
-            DEPARTMENT_ID=#{et.departmentId},
-            POSITION_ID=#{et.positionId},
             MONTHLY_PAYROLL = #{et.monthlyPayroll},
             PAY_TIME = #{et.payTime},
             PERFORMANCE_APPRAISAL_BONUS = #{et.performanceAppraisalBonus},
@@ -46,16 +60,22 @@
     </update>
 
     <select id="selectById" resultMap="BaseResultMap">
-        select * from t_bonus
+        select * from  t_staff t1 natural join t_bonus t2 natural join t_department t3
         where STAFF_ID = #{staffId}
     </select>
 
     <insert id="insert">
-        insert into t_bonus(STAFF_ID,STAFF_NAME,DEPARTMENT_ID,POSITION_ID,MONTHLY_PAYROLL,PAY_TIME,PERFORMANCE_APPRAISAL_BONUS,NO_ABSENT_BONUS,SPECIAL_CONTRIBUTIONS_BONUS,DECEMBER_BONUS)
-         values (#{staffId}, #{staffName}, #{departmentId},#{positionId}, #{monthlyPayroll}, #{payTime}, #{performanceAppraisalBonus}, #{noAbsentBonus}, #{specialContributionsBonus},#{decemberBonus})
+        insert into t_bonus(STAFF_ID, STAFF_NAME,MONTHLY_PAYROLL,PAY_TIME,PERFORMANCE_APPRAISAL_BONUS,NO_ABSENT_BONUS,SPECIAL_CONTRIBUTIONS_BONUS,DECEMBER_BONUS)
+         values (#{staffId}, #{staffName},#{monthlyPayroll}, #{payTime}, #{performanceAppraisalBonus}, #{noAbsentBonus}, #{specialContributionsBonus},#{decemberBonus})
     </insert>
 
     <delete id="deleteById">
         delete from t_bonus where STAFF_ID = #{staffId}
     </delete>
+    <select id="selectPage" resultMap="WithRefResultMap">
+        select STAFF_ID, STAFF_NAME,DEPARTMENT_ID,MONTHLY_PAYROLL,PAY_TIME,PERFORMANCE_APPRAISAL_BONUS,NO_ABSENT_BONUS,SPECIAL_CONTRIBUTIONS_BONUS,DECEMBER_BONUS  from  t_staff t1 natural join t_bonus t2 natural join t_department t3
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
 </mapper>

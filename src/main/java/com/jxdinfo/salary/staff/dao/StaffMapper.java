@@ -19,7 +19,7 @@ import java.util.Set;
  * @since 2020-06-16
  */
 public interface StaffMapper extends BaseMapper<Staff> {
-    Staff selectMaxStaffIdByDid(@Param("departmentId")int departmentId);
+    int selectMaxStaffIdByDid(@Param("departmentId")int departmentId);
     Set<String> getGenderSet(@Param("ew") Wrapper<Staff> ew);
     Set<Department> getDepartmentSet(@Param("ew") Wrapper<Staff> ew);
     Set<Position> getPositionSet(@Param("ew") Wrapper<Staff> ew);

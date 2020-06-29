@@ -125,6 +125,7 @@ public class BonusController extends BaseController {
             ew.andNew().like("STAFF_ID",condition).or().like("STAFF_NAME",condition);
         }
         List<Bonus> list = bonusService.selectPage(page, ew).getRecords();
+        System.out.println("查出来的部门id"+list.get(0).getDepartment().getDepartmentName());
         result.put("total", page.getTotal());
         result.put("rows", list);
         return result;

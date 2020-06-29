@@ -76,10 +76,10 @@ public class StaffController extends BaseController {
     private List<Util> permissionList;
 
     /**
-     * 跳转到人员管理首页
+     * 跳转到员工管理首页
      */
     @RequestMapping("/view")
-    @BussinessLog(key = "/staff/view", type = BussinessLogType.QUERY, value = "人员管理页面")
+    @BussinessLog(key = "/staff/view", type = BussinessLogType.QUERY, value = "跳转到员工管理首页")
     @RequiresPermissions("staff:view")
     public String index() {
         currentUser = staffService.selectById(getCurrentAccountId()); //获取当前登录用户
@@ -88,33 +88,32 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 跳转到添加人员页面
+     * 跳转到入职页面
      */
     @RequestMapping("/staff_add")
-    @BussinessLog(key = "/staff/staff_add", type = BussinessLogType.INSERT, value = "跳转到添加人员管理")
+    @BussinessLog(key = "/staff/staff_add", type = BussinessLogType.INSERT, value = "跳转到入职页面")
     @RequiresPermissions("staff:staff_add")
     public String staffAdd() {
         return PREFIX + "staff_add.html";
     }
 
     /**
-     * 跳转到修改人员页面
+     * 跳转到信息修改页面
      */
     @RequestMapping("/staff_update/{staffId}")
-    @BussinessLog(key = "/staff/staff_update", type = BussinessLogType.MODIFY, value = "跳转到修改人员管理")
+    @BussinessLog(key = "/staff/staff_update", type = BussinessLogType.MODIFY, value = "跳转到信息修改页面")
     @RequiresPermissions("staff:staff_update")
     public String staffUpdate(@PathVariable String staffId, Model model) {
         Staff staff = staffService.selectById(staffId);
         model.addAttribute("item",staff);
-//        System.out.println(staff);
         return PREFIX + "staff_edit.html";
     }
 
     /**
-     * 获取人员管理列表
+     * 获取人员信息列表
      */
     @RequestMapping(value = "/list")
-    @BussinessLog(key = "/staff/list", type = BussinessLogType.QUERY, value = "获取人员管理列表")
+    @BussinessLog(key = "/staff/list", type = BussinessLogType.QUERY, value = "获取人员信息列表")
     @RequiresPermissions("staff:list")
     @ResponseBody
     public Object list(@RequestParam (value="condition", defaultValue = "")String condition,
@@ -122,15 +121,11 @@ public class StaffController extends BaseController {
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<Staff> page = new Page<>(pageNumber, pageSize);
         Wrapper<Staff> ew = new EntityWrapper<>();
-//        System.out.println(condition);
-//        System.out.println();
-
 
         if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
             List<Util> permissionList = utilService.selectList((long)currentUser.getStaffId());
             if (permissionList.size() == 0){
-//                System.out.println("=======================该用户无权限==================");
                 ew.eq("DEPARTMENT_ID",-1);
             } else {
                 boolean canQuery = false;
@@ -156,10 +151,10 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 获取人员管理筛选列表
+     * 获取人员信息下拉框列表
      */
     @RequestMapping(value = "/list/select")
-    @BussinessLog(key = "/staff/list/select", type = BussinessLogType.QUERY, value = "获取人员管理筛选列表")
+    @BussinessLog(key = "/staff/list/select", type = BussinessLogType.QUERY, value = "获取人员信息下拉框列表")
     @RequiresPermissions("staff:list")
     @ResponseBody
     public Object selectList(@RequestParam (value="condition", defaultValue = "")String condition,
@@ -167,8 +162,6 @@ public class StaffController extends BaseController {
                        @RequestParam(value="pageSize", defaultValue="20") int pageSize) {
         Page<Staff> page = new Page<>(pageNumber, pageSize);
         Wrapper<Staff> ew = new EntityWrapper<>();
-//        System.out.println(condition);
-//        System.out.println();
 
         if (currentUser.getPosition().getPositionId()==0){ //员工---负责部门
             //先查询拥有哪些部门的查询权限，然后筛选出这些部门的员工，如果没有任何部门的权限，传入部门编号为-1
@@ -197,14 +190,6 @@ public class StaffController extends BaseController {
         Set<String> entryTimes = staffService.getEntryTimeSet(ew);
         Set<String> departureTimes = staffService.getDepartureTimeSet(ew);
 
-//        for (Staff s:staffList){
-//            genders.add(s.getGender());
-//            departments.add(s.getDepartment());
-//            positions.add(s.getPosition());
-//            entryTimes.add(new SimpleDateFormat("yyyy-MM").format(s.getEntryTime()));
-//            departureTimes.add(s.getDepartureTime()==null?"":new SimpleDateFormat("yyyy-MM").format(s.getDepartureTime()));
-//        }
-
         Map<String, Object> result = new HashMap<>();
         result.put("total", page.getTotal());
         result.put("genders", genders);
@@ -216,10 +201,10 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 获取人员管理列表，筛选后
+     * 获取根据条件筛选的人员信息
      */
     @RequestMapping(value = "/list/condition")
-    @BussinessLog(key = "/staff/list/condition", type = BussinessLogType.QUERY, value = "获取人员管理列表，筛选后")
+    @BussinessLog(key = "/staff/list/condition", type = BussinessLogType.QUERY, value = "获取根据条件筛选的人员信息")
     @RequiresPermissions("staff:list")
     @ResponseBody
     public Object conditionList(@RequestParam (value="condition", defaultValue = "")String condition,
@@ -287,16 +272,14 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 新增人员管理---入职
+     * 员工入职
      */
     @RequestMapping(value = "/add")
-    @BussinessLog(key = "/staff/add", type = BussinessLogType.INSERT, value = "新增人员管理---入职")
+    @BussinessLog(key = "/staff/add", type = BussinessLogType.INSERT, value = "员工入职")
     @RequiresPermissions("staff:add")
     @ResponseBody
     @Transactional
     public Object add(@RequestParam Map<String, String> staffInfo) {
-//        System.out.println(staffInfo);
-//        int operatorId = getCurrentAccountId();
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
         int departmentId = Integer.parseInt(staffInfo.get("departmentId")); // 部门ID
@@ -379,9 +362,6 @@ public class StaffController extends BaseController {
 
         staffService.insert(staff); //新增员工
         entryLogService.addEntryLog(operator,staff,entryTime);
-//        System.out.println("==========================");
-//        System.out.println(staffId+"\n"+departmentId);
-//        System.out.println("==========================");
         inisalaryInfoService.addEmployee(staff); //录入初始工资
         monthlySalaryService.insertNewStaff(staff); // 录入当月工资表
         bonusService.insertNewStaff(staff); // 录入津贴表
@@ -392,17 +372,15 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 删除人员管理---离职
+     * 员工离职
      */
     @RequestMapping(value = "/delete")
-    @BussinessLog(key = "/staff/delete", type = BussinessLogType.DELETE, value = "删除人员管理---离职")
+    @BussinessLog(key = "/staff/delete", type = BussinessLogType.DELETE, value = "员工离职")
     @RequiresPermissions("staff:delete")
     @ResponseBody
     @Transactional
     public Object delete(@RequestParam Map<String, String> info) {
         Long jstime = Long.parseLong(info.get("jstime"));
-
-//        int operatorId = getCurrentAccountId();
         Staff operator = currentUser;//查询出操作人
 
         if(operator == null){
@@ -448,11 +426,11 @@ public class StaffController extends BaseController {
             int departureId = m.get("staffId");//离职人的Id
             Staff departure = staffService.selectOne(new EntityWrapper<Staff>()
                     .eq("STAFF_ID",departureId)); //查询出离职人
-//            System.out.println(departure);
             Timestamp departureTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     .format(new Date(jstime)));
             departure.setDepartureTime(departureTime);
             staffService.updateById(departure); // 离职
+            inisalaryInfoService.deleteEmployee(departure); // 移出初始工资表
             departureLogService.addDepartureLog(operator,departure,departureTime); // 离职日志
             monthlySalaryService.deleteStaff(departureId); // 移出当月工资表
             bonusService.deleteStaff(departureId); // 移出津贴表
@@ -465,16 +443,14 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 修改人员管理
+     * 员工调动与信息修改
      */
     @RequestMapping(value = "/update")
-    @BussinessLog(key = "/staff/update", type = BussinessLogType.MODIFY, value = "修改人员管理")
+    @BussinessLog(key = "/staff/update", type = BussinessLogType.MODIFY, value = "员工调动与信息修改")
     @RequiresPermissions("staff:update")
     @ResponseBody
     @Transactional
     public Object update(@RequestParam Map<String, String> staffInfo) {
-//        System.out.println(staffInfo);
-//        int operatorId = getCurrentAccountId();
         int moveId = Integer.parseInt(staffInfo.get("staffId")); //员工ID
         String staffName = staffInfo.get("staffName"); // 员工名称
         String gender = staffInfo.get("gender"); // 性别
@@ -568,6 +544,7 @@ public class StaffController extends BaseController {
         staffService.updateById(move);
         moveLogService.addMoveLog(operator,move,oldDepartment,newDepartment,oldPosition,newPosition,operationTime);
         monthlySalaryService.updateDeId(departmentId,positionId,moveId);
+        inisalaryInfoService.updateEmployee(move);
         Map<String,Object> res= new HashMap<>();
         res.put("code",200);
         res.put("message","成功");
@@ -575,10 +552,10 @@ public class StaffController extends BaseController {
     }
 
     /**
-     * 人员管理详情
+     * 员工信息详情
      */
     @RequestMapping(value = "/detail/{staffId}")
-    @BussinessLog(key = "/staff/detail", type = BussinessLogType.QUERY, value = "人员管理详情")
+    @BussinessLog(key = "/staff/detail", type = BussinessLogType.QUERY, value = "员工信息详情")
     @RequiresPermissions("staff:detail")
     @ResponseBody
     public Object detail(@PathVariable("staffId") String staffId) {

@@ -30,7 +30,7 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper,Staff> implements 
 
     @Override
     public int getNewStaffId(int departmentId) {
-        return staffMapper.selectMaxStaffIdByDid(departmentId).getStaffId()+1;
+        return staffMapper.selectMaxStaffIdByDid(departmentId)+1;
     }
 
     @Override

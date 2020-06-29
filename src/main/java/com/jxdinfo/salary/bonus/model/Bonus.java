@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableName;
+import com.jxdinfo.salary.department.model.Department;
+import com.jxdinfo.salary.position.model.Position;
+
 import java.io.Serializable;
 
 /**
@@ -31,13 +34,8 @@ public class Bonus extends Model<Bonus> {
     /**
      * 部门ID
      */
-    @TableField("DEPARTMENT_ID")
-    private  Integer departmentId;
-    /**
-     * 职位ID
-     */
-    @TableField("POSITION_ID")
-    private Integer positionId;
+    @TableField(exist = false)
+    private Department department;
     /**
      * 发放工资月份
      */
@@ -72,13 +70,12 @@ public class Bonus extends Model<Bonus> {
 
     public Bonus(){super();}
 
-    public Bonus(Integer staffId,String staffName,Integer departmentId,Integer positionId, Integer monthlyPayroll,
+    public Bonus(Integer staffId,String staffName,Department department,Integer monthlyPayroll,
                  Timestamp payTime,Integer performanceAppraisalBonus,Integer noAbsentBonus,Integer specialContributionsBonus,Integer decemberBonus)
     {
         this.staffId=staffId;
         this.staffName=staffName;
-        this.departmentId=departmentId;
-        this.positionId=positionId;
+        this.department=department;
         this.monthlyPayroll=monthlyPayroll;
         this.payTime=payTime;
         this.performanceAppraisalBonus=performanceAppraisalBonus;
@@ -88,16 +85,16 @@ public class Bonus extends Model<Bonus> {
     }
 
 
-    public Integer getDepartmentId(){return departmentId;}
-    public void setDepartmentId(Integer departmentId){this.departmentId=departmentId;}
+    public Department getDepartment(){return department;}
+    public void setDepartmentId(Department department){this.department=department;}
 
-    public Integer getPositionId() {
+    /*public Integer getPositionId() {
         return positionId;
     }
 
     public void setPositionId(Integer positionId) {
         this.positionId = positionId;
-    }
+    }*/
 
     public Integer getStaffId() {
         return staffId;
@@ -173,9 +170,8 @@ public class Bonus extends Model<Bonus> {
         return "Bonus{" +
         "staffId=" + staffId +
         ", staffName=" + staffName +
-        ",departmentId="+departmentId+
-        ",positionId="+positionId+
         ", monthlyPayroll=" + monthlyPayroll +
+        ",departmentId="+department.getDepartmentName()+
         ", payTime=" + payTime +
         ", performanceAppraisalBonus=" + performanceAppraisalBonus +
         ", noAbsentBonus=" + noAbsentBonus +

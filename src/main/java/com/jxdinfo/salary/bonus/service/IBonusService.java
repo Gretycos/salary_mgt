@@ -13,6 +13,6 @@ import com.jxdinfo.salary.staff.model.Staff;
  * @since 2020-06-24
  */
 public interface IBonusService extends IService<Bonus> {
-    public void insertNewStaff(Staff staff);
+    void insertNewStaff(Staff staff);
     void deleteStaff(Integer staffId);
 }

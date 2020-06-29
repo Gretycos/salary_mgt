@@ -29,4 +29,13 @@ public interface ITInisalaryInfoService extends IService<TInisalaryInfo> {
      */
     void addEmployee(Staff staff);
 
+    /**
+     * 离职时删除员工初始工资信息并更新日志
+     */
+    void deleteEmployee(Staff staff);
+
+    /**
+     * 更改部门时改动员工初始工资信息并更新日志
+     */
+    void updateEmployee(Staff staff);
 }

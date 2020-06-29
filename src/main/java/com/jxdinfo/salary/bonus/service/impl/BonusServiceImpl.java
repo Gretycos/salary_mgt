@@ -26,8 +26,7 @@ public class BonusServiceImpl extends ServiceImpl<BonusMapper, Bonus> implements
         Timestamp d = new Timestamp(System.currentTimeMillis());
         Calendar cal = Calendar.getInstance();
         Integer month = cal.get(Calendar.MONTH) + 1;
-        Bonus bonus = new Bonus(staff.getStaffId(),staff.getStaffName(),
-                staff.getDepartment().getDepartmentId(),staff.getPosition().getPositionId(),
+        Bonus bonus = new Bonus(staff.getStaffId(),staff.getStaffName(),staff.getDepartment(),
                 month,d,0,0,0,0);
         insert(bonus);
     }
