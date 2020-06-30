@@ -32,45 +32,19 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
 
     // 监听select的变化
 	form.on('select',function (data) {
-        // console.log(data);
         selectList[data.elem.id] = data.value;
-        // console.log(selectList);
-        // selectList.empty();
-        $('#StaffTable').bootstrapTable('destroy');
-        Staff.pageNumber = 1;
-        Staff.pageSize = 20;
-        var condition = $('#condition').val();
-        $('#StaffTable').bootstrapTable({
-            dataType:"json",
-            url:'/staff/list/condition',
-            pagination:true,
-            pageList:[10,15,20,50,100],
-            striped:true,
-            pageSize:20,
-            queryParamsType:'',
-            queryParams:function(params){
-                // console.log(params)
-                return {
-                    condition:condition,
-                    selectList:JSON.stringify(selectList),
-                    pageNumber:params.pageNumber,
-                    pageSize:params.pageSize
-                }
-            },
-            columns: Staff.initColumn(),
-            height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
-            sidePagination:"server",
-            onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
-            // onLoadSuccess:function () {
-            //     layer.close(loadingData)
-            // }
-        });
+        // $('#StaffTable').bootstrapTable('destroy');
+        // Staff.pageNumber = 1;
+        // Staff.pageSize = 20;
         // var condition = $('#condition').val();
-        // var opt = {
-        //     url: Hussar.ctxPath + "/staff/list/condition",
-        //     silent: true,
-        //     method: 'POST',
-        //     contentType:"application/x-www-form-urlencoded",
+        // $('#StaffTable').bootstrapTable({
+        //     dataType:"json",
+        //     url:'/staff/list/condition',
+        //     pagination:true,
+        //     pageList:[10,15,20,50,100],
+        //     striped:true,
+        //     pageSize:20,
+        //     queryParamsType:'',
         //     queryParams:function(params){
         //         // console.log(params)
         //         return {
@@ -80,10 +54,11 @@ layui.use(['layer','bootstrap_table_edit','Hussar', 'HussarAjax','form'], functi
         //             pageSize:params.pageSize
         //         }
         //     },
-        //     queryParamsType:'',
-        // }
-        // $('#StaffTable').bootstrapTable('selectPage', 1);
-        // $('#StaffTable').bootstrapTable('refreshOptions',opt);
+        //     columns: Staff.initColumn(),
+        //     height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
+        //     sidePagination:"server",
+        //     onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
+        // });
     });
 
 
@@ -112,11 +87,11 @@ Staff.initColumn = function () {
                 formatter: function(value, item, index){
                     return value.positionName
                 }},
-            {title: '入职时间', field: 'entryTime', align: 'center',halign:'center',width: '145',
+            {title: '入职时间', field: 'entryTime', align: 'center',halign:'center',
                 formatter: function(value, item, index){
                     return value.split(' ')[0]
                 }},
-            {title: '离职时间', field: 'departureTime', align: 'center',halign:'center',width: '145',
+            {title: '离职时间', field: 'departureTime', align: 'center',halign:'center',
                 formatter: function(value, item, index){
                     if(value){
                         return value.split(' ')[0]
@@ -201,7 +176,7 @@ Staff.openStaffDetail = function () {
 };
 
 /**
- * 删除人员管理
+ * 员工离职
  */
 Staff.delete = function () {
     if (this.check_()) {
@@ -226,7 +201,7 @@ Staff.delete = function () {
                 Hussar.error("离职失败!选中的员工存在已离职!");
                 return false;
             }else{
-                console.log(listDeparture)
+                // console.log(listDeparture)
                 var ajax = new $ax(Hussar.ctxPath + "/staff/delete", function (data) {
                     if (data.code===200){
                         Hussar.success("离职成功!");
@@ -254,14 +229,6 @@ Staff.delete = function () {
 Staff.search = function () {
     var condition = $('#condition').val();
     $('#StaffTable').bootstrapTable('destroy');
-    // var opt = {
-    //     url: Hussar.ctxPath + "/staff/list",
-    //     silent: true,
-    //     query:{
-    //         condition:condition
-    //     }
-    // }
-    // $('#StaffTable').bootstrapTable('refresh',opt);
     Staff.pageNumber = 1;
     Staff.pageSize = 20;
     $('#StaffTable').bootstrapTable({
@@ -285,11 +252,18 @@ Staff.search = function () {
         height:$("body").height() - $(".layui-form").outerHeight(true) - 26,
         sidePagination:"server",
         onPageChange:function(number, size){Staff.pageNumber = number ; Staff.pageSize = size},
-        // onLoadSuccess:function () {
-        //     layer.close(loadingData)
-        // }
     });
 };
+
+Staff.reset=function () {
+    selectList= {
+        gender: '',
+        department: '',
+        position: '',
+        entryTime: '',
+        departureTime: ''
+    }
+}
 
 /**
 * 清空筛选下拉框
@@ -305,43 +279,31 @@ selectList.empty = function(){
 // 筛选下拉框初始化
 selectList.init = function(){
     var condition = $('#condition').val();
-    // selectList.empty();
     var ajax = new $ax(Hussar.ctxPath + "/staff/list/select",function (data) {
-            // console.log(data);
-        // $("#gender").append(new Option('性别',""));
-        // $("#gender").val("");
         $.each(data.genders,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#gender").append(new Option(item==='0'?'女':'男',item));
         });
-        // $("#department").append(new Option('部门',""));
         $("#department").val("");
         $.each(data.departments,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#department").append(new Option(item.departmentName,item.departmentId));
         });
-        // $("#position").append(new Option('职位',""));
-        // $("#position").val("");
         $.each(data.positions,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#position").append(new Option(item.positionName,item.positionId));
         });
-        form.render('select','toolbar');
-        // $("#entryTime").append(new Option('入职时间',""));
-        // $("#entryTime").val("");
         $.each(data.entryTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#entryTime").append(new Option(item,item));
         });
-        // $("#departureTime").append(new Option('离职时间',""));
         $("#departureTime").append(new Option('在职','在职'));
         $("#departureTime").append(new Option('已离职','已离职'));
-        // $("#departureTime").val("");
         $.each(data.departureTimes,function (index,item) {
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#departureTime").append(new Option(item,item));
         });
-        form.render('select','searchBar');
+        form.render('select','toolbar');
     },function (data) {
         Hussar.error("获取筛选列表失败!");
     });

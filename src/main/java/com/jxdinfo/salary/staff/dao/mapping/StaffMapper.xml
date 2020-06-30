@@ -71,6 +71,7 @@
         <where>
             ${ew.sqlSegment}
         </where>
+        order by DEPARTMENT_ID,POSITION_ID,STAFF_ID asc
     </select>
 
     <!-- 查询单个人 -->
@@ -98,6 +99,7 @@
         <where>
             ${ew.sqlSegment}
         </where>
+        order by DEPARTMENT_ID,POSITION_ID,STAFF_ID asc
     </select>
 
     <!-- 查询部门标号下最大的员工ID -->

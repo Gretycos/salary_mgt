@@ -182,9 +182,7 @@ StaffInfoDlg.initLaydate = function() {
 */
 StaffInfoDlg.initSelector = function(){
     var ajax1 = new $ax(Hussar.ctxPath + "/department/list", function(data){
-        // console.log(data);
         $.each(data.rows,function (index,item) {
-            // console.log(item);
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#departmentId").append(new Option(item.departmentName,item.departmentId));
             // form.render('select');
@@ -196,9 +194,7 @@ StaffInfoDlg.initSelector = function(){
     ajax1.start();
 
     var ajax2 = new $ax(Hussar.ctxPath + "/position/list", function(data){
-        // console.log(data);
         $.each(data.rows,function (index,item) {
-            // console.log(item);
             //option 第一个参数是页面显示的值，第二个参数是传递到后台的值
             $("#positionId").append(new Option(item.positionName,item.positionId));
         });
